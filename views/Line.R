@@ -6,7 +6,7 @@ LineUI <- function(id) {
   options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
   tabPanel("Line",
        fluidRow(
-    #without box
+  #   #without box
   column(6,selectInput(inputId = ns('x'), label = "Select x-axis Variable:",choices = NULL)),
   column(6,selectInput(inputId = ns('y'), label = "Select y-axis Variable:",choices = NULL))
       ),
@@ -18,27 +18,23 @@ LineUI <- function(id) {
   uiOutput(ns("number")),
   div(plotOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%"))
     #with box
-  # box(title = "Parameters",
-  #     width = NULL,
+  # shinydashboard::box(id =ns('box1'),
   #     collapsible = T,
-  #     class = "collapsed-box",
   #     collapsed = T,
-  #   box(
   #     selectInput(inputId = ns('x'), label = "Select x-axis Variable:",choices = NULL),
   #     uiOutput(ns("slider")),
-  #     radioButtons(ns("SplitByColumn"),"Split by another column:",choices = c("no", "yes"),selected = "no",inline = TRUE)
-  #     ),
-  #   box(   
+  #     radioButtons(ns("SplitByColumn"),"Split by another column:",choices = c("no", "yes"),selected = "no",inline = TRUE),
   #     selectInput(inputId = ns('y'), label = "Select y-axis Variable:",choices = NULL),
   #     uiOutput(ns("colorColumn")),
-  #     uiOutput(ns("number")))
-  #   ),
+  #     uiOutput(ns("number"))
+  #     )),
+  # fluidRow(
   # div(plotOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%")
   # ))
 }
 
 # Function for module server logic
-Line <- function(input, output, session,data,dsd,line.x,line.z) {
+Line <- function(input, output, session,data,dsd,line.x,line.y,line.z,line.title) {
   ns <- session$ns 
    observe({
     dsd <- dsd()
@@ -63,8 +59,9 @@ Line <- function(input, output, session,data,dsd,line.x,line.z) {
   
   observe({
     dsd <- dsd()
+    line.y<-line.y()
     variable<-as.character(dsd[dsd$MemberType=='variable',]$MemberCode)
-    updateSelectInput(session, 'y', choices = variable)
+    updateSelectInput(session, 'y', choices =variable, selected=line.y)
   }) 
 
   yVarName <- reactive({
@@ -101,7 +98,9 @@ Line <- function(input, output, session,data,dsd,line.x,line.z) {
       
       output$plot <- renderPlot({
         df<-as.data.frame(data())
-        
+        line.title<-line.title()
+        print("line title:")
+        print(line.title)
         df_rank<-df%>%
         group_by(!! sym(input$z))%>%
         summarise(sum = sum(!! sym(input$y)))%>%
@@ -125,12 +124,13 @@ Line <- function(input, output, session,data,dsd,line.x,line.z) {
         print(df)
         ggplot(df, aes(x = attr_name, y = var_sum, color= attr_col))+
           geom_line()+
-          labs(x=input$x,y=input$y,color=input$z)+
           theme_bw()+
+          labs(title=line.title(),x=input$x,y=input$y,color=input$z)+
           theme(
-            axis.text.x = element_text(angle=90,vjust=0.5)
+            axis.text.x = element_text(angle=90,vjust=0.5),
+            plot.title = element_text(hjust = 0.5)
           ) 
-      })
+     })
     })
   }) 
 
@@ -152,10 +152,11 @@ Line <- function(input, output, session,data,dsd,line.x,line.z) {
 print(df)
        ggplot(df, aes(x = attr_name, y = var_sum))+
        geom_line()+
-       labs(x=input$x,y=input$y)+
+       labs(title=line.title(),x=input$x,y=input$y)+
        theme_bw()+
        theme(
-         axis.text.x = element_text(angle=90,vjust = 0.5)
+         axis.text.x = element_text(angle=90,vjust = 0.5),
+         plot.title = element_text(hjust = 0.5)
        ) 
       })
       }

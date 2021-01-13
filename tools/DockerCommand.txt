@@ -1,0 +1,3 @@
+wget https://raw.githubusercontent.com/abennici/SdilabGenericPop/master/Dockerfile
+docker build -t sdilabgenericpop .
+docker run -p 3839:3838 sdilabgenericpop

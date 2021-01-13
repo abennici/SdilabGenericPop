@@ -10,7 +10,7 @@ DataTableUI <- function(id) {
 }
 
 # Function for module server logic
-DataTable <- function(input, output, session,data,dsd,pid) {
+DataTable <- function(input, output, session,data,dsd,pid,data.title) {
   observe({
     ###Reformat
     tab<-as.data.frame(data())
@@ -26,6 +26,7 @@ DataTable <- function(input, output, session,data,dsd,pid) {
       output$table <- DT::renderDT(server = FALSE, {
         DT::datatable(
           tab,
+          caption = data.title(),
           extensions = c("Buttons"),
           options = list(
             dom = 'Bfrtip',

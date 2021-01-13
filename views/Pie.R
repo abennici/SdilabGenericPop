@@ -18,7 +18,7 @@ PieUI <- function(id) {
 }
 
 # Function for module server logic
-Pie <- function(input, output, session,data,dsd,pie.x,pie.z) {
+Pie <- function(input, output, session,data,dsd,pie.x,pie.y,pie.z,pie.title) {
 ns <-session$ns
  
 observe({
@@ -34,8 +34,9 @@ xVarName <- reactive({
 
 observe({
   dsd <- dsd()
+  pie.y<-pie.y()
   variable<-as.character(dsd[dsd$MemberType=='variable',]$MemberCode)
-  updateSelectInput(session, 'y', choices = variable)
+  updateSelectInput(session, 'y', choices = variable,selected=pie.y)
 }) 
 
 yVarName <- reactive({
@@ -78,7 +79,7 @@ output$pie <- renderPlotly({
     
     fig <- plot_ly(df, labels = ~as.factor(attr_name), values = ~var_sum,textinfo = 'none')
     fig <- fig %>% add_pie(hole = 0.6)
-    fig <- fig %>% layout(title = '',
+    fig <- fig %>% layout(title = pie.title(),
                           xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                           yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                           showlegend = FALSE)    

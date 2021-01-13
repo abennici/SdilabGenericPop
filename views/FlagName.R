@@ -10,15 +10,14 @@ FlagNameUI <- function(id) {
   }
 
 # Function for module server logic
-FlagName <- function(input, output, session,data,withFlag,flagCol) {
+FlagName <- function(input, output, session,data,withFlag,geoCol) {
   observe({
     withFlag<-withFlag()
     if(withFlag){
-    flagCol<-flagCol()
-    print("flagCol")
-    print(flagCol)
+    geoCol<-geoCol()
+
     c_flag<-as.data.frame(data())
-    c_flag<-unique(subset(c_flag,select=flagCol))
+    c_flag<-unique(subset(c_flag,select=geoCol))
     names(c_flag)<-"flag"
     l_flag<-readr::read_csv("https://raw.githubusercontent.com/openfigis/RefData/gh-pages/country/CL_FI_COUNTRY_ITEM.csv", guess_max = 0)
     l_flag<-l_flag[,c("ISO3_Code","Name_En")]

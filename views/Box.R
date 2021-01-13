@@ -20,7 +20,7 @@ BoxUI <- function(id) {
 }
 
 # Function for module server logic
-Box <- function(input, output, session,data,dsd,box.x,box.z) {
+Box <- function(input, output, session,data,dsd,box.x,box.y,box.z,box.title) {
   ns <- session$ns 
   observe({
     dsd <- dsd()
@@ -31,8 +31,9 @@ Box <- function(input, output, session,data,dsd,box.x,box.z) {
   
    observe({
     dsd <- dsd()
+    box.y<-box.y()
     variable<-as.character(dsd[dsd$MemberType=='variable',]$MemberCode)
-    updateSelectInput(session, 'y', choices = variable)
+    updateSelectInput(session, 'y', choices = variable, selected=box.y)
   }) 
   
 
@@ -79,10 +80,11 @@ Box <- function(input, output, session,data,dsd,box.x,box.z) {
         print(df)
         ggplot(df, aes(x = attr_name, y = var_sum))+
           geom_boxplot()+
-          labs(x=input$x,y=input$y)+
+          labs(title=box.title(),x=input$x,y=input$y)+
           theme_bw()+
           theme(
-            axis.text.x = element_text(angle=90,vjust=0.5)
+            axis.text.x = element_text(angle=90,vjust=0.5),
+            plot.title = element_text(hjust = 0.5)
           ) 
       })
     

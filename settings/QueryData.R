@@ -1,26 +1,28 @@
 ###Module
 # Function for module server logic
-QueryData <- function(input, output, session,data_sp,wfs_server,wfs_version,layer,feature_geom,param,strategy) {
+QueryData <- function(input, output, session,data_sp,wfs_server,wfs_version,layer,feature_geom,param,strategy,geoCol) {
   data<-reactiveValues(data=NULL)
   print("START QUERYDATA")
   observe({
+    geoCol<-geoCol()
     #Flag Reference by WMS
-    data_sp<-data_sp()$flag[1]
-    print(data)
+    #data_sp<-data_sp()$flag[1]
+    data_sp<-subset(as.data.frame(data_sp()),select=geoCol)[1,]
+    print("geoCol")
+    print(data_sp)
     #QueryParameters
     wfs_server<-wfs_server()
-    
     wfs_version<-wfs_version()
     layer<-layer()
     feature_geom<-feature_geom()
     strategy<-strategy()
     par<-str_replace(param(), "aggregation_method:sum", "aggregation_method:none")
     #Remove existing flag query
-    flag_pattern<-unlist(str_extract_all(par, "flag:.+;"))
-    if(length(flag_pattern)!=0){
-      par<-str_replace(par, flag_pattern, "")}
+    pattern<-unlist(str_extract_all(par, paste0(geoCol,":.+;")))
+    if(length(pattern)!=0){
+      par<-str_replace(par, pattern, "")}
     #Update flag query with map clicking position
-    par<-paste("flag:",data_sp,";",par,sep="")
+    par<-paste(geoCol,":",data_sp,";",par,sep="")
     #Connect to OGC WFS to get DATA
     WFS <- WFSClient$new(
       url = wfs_server,
