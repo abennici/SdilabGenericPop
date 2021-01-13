@@ -3,21 +3,25 @@ Params <- function(input, output, session) {
   params <- reactiveValues(
     panel=NULL,
     geoCol=NULL,
-    withFlag=NULL,
+   # withFlag=NULL,
     flagCol=NULL,
+    line.title=NULL,
     line.x=NULL,
     line.y=NULL,
     line.z=NULL,
-    line.title=NULL,
+    line.caption=NULL,
+    pie.title=NULL,
     pie.x=NULL,
     pie.y=NULL,
     pie.z=NULL,
-    pie.title=NULL,
+    pie.caption=NULL,
+    box.title=NULL,
     box.x=NULL,
     box.y=NULL,
     box.z=NULL,
-    box.title=NULL,
-    data.title=NULL
+    box.caption=NULL,
+    data.title=NULL,
+    data.caption=NULL
       )
   
   observe({
@@ -39,13 +43,20 @@ Params <- function(input, output, session) {
     }
     params$geoCol<-geoCol
     
-    withFlag <- if (!is.null(query$withFlag)){
-      as.logical(query$withFlag)
-    }else{
-      FALSE
-    }
-    params$withFlag<-withFlag
+    # withFlag <- if (!is.null(query$withFlag)){
+    #   as.logical(query$withFlag)
+    # }else{
+    #   FALSE
+    # }
+    # params$withFlag<-withFlag
 
+    line.title <- if (!is.null(query$line.title)){
+      query$line.title
+    }else{
+      "Line"
+    }
+    params$line.title<-line.title
+    
     line.x <- if (!is.null(query$line.x)){
       query$line.x
     }else{
@@ -66,16 +77,21 @@ Params <- function(input, output, session) {
     }else{
       NULL
     }
-    
     params$line.z<-line.z  
     
-    line.title <- if (!is.null(query$line.title)){
-      query$line.title
+    line.caption <- if (!is.null(query$line.caption)){
+      query$line.caption
     }else{
       NULL
     }
+    params$line.caption<-line.caption
     
-    params$line.title<-line.title
+    pie.title <- if (!is.null(query$pie.title)){
+      query$pie.title
+    }else{
+      "Pie"
+    }
+    params$pie.title<-pie.title
     
     pie.x <- if (!is.null(query$pie.x)){
        query$pie.x
@@ -98,13 +114,19 @@ Params <- function(input, output, session) {
      }
      params$pie.z<-pie.z
      
-     pie.title <- if (!is.null(query$pie.title)){
-       query$pie.title
+     pie.caption <- if (!is.null(query$pie.caption)){
+       query$pie.caption
      }else{
        NULL
      }
+     params$pie.caption<-pie.caption
      
-     params$pie.title<-pie.title
+     box.title <- if (!is.null(query$box.title)){
+       query$box.title
+     }else{
+       "Box"
+     }
+     params$box.title<-box.title
      
      box.x <- if (!is.null(query$box.x)){
        query$box.x
@@ -127,19 +149,26 @@ Params <- function(input, output, session) {
      }
      params$box.z<-box.z  
      
-     box.title <- if (!is.null(query$box.title)){
-       query$box.title
+     box.caption <- if (!is.null(query$box.caption)){
+       query$box.caption
      }else{
        NULL
      }
-     params$box.title<-box.title  
+     params$box.caption<-box.caption
      
      data.title <- if (!is.null(query$data.title)){
        query$data.title
      }else{
+       "Data"
+     }
+     params$data.title<-data.title
+     
+     data.caption <- if (!is.null(query$data.caption)){
+       query$data.caption
+     }else{
        NULL
      }
-     params$data.title<-data.title  
+     params$data.caption<-data.caption  
     })
     return(params)
 }

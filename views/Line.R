@@ -4,7 +4,7 @@ LineUI <- function(id) {
   ns <- NS(id)
   # Options for Spinner
   options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
-  tabPanel("Line",
+  tabPanel(title=uiOutput(ns("title_panel")),
        fluidRow(
   #   #without box
   column(6,selectInput(inputId = ns('x'), label = "Select x-axis Variable:",choices = NULL)),
@@ -34,8 +34,13 @@ LineUI <- function(id) {
 }
 
 # Function for module server logic
-Line <- function(input, output, session,data,dsd,line.x,line.y,line.z,line.title) {
+Line <- function(input, output, session,data,dsd,line.x,line.y,line.z,line.title,line.caption) {
   ns <- session$ns 
+  
+  output$title_panel = renderText({
+           line.title()
+        })
+  
    observe({
     dsd <- dsd()
     line.x<-line.x()
@@ -125,7 +130,7 @@ Line <- function(input, output, session,data,dsd,line.x,line.y,line.z,line.title
         ggplot(df, aes(x = attr_name, y = var_sum, color= attr_col))+
           geom_line()+
           theme_bw()+
-          labs(title=line.title(),x=input$x,y=input$y,color=input$z)+
+          labs(title=line.caption(),x=input$x,y=input$y,color=input$z)+
           theme(
             axis.text.x = element_text(angle=90,vjust=0.5),
             plot.title = element_text(hjust = 0.5)
@@ -152,7 +157,7 @@ Line <- function(input, output, session,data,dsd,line.x,line.y,line.z,line.title
 print(df)
        ggplot(df, aes(x = attr_name, y = var_sum))+
        geom_line()+
-       labs(title=line.title(),x=input$x,y=input$y)+
+       labs(title=line.caption(),x=input$x,y=input$y)+
        theme_bw()+
        theme(
          axis.text.x = element_text(angle=90,vjust = 0.5),

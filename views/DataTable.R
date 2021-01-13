@@ -5,12 +5,18 @@ DataTableUI <- function(id) {
   # Options for Spinner
   options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
   #tabPanel("DataTable", DTOutput(ns('table')))
-  tabPanel("Data", div(DTOutput(ns('table'))%>%withSpinner(type = 2),  style = "font-size:80%"))
+  tabPanel(title=uiOutput(ns("title_panel")), 
+           div(DTOutput(ns('table'))%>%withSpinner(type = 2),  style = "font-size:80%"))
   
 }
 
 # Function for module server logic
-DataTable <- function(input, output, session,data,dsd,pid,data.title) {
+DataTable <- function(input, output, session,data,dsd,pid,data.title,data.caption) {
+  
+  output$title_panel = renderText({
+    data.title()
+  })
+  
   observe({
     ###Reformat
     tab<-as.data.frame(data())
@@ -26,7 +32,7 @@ DataTable <- function(input, output, session,data,dsd,pid,data.title) {
       output$table <- DT::renderDT(server = FALSE, {
         DT::datatable(
           tab,
-          caption = data.title(),
+          caption = data.caption(),
           extensions = c("Buttons"),
           options = list(
             dom = 'Bfrtip',

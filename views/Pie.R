@@ -4,7 +4,7 @@ PieUI <- function(id) {
   ns <- NS(id)
   # Options for Spinner
   options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
-  tabPanel("Pie", 
+  tabPanel(title=uiOutput(ns("title_panel")), 
     fluidRow(
      column(6,selectInput(inputId = ns('x'), label = "Select Attribute:",choices = NULL)),               
      column(6,selectInput(inputId = ns('y'), label = "Select Variable:",choices = NULL))
@@ -18,8 +18,12 @@ PieUI <- function(id) {
 }
 
 # Function for module server logic
-Pie <- function(input, output, session,data,dsd,pie.x,pie.y,pie.z,pie.title) {
+Pie <- function(input, output, session,data,dsd,pie.x,pie.y,pie.z,pie.title,pie.caption) {
 ns <-session$ns
+
+output$title_panel = renderText({
+  pie.title()
+})
  
 observe({
   dsd <- dsd()
@@ -79,7 +83,7 @@ output$pie <- renderPlotly({
     
     fig <- plot_ly(df, labels = ~as.factor(attr_name), values = ~var_sum,textinfo = 'none')
     fig <- fig %>% add_pie(hole = 0.6)
-    fig <- fig %>% layout(title = pie.title(),
+    fig <- fig %>% layout(title = pie.caption(),
                           xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                           yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                           showlegend = FALSE)    

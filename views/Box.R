@@ -4,7 +4,7 @@ BoxUI <- function(id) {
   ns <- NS(id)
   # Options for Spinner
   options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
-  tabPanel("Box",
+  tabPanel(title=uiOutput(ns("title_panel")),
            fluidRow(
              column(6,selectInput(inputId = ns('x'), label = "Select x-axis Variable:",choices = NULL)),               
              column(6,selectInput(inputId = ns('y'), label = "Select y-axis Variable:",choices = NULL))
@@ -20,8 +20,13 @@ BoxUI <- function(id) {
 }
 
 # Function for module server logic
-Box <- function(input, output, session,data,dsd,box.x,box.y,box.z,box.title) {
+Box <- function(input, output, session,data,dsd,box.x,box.y,box.z,box.title,box.caption) {
   ns <- session$ns 
+  
+  output$title_panel = renderText({
+    box.title()
+  })
+  
   observe({
     dsd <- dsd()
     box.x<-box.x()
@@ -80,7 +85,7 @@ Box <- function(input, output, session,data,dsd,box.x,box.y,box.z,box.title) {
         print(df)
         ggplot(df, aes(x = attr_name, y = var_sum))+
           geom_boxplot()+
-          labs(title=box.title(),x=input$x,y=input$y)+
+          labs(title=box.caption(),x=input$x,y=input$y)+
           theme_bw()+
           theme(
             axis.text.x = element_text(angle=90,vjust=0.5),
