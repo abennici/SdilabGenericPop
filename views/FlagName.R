@@ -10,12 +10,11 @@ FlagNameUI <- function(id) {
   }
 
 # Function for module server logic
-FlagName <- function(input, output, session,data,withFlag,geoCol) {
+FlagName <- function(input, output, session,data,geoCol) {
   observe({
-    withFlag<-withFlag()
-    if(withFlag){
     geoCol<-geoCol()
-
+    if(toupper(geoCol)%in%c("FLAG","FLAGS","FLAGSTATE","FLAGSTATES","COUNTRY","COUNTRIES")){
+    
     c_flag<-as.data.frame(data())
     c_flag<-unique(subset(c_flag,select=geoCol))
     names(c_flag)<-"flag"
