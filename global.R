@@ -1,9 +1,12 @@
 #---------------------------------------------------------------------------------------------------------
 #packages
+
+library("shiny")
+library("shinydashboard")
+library("shinyWidgets")
 library("ows4R")
 library("sp")
 library('readr')
-library("shiny")
 library("dplyr")
 library("plotly")
 library("DT")

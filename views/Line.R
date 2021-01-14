@@ -6,17 +6,17 @@ LineUI <- function(id) {
   options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
   tabPanel(title=uiOutput(ns("title_panel")),
            fluidRow(
-             #   #without box
-             column(6,selectInput(inputId = ns('x'), label = "Select x-axis Variable:",choices = NULL)),
-             column(6,selectInput(inputId = ns('y'), label = "Select y-axis Variable:",choices = NULL))
-           ),
-           uiOutput(ns("slider")),
+             box(width=12, collapsible=T,collapsed=F,
+                 uiOutput(ns("x")),
+                 uiOutput(ns("y")),
+                 uiOutput(ns("slider")),
+                 uiOutput(ns("SplitByColumn")),
+                 uiOutput(ns("colorColumn")),
+                 uiOutput(ns("number"))
+                 )),
            fluidRow(
-             column(6,radioButtons(ns("SplitByColumn"),"Split by another column:",choices = c("no", "yes"),selected = "no",inline = TRUE)),
-             column(6,uiOutput(ns("colorColumn")))
-           ),
-           uiOutput(ns("number")),
-           div(plotlyOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%"))
+            div(plotlyOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%")
+           ))
 }
 
 # Function for module server logic
@@ -27,38 +27,38 @@ Line <- function(input, output, session,data,dsd,line.x,line.y,line.z,line.title
     line.title()
   })
   
-  observe({
+  output$x<-renderUI({
     dsd <- dsd()
     line.x<-line.x()
     attribute<-setdiff(as.character(dsd[dsd$MemberType=='attribute',]$MemberCode),c("geometry","aggregation_method"))
-    updateSelectInput(session, 'x', choices = attribute, selected = line.x)
+    selectInput(inputId = ns('x'), label = "Select x-axis Variable:", choices = attribute, selected = line.x)
   }) 
   
   xVarName <- reactive({
     input$x
   }) 
   
-  observe({
-    
-    output$slider<-renderUI({
-      df<-as.data.frame(data())
-      tmp<-subset(df,select=input$x)
-      sliderInput(inputId = ns('s'), label = "Choose Period:", min=min(tmp),max=max(tmp),value = c(min(tmp),max(tmp)),step=1,sep="")
-    })    
-    
-  })
-  
-  observe({
+  output$y<-renderUI({
     dsd <- dsd()
     line.y<-line.y()
     variable<-as.character(dsd[dsd$MemberType=='variable',]$MemberCode)
-    updateSelectInput(session, 'y', choices =variable, selected=line.y)
+    selectInput(inputId = ns('y'), label = "Select y-axis Variable:", choices =variable, selected=line.y)
   }) 
   
   yVarName <- reactive({
     input$y
   })
   
+  output$slider<-renderUI({
+    df<-as.data.frame(data())
+    tmp<-subset(df,select=input$x)
+    sliderInput(inputId = ns('s'), label = "Choose Period:", min=min(tmp),max=max(tmp),value = c(min(tmp),max(tmp)),step=1,sep="")
+  })    
+  
+ output$SplitByColumn<-renderUI({
+  radioButtons(ns("SplitByColumn"),"Split by another column:",choices = c("no", "yes"),selected = "no",inline = TRUE)
+  })
+ 
   observe({
     observeEvent(input$SplitByColumn, {
       if(input$SplitByColumn == "yes"){ 

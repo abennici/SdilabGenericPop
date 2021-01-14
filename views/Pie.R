@@ -6,14 +6,15 @@ PieUI <- function(id) {
   options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
   tabPanel(title=uiOutput(ns("title_panel")), 
     fluidRow(
-     column(6,selectInput(inputId = ns('x'), label = "Select Attribute:",choices = NULL)),               
-     column(6,selectInput(inputId = ns('y'), label = "Select Variable:",choices = NULL))
-    ),
+      box(width=12, collapsible=T,collapsed=F,
+    uiOutput(ns("x")),
+    uiOutput(ns("y")),
+    uiOutput(ns("time")),               
+    uiOutput(ns("slider"))
+    )),
     fluidRow(
-      column(6,uiOutput(ns("time"))),               
-      column(6,uiOutput(ns("slider")))
-    ),
-    div(plotlyOutput(ns('pie'))%>%withSpinner(type = 2),  style = "font-size:80%"))
+    div(plotlyOutput(ns('pie'))%>%withSpinner(type = 2),  style = "font-size:80%")
+    ))
   
 }
 
@@ -25,22 +26,22 @@ output$title_panel = renderText({
   pie.title()
 })
  
-observe({
+output$x<-renderUI({
   dsd <- dsd()
   pie.x<-pie.x()
   attribute<-setdiff(as.character(dsd[dsd$MemberType=='attribute',]$MemberCode),c("geometry","aggregation_method"))
-  updateSelectInput(session, 'x', choices = attribute, selected = pie.x)
+  selectInput(inputId = ns('x'), label = "Select Attribute:", choices = attribute, selected = pie.x)
 }) 
 
 xVarName <- reactive({
   input$x
 }) 
 
-observe({
+output$y<-renderUI({
   dsd <- dsd()
   pie.y<-pie.y()
   variable<-as.character(dsd[dsd$MemberType=='variable',]$MemberCode)
-  updateSelectInput(session, 'y', choices = variable,selected=pie.y)
+  selectInput(inputId = ns('y'), label = "Select Variable:",choices = variable,selected=pie.y)
 }) 
 
 yVarName <- reactive({

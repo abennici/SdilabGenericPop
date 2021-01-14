@@ -6,16 +6,17 @@ BoxUI <- function(id) {
   options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
   tabPanel(title=uiOutput(ns("title_panel")),
            fluidRow(
-             column(6,selectInput(inputId = ns('x'), label = "Select x-axis Variable:",choices = NULL)),               
-             column(6,selectInput(inputId = ns('y'), label = "Select y-axis Variable:",choices = NULL))
-           ),
-           
-           fluidRow(
-             column(6,uiOutput(ns("time"))),
-             column(6,uiOutput(ns("slider")))
-           ),
-           uiOutput(ns("split")),
-           div(plotlyOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%"))
+          box(width=12,collapsible = T,collapsed = F,
+              uiOutput(ns("x")),
+              uiOutput(ns("y")),
+              uiOutput(ns("time")),
+              uiOutput(ns("slider")),
+              uiOutput(ns("split")),
+             )),
+          
+          fluidRow(
+           div(plotlyOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%")
+        ))
   
 }
 
@@ -27,18 +28,18 @@ Box <- function(input, output, session,data,dsd,box.x,box.y,box.z,box.title,box.
     box.title()
   })
   
-  observe({
+  output$x<-renderUI({
     dsd <- dsd()
     box.x<-box.x()
     attribute<-setdiff(as.character(dsd[dsd$MemberType=='attribute',]$MemberCode),c("geometry","aggregation_method"))
-    updateSelectInput(session, 'x', choices = attribute, selected = box.x)
+    selectInput(inputId = ns('x'), label = "Select x-axis Variable:",choices = attribute, selected = box.x)
   }) 
   
-   observe({
+  output$y<-renderUI({
     dsd <- dsd()
     box.y<-box.y()
     variable<-as.character(dsd[dsd$MemberType=='variable',]$MemberCode)
-    updateSelectInput(session, 'y', choices = variable, selected=box.y)
+    selectInput(inputId = ns('y'), label = "Select y-axis Variable:",choices = variable, selected=box.y)
   }) 
   
 
