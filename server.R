@@ -9,25 +9,25 @@ server <- function(input, output, session) {
   
    observe({
     if(is.null(params$panel)||c("line")%in%params$panel){
-      callModule(module = Line,id="time",reactive(data2$data),reactive(data$dsd),reactive(params$line.x),reactive(params$line.y),reactive(params$line.z),reactive(params$line.title),reactive(params$line.caption))
+      callModule(module = Line,id="time",reactive(data2$data),reactive(data$dsd),reactive(params$line.x),reactive(params$line.y),reactive(params$line.z),reactive(params$line.title),reactive(params$line.caption),reactive(params$line.info))
     }else{removeTab(inputId = "main", target = "Line")}
   })
   
   observe({
     if(is.null(params$panel)||c("pie")%in%params$panel){
-      callModule(module = Pie,id="pie",reactive(data2$data),reactive(data$dsd),reactive(params$pie.x),reactive(params$pie.y),reactive(params$pie.z),reactive(params$pie.title),reactive(params$pie.caption))
+      callModule(module = Pie,id="pie",reactive(data2$data),reactive(data$dsd),reactive(params$pie.x),reactive(params$pie.y),reactive(params$pie.z),reactive(params$pie.title),reactive(params$pie.caption),reactive(params$pie.info))
     }else{removeTab(inputId = "main", target = "Pie")}
   })
 
   observe({
     if(is.null(params$panel)||c("box")%in%params$panel){
-      callModule(module = Box,id="box",reactive(data2$data),reactive(data$dsd),reactive(params$box.x),reactive(params$box.y),reactive(params$box.z),reactive(params$box.title),reactive(params$box.caption))
+      callModule(module = Box,id="box",reactive(data2$data),reactive(data$dsd),reactive(params$box.x),reactive(params$box.y),reactive(params$box.z),reactive(params$box.title),reactive(params$box.caption),reactive(params$box.info))
     }else{removeTab(inputId = "main", target = "Box")}
   })
   
   observe({
     if(is.null(params$panel)||c("data")%in%params$panel){
-      callModule(module = DataTable,id="table",reactive(data2$data),reactive(data$dsd),reactive(data$query$pid),reactive(params$data.title),reactive(params$data.caption))
+      callModule(module = DataTable,id="table",reactive(data2$data),reactive(data$dsd),reactive(data$query$pid),reactive(params$data.title),reactive(params$data.caption),reactive(params$data.info))
     }else{removeTab(inputId = "main", target = "Data")}
   })
 }

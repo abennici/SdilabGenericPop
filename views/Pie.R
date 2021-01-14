@@ -6,6 +6,9 @@ PieUI <- function(id) {
   options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
   tabPanel(title=uiOutput(ns("title_panel")), 
     fluidRow(
+      column(1,offset=10, circleButton(ns("info"),icon = icon("info-circle"),size='xs'))
+    ),    
+    fluidRow(
       box(width=12, collapsible=T,collapsed=F,
     uiOutput(ns("x")),
     uiOutput(ns("y")),
@@ -19,11 +22,17 @@ PieUI <- function(id) {
 }
 
 # Function for module server logic
-Pie <- function(input, output, session,data,dsd,pie.x,pie.y,pie.z,pie.title,pie.caption) {
+Pie <- function(input, output, session,data,dsd,pie.x,pie.y,pie.z,pie.title,pie.caption,pie.info) {
 ns <-session$ns
 
 output$title_panel = renderText({
   pie.title()
+})
+
+observeEvent(input$info, {
+  showModal(modalDialog(
+    pie.info()
+  ))
 })
  
 output$x<-renderUI({

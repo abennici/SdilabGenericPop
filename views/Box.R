@@ -6,6 +6,9 @@ BoxUI <- function(id) {
   options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
   tabPanel(title=uiOutput(ns("title_panel")),
            fluidRow(
+             column(1,offset=10, circleButton(ns("info"),icon = icon("info-circle"),size='xs'))
+           ),
+           fluidRow(
           box(width=12,collapsible = T,collapsed = F,
               uiOutput(ns("x")),
               uiOutput(ns("y")),
@@ -21,11 +24,17 @@ BoxUI <- function(id) {
 }
 
 # Function for module server logic
-Box <- function(input, output, session,data,dsd,box.x,box.y,box.z,box.title,box.caption) {
+Box <- function(input, output, session,data,dsd,box.x,box.y,box.z,box.title,box.caption,box.info) {
   ns <- session$ns 
   
   output$title_panel = renderText({
     box.title()
+  })
+  
+  observeEvent(input$info, {
+    showModal(modalDialog(
+      box.info()
+    ))
   })
   
   output$x<-renderUI({

@@ -6,6 +6,9 @@ LineUI <- function(id) {
   options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
   tabPanel(title=uiOutput(ns("title_panel")),
            fluidRow(
+             column(1,offset=10, circleButton(ns("info"),icon = icon("info-circle"),size='xs'))
+           ),
+           fluidRow(
              box(width=12, collapsible=T,collapsed=F,
                  uiOutput(ns("x")),
                  uiOutput(ns("y")),
@@ -20,12 +23,20 @@ LineUI <- function(id) {
 }
 
 # Function for module server logic
-Line <- function(input, output, session,data,dsd,line.x,line.y,line.z,line.title,line.caption) {
+Line <- function(input, output, session,data,dsd,line.x,line.y,line.z,line.title,line.caption,line.info) {
   ns <- session$ns 
   
   output$title_panel = renderText({
     line.title()
   })
+  
+  
+    observeEvent(input$info, {
+      showModal(modalDialog(
+        line.info()
+      ))
+    })
+    
   
   output$x<-renderUI({
     dsd <- dsd()

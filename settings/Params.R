@@ -3,24 +3,27 @@ Params <- function(input, output, session) {
   params <- reactiveValues(
     panel=NULL,
     geoCol=NULL,
-   # withFlag=NULL,
     flagCol=NULL,
     line.title=NULL,
+    line.info=NULL,
     line.x=NULL,
     line.y=NULL,
     line.z=NULL,
     line.caption=NULL,
     pie.title=NULL,
+    pie.info=NULL,
     pie.x=NULL,
     pie.y=NULL,
     pie.z=NULL,
     pie.caption=NULL,
     box.title=NULL,
+    box.info=NULL,
     box.x=NULL,
     box.y=NULL,
     box.z=NULL,
     box.caption=NULL,
     data.title=NULL,
+    data.info=NULL,
     data.caption=NULL
       )
   
@@ -42,13 +45,6 @@ Params <- function(input, output, session) {
       NULL
     }
     params$geoCol<-geoCol
-    
-    # withFlag <- if (!is.null(query$withFlag)){
-    #   as.logical(query$withFlag)
-    # }else{
-    #   FALSE
-    # }
-    # params$withFlag<-withFlag
 
     line.title <- if (!is.null(query$line.title)){
       query$line.title
@@ -56,6 +52,13 @@ Params <- function(input, output, session) {
       "Line"
     }
     params$line.title<-line.title
+    
+    line.info <- if (!is.null(query$line.info)){
+      query$line.info
+    }else{
+      NULL
+    }
+    params$line.info<-line.info
     
     line.x <- if (!is.null(query$line.x)){
       query$line.x
@@ -92,6 +95,13 @@ Params <- function(input, output, session) {
       "Pie"
     }
     params$pie.title<-pie.title
+
+    pie.info <- if (!is.null(query$pie.info)){
+      query$pie.info
+    }else{
+      NULL
+    }
+    params$pie.info<-pie.info
     
     pie.x <- if (!is.null(query$pie.x)){
        query$pie.x
@@ -127,7 +137,14 @@ Params <- function(input, output, session) {
        "Box"
      }
      params$box.title<-box.title
-     
+
+     box.info <- if (!is.null(query$box.info)){
+       query$box.info
+     }else{
+       NULL
+     }
+     params$box.info<-box.info     
+          
      box.x <- if (!is.null(query$box.x)){
        query$box.x
      }else{
@@ -162,6 +179,13 @@ Params <- function(input, output, session) {
        "Data"
      }
      params$data.title<-data.title
+     
+     data.info <- if (!is.null(query$data.info)){
+       query$data.info
+     }else{
+       NULL
+     }
+     params$data.info<-data.info
      
      data.caption <- if (!is.null(query$data.caption)){
        query$data.caption
