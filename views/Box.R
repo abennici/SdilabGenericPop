@@ -15,7 +15,7 @@ BoxUI <- function(id) {
              column(6,uiOutput(ns("slider")))
            ),
            uiOutput(ns("split")),
-           div(plotOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%"))
+           div(plotlyOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%"))
   
 }
 
@@ -73,7 +73,7 @@ Box <- function(input, output, session,data,dsd,box.x,box.y,box.z,box.title,box.
         })
 
       
-      output$plot <- renderPlot({
+      output$plot <- renderPlotly({
         df<-as.data.frame(data())
         
         df <- df %>%
@@ -83,15 +83,28 @@ Box <- function(input, output, session,data,dsd,box.x,box.y,box.z,box.title,box.
           ungroup()
         names(df)<-c("attr_name","var_sum","time")
         print(df)
-        ggplot(df, aes(x = attr_name, y = var_sum))+
-          geom_boxplot()+
-          labs(title=box.caption(),x=input$x,y=input$y)+
-          theme_bw()+
-          theme(
-            axis.text.x = element_text(angle=90,vjust=0.5),
-            plot.title = element_text(hjust = 0.5)
-          ) 
-      })
+        
+        fig <- plot_ly(df,
+          x = ~attr_name, 
+          y = ~var_sum,
+          height = 300,
+          type = 'box'
+        )
+        fig <- fig %>%  layout(
+          title = box.caption(),
+          xaxis = list(
+            titlefont = list(size = 10), 
+            tickfont = list(size = 10),
+            title = input$x,
+            zeroline = F
+          ),
+          yaxis = list(
+            titlefont = list(size = 10), 
+            tickfont = list(size = 10),
+            title = input$y,
+            zeroline = F
+          ))
+        })
     
 
   
