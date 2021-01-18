@@ -1,36 +1,53 @@
 ###Module
 # Function for module UI
 LineUI <- function(id) {
+
   ns <- NS(id)
-  # Options for Spinner
-  options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
-  tabPanel(title=uiOutput(ns("title_panel")),
+
+  tabPanel(title=uiOutput(ns("title_panel")),value="line",
+           useShinyjs(),
            fluidRow(
-             column(1,offset=10, circleButton(ns("info"),icon = icon("info-circle"),size='xs'))
+             column(1,offset=10,uiOutput(ns("circle")))
+             #a(id = ns("toggleAdvanced"), "Show/hide parameters", href = "#"),
            ),
            fluidRow(
-             box(width=12, collapsible=T,collapsed=F,
+             box(id=ns("box"),width=12,
                  uiOutput(ns("x")),
                  uiOutput(ns("y")),
                  uiOutput(ns("slider")),
                  uiOutput(ns("SplitByColumn")),
                  uiOutput(ns("colorColumn")),
                  uiOutput(ns("number"))
-                 )),
+                 )
+
+             ),
            fluidRow(
             div(plotlyOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%")
            ))
 }
 
 # Function for module server logic
-Line <- function(input, output, session,data,dsd,line.x,line.y,line.z,line.title,line.caption,line.info) {
-  ns <- session$ns 
+Line <- function(input, output, session,data,dsd,line.x,line.y,line.z,line.title,line.caption,line.info,line.hideSelector) {
+
+   ns <- session$ns 
   
-  output$title_panel = renderText({
+  output$title_panel <- renderText({
     line.title()
   })
   
+  output$circle <-renderUI({
+    circleButton(ns("info"),icon = icon("info-circle"),size='xs')
+  })
   
+  # observe({
+  #   shinyjs::hide("box")
+  #   shinyjs::onclick("toggleAdvanced",
+  #                    shinyjs::toggle("box")
+  #   )
+  # })
+  
+
+      
     observeEvent(input$info, {
       showModal(modalDialog(
         line.info()

@@ -2,24 +2,24 @@
 # Function for module UI
 BoxUI <- function(id) {
   ns <- NS(id)
-  # Options for Spinner
-  options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
-  tabPanel(title=uiOutput(ns("title_panel")),
-           fluidRow(
-             column(1,offset=10, circleButton(ns("info"),icon = icon("info-circle"),size='xs'))
-           ),
-           fluidRow(
-          box(width=12,collapsible = T,collapsed = F,
-              uiOutput(ns("x")),
-              uiOutput(ns("y")),
-              uiOutput(ns("time")),
-              uiOutput(ns("slider")),
-              uiOutput(ns("split")),
-             )),
-          
-          fluidRow(
-           div(plotlyOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%")
-        ))
+
+tabPanel(title=uiOutput(ns("title_panel")),value="box",
+  fluidRow(
+    column(1,offset=10, uiOutput(ns("circle")))
+  ),
+  fluidRow(
+    box(width=12,collapsible = T,collapsed = F,
+      uiOutput(ns("x")),
+      uiOutput(ns("y")),
+      uiOutput(ns("time")),
+      uiOutput(ns("slider")),
+      uiOutput(ns("split")),
+    )
+  ),
+  fluidRow(
+    div(plotlyOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%")
+  )
+)
   
 }
 
@@ -27,9 +27,13 @@ BoxUI <- function(id) {
 Box <- function(input, output, session,data,dsd,box.x,box.y,box.z,box.title,box.caption,box.info) {
   ns <- session$ns 
   
-  output$title_panel = renderText({
+output$title_panel <- renderText({
     box.title()
-  })
+})
+  
+output$circle <-renderUI({
+    circleButton(ns("info"),icon = icon("info-circle"),size='xs')
+})
   
   observeEvent(input$info, {
     showModal(modalDialog(

@@ -9,9 +9,6 @@ ui <- fluidPage(
       
       mainPanel(
         tabsetPanel(id="main",type = "tabs",
-                    LineUI(id="time"),
-                    PieUI(id="pie"),
-                    BoxUI(id="box"),
                     DataTableUI(id="table")
         )
       )

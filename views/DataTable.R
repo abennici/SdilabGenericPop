@@ -5,9 +5,9 @@ DataTableUI <- function(id) {
   # Options for Spinner
   options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
   #tabPanel("DataTable", DTOutput(ns('table')))
-  tabPanel(title=uiOutput(ns("title_panel")),
+  tabPanel(title=uiOutput(ns("title_panel")),value="data",
            fluidRow(
-             column(1,offset=10, circleButton(ns("info"),icon = icon("info-circle"),size='xs'))
+             column(1,offset=10, uiOutput(ns("circle")))
            ),
            div(DTOutput(ns('table'))%>%withSpinner(type = 2),  style = "font-size:80%"))
   
@@ -16,8 +16,12 @@ DataTableUI <- function(id) {
 # Function for module server logic
 DataTable <- function(input, output, session,data,dsd,pid,data.title,data.caption,data.info) {
   
-  output$title_panel = renderText({
+  output$title_panel <- renderText({
     data.title()
+  })
+  
+  output$circle <-renderUI({
+    circleButton(ns("info"),icon = icon("info-circle"),size='xs')
   })
   
   observeEvent(input$info, {

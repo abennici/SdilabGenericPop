@@ -5,6 +5,7 @@ Params <- function(input, output, session) {
     geoCol=NULL,
     flagCol=NULL,
     line.title=NULL,
+    line.hideSelector=NULL,
     line.info=NULL,
     line.x=NULL,
     line.y=NULL,
@@ -52,7 +53,14 @@ Params <- function(input, output, session) {
       "Line"
     }
     params$line.title<-line.title
-    
+
+    line.hideSelector <- if (!is.null(query$line.hideSelector)){
+      as.logical(query$line.hideSelector)
+    }else{
+      FALSE
+    }
+    params$line.hideSelector<-line.hideSelector
+        
     line.info <- if (!is.null(query$line.info)){
       query$line.info
     }else{

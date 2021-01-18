@@ -2,11 +2,10 @@
 # Function for module UI
 PieUI <- function(id) {
   ns <- NS(id)
-  # Options for Spinner
-  options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
-  tabPanel(title=uiOutput(ns("title_panel")), 
+
+  tabPanel(title=uiOutput(ns("title_panel")),value="pie", 
     fluidRow(
-      column(1,offset=10, circleButton(ns("info"),icon = icon("info-circle"),size='xs'))
+      column(1,offset=10, uiOutput(ns("circle")))
     ),    
     fluidRow(
       box(width=12, collapsible=T,collapsed=F,
@@ -25,8 +24,12 @@ PieUI <- function(id) {
 Pie <- function(input, output, session,data,dsd,pie.x,pie.y,pie.z,pie.title,pie.caption,pie.info) {
 ns <-session$ns
 
-output$title_panel = renderText({
+output$title_panel <- renderText({
   pie.title()
+})
+
+output$circle <-renderUI({
+  circleButton(ns("info"),icon = icon("info-circle"),size='xs')
 })
 
 observeEvent(input$info, {
