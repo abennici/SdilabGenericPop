@@ -1,12 +1,10 @@
 ###Module
 # Function for module server logic
-QueryData <- function(input, output, session,data_sp,wfs_server,wfs_version,layer,feature_geom,param,strategy,geoCol) {
+QueryData <- function(input, output, session,data_sp,wfs_server,wfs_version,layer,feature_geom,param,strategy,query) {
   data<-reactiveValues(data=NULL)
-  print("START QUERYDATA")
   observe({
-    geoCol<-geoCol()
-    #Flag Reference by WMS
-    #data_sp<-data_sp()$flag[1]
+    geoCol <- if (!is.null(query$geoCol)){query$geoCol}else{NULL}
+
     data_sp<-subset(as.data.frame(data_sp()),select=geoCol)[1,]
     print("geoCol")
     print(data_sp)
@@ -50,8 +48,6 @@ QueryData <- function(input, output, session,data_sp,wfs_server,wfs_version,laye
       )
     }
     
-   # data$data<-subset(as.data.frame(data_nsp),flag==unique(as.data.frame(data_sp)$flag))
-   # data$data<-subset(data$data,select=ColumnName)
     data$data<-subset(data_nsp,select=ColumnName)
     print(data$data)
   })

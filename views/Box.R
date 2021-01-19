@@ -1,11 +1,11 @@
-###Module
+###Box Module
 # Function for module UI
-BoxUI <- function(id) {
+box_ui <- function(id) {
   ns <- NS(id)
 
 tabPanel(title=uiOutput(ns("title_panel")),value="box",
   fluidRow(
-    column(1,offset=10, uiOutput(ns("circle")))
+    column(1,offset=10, uiOutput(ns("info")))
   ),
   fluidRow(
     box(width=12,collapsible = T,collapsed = F,
@@ -20,92 +20,76 @@ tabPanel(title=uiOutput(ns("title_panel")),value="box",
     div(plotlyOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%")
   )
 )
-  
+
 }
 
-# Function for module server logic
-Box <- function(input, output, session,data,dsd,box.x,box.y,box.z,box.title,box.caption,box.info) {
+# Function for module server
+box_server <- function(input, output, session,data,dsd,query) {
   ns <- session$ns 
-  
+
 output$title_panel <- renderText({
-    box.title()
+  if (!is.null(query$box.title)){query$box.title}else{"Box"}
 })
   
-output$circle <-renderUI({
+output$info <-renderUI({
     circleButton(ns("info"),icon = icon("info-circle"),size='xs')
 })
   
-  observeEvent(input$info, {
-    showModal(modalDialog(
-      box.info()
+observeEvent(input$info, {
+  showModal(modalDialog(
+    if (!is.null(query$box.info)){query$box.info}else{NULL}
     ))
-  })
+})
   
-  output$x<-renderUI({
-    dsd <- dsd()
-    box.x<-box.x()
-    attribute<-setdiff(as.character(dsd[dsd$MemberType=='attribute',]$MemberCode),c("geometry","aggregation_method"))
+output$x<-renderUI({
+  box.x<-if (!is.null(query$box.x)){query$box.x} else {NULL}
+  attribute<-setdiff(as.character(dsd[dsd$MemberType=='attribute',]$MemberCode),c("geometry","aggregation_method"))
     selectInput(inputId = ns('x'), label = "Select x-axis Variable:",choices = attribute, selected = box.x)
-  }) 
+}) 
   
-  output$y<-renderUI({
-    dsd <- dsd()
-    box.y<-box.y()
-    variable<-as.character(dsd[dsd$MemberType=='variable',]$MemberCode)
+output$y<-renderUI({
+  box.y<-if (!is.null(query$box.y)){query$box.y}else{NULL}
+  variable<-as.character(dsd[dsd$MemberType=='variable',]$MemberCode)
     selectInput(inputId = ns('y'), label = "Select y-axis Variable:",choices = variable, selected=box.y)
-  }) 
+}) 
   
-
-  observe({
-        dsd <- dsd()
-        box.z <- box.z()
-        df<-as.data.frame(data())
-        attribute<-setdiff(as.character(dsd[dsd$MemberType=='attribute',]$MemberCode),c("geometry","aggregation_method"))
-        
-        output$time<-renderUI({
-          selectInput(inputId = ns('z'), label = "Select Time Variable:", choices = attribute, selected = box.z)
-        })
-  })
+output$time<-renderUI({
+  box.z <- if (!is.null(query$box.z)){query$box.z}else{NULL}
+  attribute<-setdiff(as.character(dsd[dsd$MemberType=='attribute',]$MemberCode),c("geometry","aggregation_method"))
+    selectInput(inputId = ns('z'), label = "Select Time Variable:", choices = attribute, selected = box.z)
+})
   
-        
-        observe({
-          df<-as.data.frame(data())  
-        output$split<-renderUI({
-          choice<-unique(subset(df,select=input$x))
-          selectInput(inputId = ns('n'), label = "Selection elements to show:", choices = choice,selected=choice[1,1],multiple = TRUE)
-        })
-        })
-        
-        observe({
-          
-          output$slider<-renderUI({
-            df<-as.data.frame(data())
-            tmp<-subset(df,select=input$z)
-            sliderInput(inputId = ns('s'), label = "Choose Period:", min=min(tmp),max=max(tmp),value = c(min(tmp),max(tmp)),step=1,sep="")
-          })    
-          
-        })
+output$slider<-renderUI({
+  df<-as.data.frame(data)
+  tmp<-subset(df,select=input$z)
+    sliderInput(inputId = ns('s'), label = "Choose Period:", min=min(tmp),max=max(tmp),value = c(min(tmp),max(tmp)),step=1,sep="")
+})  
 
-      
-      output$plot <- renderPlotly({
-        df<-as.data.frame(data())
+output$split<-renderUI({
+  df<-as.data.frame(data)  
+  choice<-unique(subset(df,select=input$x))
+  selectInput(inputId = ns('n'), label = "Selection elements to show:", choices = choice,selected=choice[1,1],multiple = TRUE)
+})
+
+output$plot <- renderPlotly({
+  df<-as.data.frame(data)
+  box.caption <-if (!is.null(query$box.caption)){query$box.caption}else{NULL}      
         
-        df <- df %>%
-          select(!!! syms(c(input$x,input$y,input$z))) %>%
-          filter(!! sym(input$z) %in% seq(min(input$s),max(input$s),1)) %>%
-          filter(!! sym(input$x) %in% input$n)%>%
-          ungroup()
-        names(df)<-c("attr_name","var_sum","time")
-        print(df)
-        
-        fig <- plot_ly(df,
-          x = ~attr_name, 
-          y = ~var_sum,
-          height = 300,
-          type = 'box'
+  df <- df %>%
+        select(!!! syms(c(input$x,input$y,input$z))) %>%
+        filter(!! sym(input$z) %in% seq(min(input$s),max(input$s),1)) %>%
+        filter(!! sym(input$x) %in% input$n) %>%
+        stats::setNames(c("attr_name","var_sum","time")) %>%
+        ungroup()
+  
+  fig <- plot_ly(df,
+                  x = ~attr_name, 
+                  y = ~var_sum,
+                  height = 300,
+                  type = 'box'
         )
-        fig <- fig %>%  layout(
-          title = box.caption(),
+  fig <- fig %>%  layout(
+          title = box.caption,
           xaxis = list(
             titlefont = list(size = 10), 
             tickfont = list(size = 10),
@@ -118,10 +102,8 @@ output$circle <-renderUI({
             title = input$y,
             zeroline = F
           ))
-        })
-    
+fig
+})
 
-  
-  
 }
 ####
