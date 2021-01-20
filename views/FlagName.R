@@ -10,7 +10,7 @@ FlagName <- function(input, output, session,data,query) {
   observe({
     geoCol <- if (!is.null(query$geoCol)){query$geoCol}else{NULL}
 
-    if(toupper(geoCol)%in%c("FLAG","FLAGS","FLAGSTATE","FLAGSTATES","COUNTRY","COUNTRIES")){
+    if(!is.null(geoCol)&&toupper(geoCol)%in%c("FLAG","FLAGS","FLAGSTATE","FLAGSTATES","COUNTRY","COUNTRIES")){
     
     c_flag<-as.data.frame(data)
     c_flag<-unique(subset(c_flag,select=geoCol))
@@ -36,6 +36,7 @@ FlagName <- function(input, output, session,data,query) {
           tags$img(src="https://www.blue-cloud.org/sites/all/themes/arcadia/logo.png",height=18,align = "right"))
       })   
     }
+    
     })                        
 
   }
