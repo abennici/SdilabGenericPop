@@ -8,6 +8,10 @@ tabPanel(title=uiOutput(ns("title_panel")),value="box",
     column(1,offset=10, uiOutput(ns("info")))
   ),
   fluidRow(
+    div(plotlyOutput(ns('plot'),height="300px")%>%withSpinner(type = 2),  style = "font-size:80%")
+  ),
+  br(),
+  fluidRow(
     box(width=12,collapsible = T,collapsed = F,
       uiOutput(ns("x")),
       uiOutput(ns("y")),
@@ -15,9 +19,6 @@ tabPanel(title=uiOutput(ns("title_panel")),value="box",
       uiOutput(ns("slider")),
       uiOutput(ns("split")),
     )
-  ),
-  fluidRow(
-    div(plotlyOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%")
   )
 )
 
@@ -85,7 +86,7 @@ output$plot <- renderPlotly({
   fig <- plot_ly(df,
                   x = ~attr_name, 
                   y = ~var_sum,
-                  height = 300,
+                  height = 250,
                   type = 'box'
         )
   fig <- fig %>%  layout(

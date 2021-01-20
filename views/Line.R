@@ -26,6 +26,10 @@ tabPanel(title=uiOutput(ns("title_panel")),value="line",
 #    box(id=ns("box"),width=12,"TEXT")
 #  ),
   fluidRow(
+    div(plotlyOutput(ns('plot'),height="300px")%>%withSpinner(type = 2),  style = "font-size:80%")
+  ),
+  br(),
+  fluidRow(
     box(id=ns("box2"),width=12,collapsible = T,collapsed = F,
       uiOutput(ns("x")),
       uiOutput(ns("y")),
@@ -34,9 +38,6 @@ tabPanel(title=uiOutput(ns("title_panel")),value="line",
       uiOutput(ns("colorColumn")),
       uiOutput(ns("number"))
     )
-  ),
-  fluidRow(
-    div(plotlyOutput(ns('plot'),height="250px")%>%withSpinner(type = 2),  style = "font-size:80%")
   )
 )
 
@@ -111,7 +112,7 @@ observeEvent(input$SplitByColumn, {
       fig <- df %>% plot_ly(
         x = ~attr_name, 
         y = ~var_sum,
-        height = 300,
+        height = 250,
         type = 'scatter', 
         mode = 'lines',
         fill = 'tozeroy',
@@ -165,7 +166,7 @@ observeEvent(input$SplitByColumn, {
             x = ~attr_name, 
             y = ~var_sum,
             split=~attr_col,
-            height = 300,
+            height = 250,
             type = 'scatter', 
             mode = 'lines',
             line = list(simplyfy = F),

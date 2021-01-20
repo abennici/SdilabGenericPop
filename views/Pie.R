@@ -19,7 +19,10 @@ pie_ui <- function(id) {
 tabPanel(title=uiOutput(ns("title_panel")),value="pie", 
   fluidRow(
     column(1,offset=10, uiOutput(ns("info")))
-  ),    
+  ), 
+  fluidRow(
+    div(plotlyOutput(ns('pie'))%>%withSpinner(type = 2),  style = "font-size:80%")
+  ),
   fluidRow(
     box(width=12, collapsible=T,collapsed=F,
       uiOutput(ns("x")),
@@ -27,9 +30,6 @@ tabPanel(title=uiOutput(ns("title_panel")),value="pie",
       uiOutput(ns("time")),               
       uiOutput(ns("slider"))
     )
-  ),
-  fluidRow(
-    div(plotlyOutput(ns('pie'))%>%withSpinner(type = 2),  style = "font-size:80%")
   )
 )
   
