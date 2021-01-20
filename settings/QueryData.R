@@ -12,7 +12,10 @@ QueryData <- function(input, output, session,data_sp,wfs_server,wfs_version,laye
     wfs_server<-wfs_server()
     wfs_version<-wfs_version()
     layer<-layer()
-    feature_geom<-feature_geom()
+    feature_geom<-as.logical(feature_geom())
+    print("feature_geom")
+    print(feature_geom)
+    print(class(feature_geom))
     strategy<-strategy()
     par<-str_replace(param(), "aggregation_method:sum", "aggregation_method:none")
     #Remove existing flag query
@@ -33,8 +36,11 @@ QueryData <- function(input, output, session,data_sp,wfs_server,wfs_version,laye
     #Get columns names for propertyName argument
     desc <- ft$getDescription(TRUE) 
     
-    ColumnName<-desc[,"name"]  
-    
+    if(!feature_geom){
+      ColumnName<-desc[desc$type!="geometry","name"]
+    }else{
+      ColumnName<-desc[,"name"]  
+    }
     propertyName<-paste(ColumnName, collapse = ',')
     
     if(is.null(par)){
@@ -47,7 +53,9 @@ QueryData <- function(input, output, session,data_sp,wfs_server,wfs_version,laye
                      "ogc_viewparams"=ft$getFeatures(outputFormat ="json",propertyName=propertyName,viewparams = URLencode(par))
       )
     }
-    
+    print(data_nsp)
+    print("ColumName")
+    print(ColumnName)
     data$data<-subset(data_nsp,select=ColumnName)
     print(data$data)
   })
