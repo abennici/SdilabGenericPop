@@ -1,4 +1,17 @@
-###Pie Module
+#' @title Pie Module
+#' @description 
+#' This module create a tab inside 'Sdilab Generic Pop' app including a dynamic donuts chart.
+#' It include a parameter box for dynamically select the attribute to display, the value and the time period
+#' @param data subset datatable produced by 'QueryData module'.  
+#' @param dsd metadata list produced by 'QueryInfo module' and including columns information.
+#' @param query$line.title mandatory url parameter, give a title to the tabs. 
+#' @param query$line.info optional url parameter, allow to add a user guideline or description of tab inside info bubble.
+#' @param query$line.x optional url parameter, select the default column to xxx. Must be an exact column name of data. If NULL the first column name of data is choosed.   
+#' @param query$line.y optional url parameter, select the default column to xxx. Must be an exact column name of data. If NULL the first column name of data is choosed.
+#' @param query$line.z optional url parameter, select the default column to xxx. Must be an exact column name of data. If NULL the first column name of data is choosed.
+#' @param query$line.caption optional parameter, allow to add a caption of plot. 
+#' @author Alexandre Bennici, \email{bennicialexandre@@gmail.com}
+
 # Function for module UI
 pie_ui <- function(id) {
   ns <- NS(id)

@@ -1,4 +1,18 @@
-###Line Module
+#' @title Line Module
+#' @description 
+#' This module create a tab inside 'Sdilab Generic Pop' app including a dynamic line plot for time serie views.
+#' It include a parameter box for dynamically select the x and y axis, the time period, 
+#' a cumulate or slit by element views and the number of most present elements to show.
+#' @param data subset datatable produced by 'QueryData module'.  
+#' @param dsd metadata list produced by 'QueryInfo module' and including columns information.
+#' @param query$line.title mandatory url parameter, give a title to the tabs. 
+#' @param query$line.info optional url parameter, allow to add a user guideline or description of tab inside info bubble.
+#' @param query$line.x optional url parameter, select the default column to the x axis of the plot. Must be an exact column name of data. If NULL the first column name of data is choosed.   
+#' @param query$line.y optional url parameter, select the default column to the y axis of the plot. Must be an exact column name of data. If NULL the first column name of data is choosed.
+#' @param query$line.z optional url parameter, select the default column to the split viewing if 'yes' is choose for 'Split by another column:' argument. Must be an exact column name of data. If NULL the first column name of data is choosed.
+#' @param query$line.caption optional parameter, allow to add a caption of plot. 
+#' @author Alexandre Bennici, \email{bennicialexandre@@gmail.com}
+
 # Function for module UI
 line_ui <- function(id) {
   ns <- NS(id)
@@ -28,7 +42,8 @@ tabPanel(title=uiOutput(ns("title_panel")),value="line",
 
 }
 
-# Function for module server
+#Function for module server
+
 line_server <- function(input, output, session,data,dsd,query) {
   ns <- session$ns 
   
