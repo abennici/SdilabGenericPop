@@ -36,7 +36,8 @@ output$table <- DT::renderDT(server = FALSE, {
   df<-as.data.frame(data)
   data.caption <-if (!is.null(query$data.caption)){query$data.caption}else{NULL}
   pid<-if (!is.null(query$pid)){query$pid}else{NULL}
-    
+  data.format<-if (!is.null(query$data.format)){query$data.format}else{'wide'}  
+  
   if(length(setdiff('geometry',names(df)))==0){
     df<-subset(df,select=-c(geometry))
   }
@@ -46,7 +47,9 @@ output$table <- DT::renderDT(server = FALSE, {
         left_join(dsd,by="MemberCode")
   
   names(df)<-paste0(name$MemberName," [",name$MemberCode,"] ",name$MeasureUnitSymbol)
-    
+  if(data.format=='long'){
+  df<-t(df)
+  }  
   DT::datatable(
           df,
           caption = data.caption,
