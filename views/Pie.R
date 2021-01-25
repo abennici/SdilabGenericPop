@@ -4,12 +4,12 @@
 #' It include a parameter box for dynamically select the attribute to display, the value and the time period
 #' @param data subset datatable produced by 'QueryData module'.  
 #' @param dsd metadata list produced by 'QueryInfo module' and including columns information.
-#' @param query$line.title mandatory url parameter, give a title to the tabs. 
-#' @param query$line.info optional url parameter, allow to add a user guideline or description of tab inside info bubble.
-#' @param query$line.x optional url parameter, select the default column to xxx. Must be an exact column name of data. If NULL the first column name of data is choosed.   
-#' @param query$line.y optional url parameter, select the default column to xxx. Must be an exact column name of data. If NULL the first column name of data is choosed.
-#' @param query$line.z optional url parameter, select the default column to xxx. Must be an exact column name of data. If NULL the first column name of data is choosed.
-#' @param query$line.caption optional parameter, allow to add a caption of plot. 
+#' @param query$pie.title mandatory url parameter, give a title to the tabs. 
+#' @param query$pie.info optional url parameter, allow to add a user guideline or description of tab inside info bubble.
+#' @param query$pie.x optional url parameter, select the default column to xxx. Must be an exact column name of data. If NULL the first column name of data is choosed.   
+#' @param query$pie.y optional url parameter, select the default column to xxx. Must be an exact column name of data. If NULL the first column name of data is choosed.
+#' @param query$pie.z optional url parameter, select the default column to xxx. Must be an exact column name of data. If NULL the first column name of data is choosed.
+#' @param query$pie.caption optional parameter, allow to add a caption of plot. 
 #' @author Alexandre Bennici, \email{bennicialexandre@@gmail.com}
 
 # Function for module UI
@@ -89,7 +89,7 @@ output$pie <- renderPlotly({
       stats::setNames(c("attr_name","var_sum"))
 
   fig <- plot_ly(df, labels = ~as.factor(attr_name), values = ~var_sum,textinfo = 'none')
-  fig <- fig %>% add_pie(hole = 0.6)
+  fig <- fig %>% add_pie()
   fig <- fig %>% layout(title = pie.caption,
                         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
