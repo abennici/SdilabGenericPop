@@ -19,8 +19,8 @@ line_ui <- function(id) {
 
 tabPanel(title=uiOutput(ns("title_panel")),value="line",
   fluidRow(
-    column(1,offset=10,uiOutput(ns("info")))
-#    a(id = ns("toggleAdvanced"), "Show/hide parameters", href = "#"),
+    column(1,offset=10,uiOutput(ns("info"))),
+    a(id = ns("toggleAdvanced"), "Show/hide parameters", href = "#"),
   ),
 #  fluidRow(
 #    box(id=ns("box"),width=12,"TEXT")
@@ -56,11 +56,11 @@ output$info <-renderUI({
   circleButton(ns("info"),icon = icon("info-circle"),size='xs')
 })
   
-# observe({
-#   shinyjs::hide(ns("box"))
-#   shinyjs::onclick(ns("toggleAdvanced"),shinyjs::toggle(ns("box"))
-#   )
-# })
+ observe({
+   shinyjs::hide(ns("box"))
+   shinyjs::onclick(ns("toggleAdvanced"),shinyjs::toggle(ns("box"))
+   )
+ })
   
 observeEvent(input$info, {
   showModal(modalDialog(
