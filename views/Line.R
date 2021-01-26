@@ -58,6 +58,8 @@ line_server <- function(input, output, session,data,dsd,query) {
     out$caption <- if (!is.null(query$line.caption)){query$line.caption}else{NULL}
     out$param_x<-if (!is.null(query$line.x)){query$line.x} else {NULL}
     out$param_y<-if (!is.null(query$line.y)){query$line.y}else{NULL}
+    out$param_z<- if (!is.null(query$line.z)){query$line.z}else{NULL}
+    
   })
 
   #UI for selector
@@ -70,15 +72,24 @@ line_server <- function(input, output, session,data,dsd,query) {
       max = max(out$data_to_display[,out$param_x])
     )
     out$param_s <- c(period$min, period$max)
-    
+
+    #nb_unique <- NULL
+    #nb_select <- NULL
+    #if(out$display_by_column){
+      nb_unique<-nrow(unique(subset(out$data_to_display,select=out$param_z)))
+      nb_select<-ifelse(nb_unique>=10,10,nb_unique)                
+    #}
+      
     tags$div(
       id = "selector_form", width=12,
       selectInput(inputId = ns('x'), label = "Select x-axis Variable:", choices = attribute, selected = out$param_x),
       selectInput(inputId = ns('y'), label = "Select y-axis Variable:", choices =variable, selected= out$param_y),
       sliderInput(inputId = ns('s'), label = "Choose Period:", min=period$min, max=period$max,value = c(period$min, period$max),step=1,sep=""),
       radioButtons(ns("SplitByColumn"),"Split by another column:",choices = c("no", "yes"),selected = "no",inline = TRUE),
-      tags$div(inputId = ns('z')),
-      tags$div(inputId = ns('n'))
+      tags$div(id = "selector_by_column", style = "display:none",
+        selectInput(inputId = ns('z'), label = "Select Color Variable:", choices = attribute, selected = out$param_z),
+        selectInput(inputId = ns('n'),  label = "Numbers of element:", choices = seq(1,nb_unique,by=1), selected = nb_select)
+      )
     )
   
   })
@@ -107,21 +118,22 @@ line_server <- function(input, output, session,data,dsd,query) {
 
   #observe for ploting
   #plots are based on reactive values
-  observe({
+  observeEvent(input$SplitByColumn,{
     
     default_rendering <- is.null(input$SplitByColumn)
     if(!is.null(input$SplitByColumn)) default_rendering <- ifelse(input$SplitByColumn == "no", TRUE, FALSE)
+    if(default_rendering){
+      shinyjs::removeClass(selector = "#selector_by_column", class = "show")
+    }else{
+      shinyjs::addClass(selector = "#selector_by_column", class = "show")
+    }
     
     if(default_rendering){
       #default rendering
-      df<-as.data.frame(data)
-      
-      output$colorColumn<-renderUI({})
-      
-      output$number<-renderUI({})
       
       output$plot <- renderPlotly({
         
+        df <- out$data_to_display
         df <- df %>%
           filter(!! sym(out$param_x) %in% seq(min(out$param_s),max(out$param_s),1)) %>%
           group_by(!! sym(out$param_x)) %>% 
@@ -150,23 +162,11 @@ line_server <- function(input, output, session,data,dsd,query) {
       })
     }else{ 
       #render with split by column
-      df<-as.data.frame(data)
-      
-      output$colorColumn<-renderUI({
-        line.z<-if (!is.null(query$line.z)){query$line.z}else{NULL}
-        attribute<-setdiff(as.character(dsd[dsd$MemberType=='attribute',]$MemberCode),c("geometry","aggregation_method"))
-        selectInput(inputId = ns('z'), label = "Select Color Variable:", choices = attribute, selected = line.z)
-      })
-      
-      output$number<-renderUI({
-        nb_unique<-nrow(unique(subset(df,select=out$param_z)))
-        nb_select<-ifelse(nb_unique>=10,10,nb_unique)                
-        selectInput(inputId = ns('n'), label = "Numbers of element:", choices = seq(1,nb_unique,by=1), selected = nb_select)
-      })
       
       output$plot <- renderPlotly({
         
-        df_rank<-df%>%
+        df <- out$data_to_display
+        df_rank<-df %>%
           group_by(!! sym(out$param_z))%>%
           summarise(sum = sum(!! sym(out$param_y)))%>%
           mutate(rank = rank(-sum))%>%
