@@ -1,29 +1,31 @@
 ###Module
 # Function for module server logic
-QueryData <- function(input, output, session,data_sp,wfs_server,wfs_version,layer,feature_geom,param,strategy,query) {
-  data<-reactiveValues(data=NULL)
+DataConfig <- function(input, output, session,query) {
+  dataConf<-reactiveValues(data=NULL,dsd=NULL)
+  data<-callModule(module = QueryInfo, id = "data")
   observe({
-    geoCol <- if (!is.null(query$geoCol)){query$geoCol}else{NULL}
+    
+    dataConf$dsd<-data$dsd
 
-    data_sp<-subset(as.data.frame(data_sp()),select=geoCol)[1,]
-    print("geoCol")
-    print(data_sp)
     #QueryParameters
-    wfs_server<-wfs_server()
-    wfs_version<-wfs_version()
-    layer<-layer()
-    feature_geom<-as.logical(feature_geom())
-    print("feature_geom")
-    print(feature_geom)
-    print(class(feature_geom))
-    strategy<-strategy()
-    par<-str_replace(param(), "aggregation_method:sum", "aggregation_method:none")
+	geoCol <- if (!is.null(query$geoCol)){query$geoCol}else{NULL}
+    wfs_server<-query$wfs_server
+    wfs_version<-query$wfs_version
+    layer<-query$layer
+	feature_geom<-as.logical(query$feature_geom)
+    strategy<-query$strategy
+	par<-query$par
+
+if(strategy=="ogc_viewparams"&&grep("aggregation_method|aggregation_methods",par)==1){
+#query par modification	
+	data_id<-subset(as.data.frame(data$data),select=geoCol)[1,]
+    par<-str_replace(query$par, "aggregation_method:sum", "aggregation_method:none")
     #Remove existing flag query
     pattern<-unlist(str_extract_all(par, paste0(geoCol,":.+;")))
     if(length(pattern)!=0){
       par<-str_replace(par, pattern, "")}
     #Update flag query with map clicking position
-    par<-paste(geoCol,":",data_sp,";",par,sep="")
+    par<-paste(geoCol,":",data_id,";",par,sep="")
     #Connect to OGC WFS to get DATA
     WFS <- WFSClient$new(
       url = wfs_server,
@@ -44,21 +46,22 @@ QueryData <- function(input, output, session,data_sp,wfs_server,wfs_version,laye
     propertyName<-paste(ColumnName, collapse = ',')
     
     if(is.null(par)){
-      data_nsp <- ft$getFeatures(propertyName=propertyName)
+      data <- ft$getFeatures(propertyName=propertyName)
     }
     
     if(!is.null(par)){
-      data_nsp <- switch(strategy,
+      data <- switch(strategy,
                      "ogc_filters"=ft$getFeatures(outputFormat ="json",propertyName=propertyName,cql_filter = gsub(" ", "%20", gsub("''", "%27%27", URLencode(par)))),
                      "ogc_viewparams"=ft$getFeatures(outputFormat ="json",propertyName=propertyName,viewparams = URLencode(par))
       )
     }
-    print(data_nsp)
-    print("ColumName")
-    print(ColumnName)
-    data$data<-subset(data_nsp,select=ColumnName)
-    print(data$data)
+	dataConf$data<-subset(data,select=ColumnName)
+	}else{
+	dataConf<-data$data
+	}
+    
+
   })
-  return(data)
+  return(dataConf)
 }
 ####

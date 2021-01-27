@@ -22,8 +22,8 @@ options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.siz
 
 #load module functions
 source("https://raw.githubusercontent.com/eblondel/OpenFairViewer/master/src/resources/shinyModule/QueryInfo.R")
-source("settings/QueryData.R")
-source("views/FlagName.R")
+source("settings/DataConfig.R")
+source("settings/FlagName.R")
 source("ui.R")
 source("server.R")
 

@@ -2,7 +2,6 @@ server <- function(input, output, session) {
 
   #query parameters
   query<-reactiveValues(query=NULL, panel_items = NULL,extra_module = NULL)
-  
   observe({
     query$query <- parseQueryString(session$clientData$url_search)
     query$panel_items <- if (!is.null(query$query$panel)){
@@ -13,15 +12,9 @@ server <- function(input, output, session) {
     }else{NULL}
   })
   
-  #data loading
-  data<-callModule(module = QueryInfo, id = "data")
- # observe({
-  #if(data$query$strategy=="ogc_viewparams"&&grep("aggregation_method|aggregation_methods",data$query$par)==1){
-  data2<-callModule(module = QueryData, id = "data",reactive(data$data),reactive(data$dsd),reactive(data$query$wfs_server),reactive(data$query$wfs_version),reactive(data$query$layer),reactive(data$query$feature_geom),reactive(data$query$par),reactive(data$query$strategy),query=query$query)
-  #}
-  #})
-  #Flag name header
-  callModule(module = FlagName,id="name",data=data2$data,query=query$query)
+  data<-callModule(module = DataConfig, id = "data",query=query$query)
+  
+  callModule(module = FlagName,id="name",data=data$data,query=query$query)
 
   #tabsetPanel
   output$tabs <- renderUI({
@@ -34,7 +27,7 @@ server <- function(input, output, session) {
         }
         if(class(sourced)!="try-error"){
           panel_server_fun <- try(eval(parse(text = paste0(panel_item, "_server"))))
-          if(class(panel_server_fun) != "try-error") callModule(module = panel_server_fun,id=panel_item, data=data2$data,dsd=data2$dsd, query=query$query)
+          if(class(panel_server_fun) != "try-error") callModule(module = panel_server_fun,id=panel_item, data=data$data,dsd=data$dsd, query=query$query)
           panel_ui_fun <- try(eval(parse(text = paste0(panel_item, "_ui"))))
           if(class(panel_ui_fun)!="try-error") {
             out_tab <- tabPanel(
