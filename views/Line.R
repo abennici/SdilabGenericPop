@@ -20,6 +20,9 @@ line_ui <- function(id) {
 
   tabPanel(title=uiOutput(ns("title_panel")),value="line",
     fluidRow(
+      column(1,offset=10,uiOutput(ns("info")))
+    ),
+    fluidRow(
       #actionLink required to set button-like action
       actionLink(ns("toggleButton"), "Show parameters", style = "padding-left:15px;") 
     ),
@@ -49,10 +52,6 @@ line_server <- function(input, output, session,data,dsd,query) {
     param_n = NULL
   )
   
-  output$title_panel <- renderText({
-    if (!is.null(query$line.title)){query$line.title}else{"Line"}
-  })
-  
   #fill reactive if param values (required after for plotting)
   observe({
     out$caption <- if (!is.null(query$line.caption)){query$line.caption}else{NULL}
@@ -61,7 +60,21 @@ line_server <- function(input, output, session,data,dsd,query) {
     out$param_z<- if (!is.null(query$line.z)){query$line.z}else{NULL}
     
   })
-
+  
+  output$title_panel <- renderText({
+    if (!is.null(query$line.title)){query$line.title}else{"Line"}
+  })
+  
+  output$info <-renderUI({
+    circleButton(ns("info"),icon = icon("info-circle"),size='xs')
+  })
+  
+  observeEvent(input$info, {
+    showModal(modalDialog(
+      if (!is.null(query$line.info)){query$line.info}else{NULL}
+    ))
+  })
+  
   #UI for selector
   output$selector <- renderUI({
     
