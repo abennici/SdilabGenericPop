@@ -94,12 +94,12 @@ line_server <- function(input, output, session,data,dsd,query) {
     #}
       
     tags$div(
-      id = "selector_form", width=12,
+      id = ns("selector_form"), width=12, style = "display:none",
       selectInput(inputId = ns('x'), label = "Select x-axis Variable:", choices = attribute, selected = out$param_x),
       selectInput(inputId = ns('y'), label = "Select y-axis Variable:", choices =variable, selected= out$param_y),
       sliderInput(inputId = ns('s'), label = "Choose Period:", min=period$min, max=period$max,value = c(period$min, period$max),step=1,sep=""),
       radioButtons(ns("SplitByColumn"),"Split by another column:",choices = c("no", "yes"),selected = "no",inline = TRUE),
-      tags$div(id = "selector_by_column", style = "display:none",
+      tags$div(id = ns("selector_by_column"), style = "display:none",
         selectInput(inputId = ns('z'), label = "Select Color Variable:", choices = attribute, selected = out$param_z),
         selectInput(inputId = ns('n'),  label = "Numbers of element:", choices = seq(1,nb_unique,by=1), selected = nb_select)
       )
@@ -112,12 +112,12 @@ line_server <- function(input, output, session,data,dsd,query) {
     if (input$toggleButton %% 2 == 1) {
       print("Action: Show parameters")
       txt <- "Hide parameters"
-      shinyjs::addClass(selector = paste0("#selector_form"), class = "show")
+      shinyjs::addClass(selector = paste0("#",ns("selector_form")), class = "show")
     } else {
       print("Action: Hide parameters")
       txt <- "Show parameters"
-      toggle("selector_form")
-      shinyjs::removeClass(selector = paste0("#selector_form"), class = "show")
+      toggle(ns("selector_form"))
+      shinyjs::removeClass(selector = paste0("#",ns("selector_form")), class = "show")
     }
     updateActionButton(session, "toggleButton", label = txt)
   })
@@ -136,9 +136,9 @@ line_server <- function(input, output, session,data,dsd,query) {
     default_rendering <- is.null(input$SplitByColumn)
     if(!is.null(input$SplitByColumn)) default_rendering <- ifelse(input$SplitByColumn == "no", TRUE, FALSE)
     if(default_rendering){
-      shinyjs::removeClass(selector = "#selector_by_column", class = "show")
+      shinyjs::removeClass(selector = paste0("#",ns("selector_by_column")), class = "show")
     }else{
-      shinyjs::addClass(selector = "#selector_by_column", class = "show")
+      shinyjs::addClass(selector = paste0("#",ns("selector_by_column")), class = "show")
     }
     
     if(default_rendering){
