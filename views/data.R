@@ -41,12 +41,7 @@ output$table <- DT::renderDT(server = FALSE, {
   if(length(setdiff('geometry',names(df)))==0){
     df<-subset(df,select=-c(geometry))
   }
-    
-  name<-data.frame(MemberCode=names(df))
-  name<-name%>%
-        left_join(dsd,by="MemberCode")
-  
-  names(df)<-paste0(name$MemberName," [",name$MemberCode,"] ",name$MeasureUnitSymbol)
+  colnames(df)<-paste0(dsd$MemberName," [",dsd$MemberCode,"] ",dsd$MeasureUnitSymbol)
   if(data.format=='long'){
   df<-t(df)
   }  
