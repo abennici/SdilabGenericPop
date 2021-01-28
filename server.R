@@ -1,15 +1,12 @@
 server <- function(input, output, session) {
 
   #query parameters
-  query<-reactiveValues(query=NULL, panel_items = NULL,extra_module = NULL)
+  query<-reactiveValues(query=NULL, panel_items = NULL)
   observe({
     query$query <- parseQueryString(session$clientData$url_search)
     query$panel_items <- if (!is.null(query$query$panel)){
-      unlist(strsplit(as.character(query$query$panel),"[[:punct:][:space:]]+")) 
+      unlist(strsplit(as.character(query$query$panel),"[[:space:]]")) 
     }
-    query$extra_module <- if (!is.null(query$query$extra_module)){
-      unlist(strsplit(query$query$extra_module,";",fixed = T)) 
-    }else{NULL}
   })
   
   data<-callModule(module = DataConfig, id = "data",query=query$query)
@@ -21,9 +18,13 @@ server <- function(input, output, session) {
     if(!is.null(query$panel_items)){
       tabPanels <- lapply(query$panel_items, function(panel_item){
         out_tab <- NULL
-        sourced <- try(source(sprintf("views/%s.R", panel_item)))
-        if(class(sourced)=="try-error"&&!is.null(query$query$extra_module)){
-        sourced <- try(source(query$extra_module[str_detect(query$extra_module,sprintf("/%s.R", panel_item))]))  
+        sourced <- NULL
+        print(panel_item)
+        print(query$query[[paste0(panel_item,".script")]])
+        if(!is.null(query$query[[paste0(panel_item,".script")]])){
+          sourced <- try(source(query$query[[paste0(panel_item,".script")]]))  
+        }else{
+          sourced <- try(source(sprintf("views/%s.R", panel_item)))
         }
         if(class(sourced)!="try-error"){
           panel_server_fun <- try(eval(parse(text = paste0(panel_item, "_server"))))
@@ -35,6 +36,11 @@ server <- function(input, output, session) {
               panel_ui_fun(id=panel_item)
             )
           }
+        }else{
+          out_tab <- tabPanel(
+            title = query$query[[paste0(panel_item,".title")]], 
+            tags$div("Ups, can't source the R remote script")
+          )
         }
         out_tab
       })
