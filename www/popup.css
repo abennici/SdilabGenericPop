@@ -42,9 +42,7 @@ table> tbody > tr > td:nth-of-type(1) {
 font-weight:bold;
  font-style:italic;
 }
-table> tbody > tr > td:not(:first-child) {
-text-align:center
-}
+
 
 .show {
   display: block !important;
