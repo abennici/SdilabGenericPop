@@ -1,6 +1,6 @@
 ###Data Module
 # Function for module UI
-ird_ui <- function(id) {
+ird_image_ui <- function(id) {
   ns <- NS(id)
   
   tabPanel(title=uiOutput(ns("title_panel")),value="ird",
@@ -11,7 +11,7 @@ ird_ui <- function(id) {
 }
 
 # Function for module server
-ird_server <- function(input, output, session,data,dsd,query) {
+ird_image_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns  
   
   output$img <-renderUI({
