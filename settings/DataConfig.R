@@ -57,7 +57,7 @@ if(strategy=="ogc_viewparams"&&grep("aggregation_method|aggregation_methods",par
     }
 	dataConf$data<-subset(data,select=ColumnName)
 	}else{
-	dataConf<-data$data
+	dataConf$data<-data$data
 	}
     
 
