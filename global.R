@@ -19,7 +19,7 @@ library("base64")
 #Commons
 
 # Options for Spinner
-options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
+options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1,stringsAsFactors = FALSE)
 
 #load module functions
 source("https://raw.githubusercontent.com/eblondel/OpenFairViewer/master/src/resources/shinyModule/QueryInfo.R")
