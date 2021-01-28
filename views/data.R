@@ -41,14 +41,27 @@ output$table <- DT::renderDT(server = FALSE, {
   if(length(setdiff('geometry',names(df)))==0){
     df<-subset(df,select=-c(geometry))
   }
+  
+  for (i in 1:nrow(df)){
+    for(j in 1:ncol(df)){
+      if(!is.na(df[i,j])&&str_detect(df[i,j],"base64:")){
+      df[i,j]<-paste0("<img src=\"data:image/png;base64,",unlist(strsplit(df[i,j], "base64:"))[2],"\" width=\"50%\"></img>")  
+      }
+    }
+  }
+
   colnames(df)<-paste0(dsd$MemberName," [",dsd$MemberCode,"] ",dsd$MeasureUnitSymbol)
+  
   if(data.format=='long'){
-  df<-t(df)
-  }  
+  df<-data.frame(t(df))
+  
+  }
+  
   DT::datatable(
           df,
           caption = data.caption,
           extensions = c("Buttons"),
+          escape = FALSE,
           options = list(
             dom = 'Bfrtip',
             pageLength=5,
