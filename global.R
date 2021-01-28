@@ -14,6 +14,7 @@ library("plotly")
 library("DT")
 library("jsonlite")
 library("stringr")
+library("base64")
 
 #Commons
 
@@ -21,7 +22,7 @@ library("stringr")
 options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=1)
 
 #load module functions
-source("https://raw.githubusercontent.com/eblondel/OpenFairViewer/master/src/resources/shinyModule/QueryInfo.R")
+source("https://raw.githubusercontent.com/eblondel/OpenFairViewer/master/dist/resources/shinyModule/QueryInfo.R")
 source("settings/DataConfig.R")
 source("settings/FlagName.R")
 source("ui.R")
