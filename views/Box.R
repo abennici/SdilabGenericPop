@@ -38,6 +38,7 @@ box_server <- function(input, output, session,data,dsd,query) {
   
   #fill reactive if param values (required after for plotting)
   observe({
+    out$info <- if (!is.null(query$pie.info)){query$pie.info}else{NULL}
     out$caption <- if (!is.null(query$pie.caption)){query$pie.caption}else{NULL}
     out$param_x <-if (!is.null(query$pie.x)){query$pie.x} else {NULL}
     out$param_y <-if (!is.null(query$pie.y)){query$pie.y}else{NULL}
@@ -50,13 +51,15 @@ output$title_panel <- renderText({
 })
   
 output$info <-renderUI({
+  if(!is.null(out$info)){
     circleButton(ns("info"),icon = icon("info-circle"),size='xs')
+  }else{NULL}
 })
-  
+
 observeEvent(input$info, {
   showModal(modalDialog(
-    if (!is.null(query$box.info)){query$box.info}else{NULL}
-    ))
+    if (!is.null(out$info)){out$info}else{NULL}
+  ))
 })
 
 ###CHECKED

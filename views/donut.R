@@ -50,6 +50,7 @@ donut_server <- function(input, output, session,data,dsd,query) {
   
   #fill reactive if param values (required after for plotting)
   observe({
+    out$info <- if (!is.null(query$donut.info)){query$donut.info} else {NULL}
     out$caption <- if (!is.null(query$donut.caption)){query$donut.caption}else{NULL}
     out$param_x <-if (!is.null(query$donut.x)){query$donut.x} else {NULL}
     out$param_y <-if (!is.null(query$donut.y)){query$donut.y}else{NULL}
@@ -62,12 +63,14 @@ donut_server <- function(input, output, session,data,dsd,query) {
   })
   
   output$info <-renderUI({
-    circleButton(ns("info"),icon = icon("info-circle"),size='xs')
+    if(!is.null(out$info)){
+      circleButton(ns("info"),icon = icon("info-circle"),size='xs')
+    }else{NULL}
   })
   
   observeEvent(input$info, {
     showModal(modalDialog(
-      if (!is.null(query$donut.info)){query$donut.info}else{NULL}
+      if (!is.null(out$info)){out$info}else{NULL}
     ))
   })
   

@@ -54,6 +54,7 @@ line_server <- function(input, output, session,data,dsd,query) {
   
   #fill reactive if param values (required after for plotting)
   observe({
+    out$info <- if (!is.null(query$line.info)){query$line.info}else{NULL}
     out$caption <- if (!is.null(query$line.caption)){query$line.caption}else{NULL}
     out$param_x<-if (!is.null(query$line.x)){query$line.x} else {NULL}
     out$param_y<-if (!is.null(query$line.y)){query$line.y}else{NULL}
@@ -66,12 +67,14 @@ line_server <- function(input, output, session,data,dsd,query) {
   })
   
   output$info <-renderUI({
+    if(!is.null(out$info)){
     circleButton(ns("info"),icon = icon("info-circle"),size='xs')
+    }else{NULL}
   })
   
   observeEvent(input$info, {
     showModal(modalDialog(
-      if (!is.null(query$line.info)){query$line.info}else{NULL}
+      if (!is.null(out$info)){out$info}else{NULL}
     ))
   })
   

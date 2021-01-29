@@ -17,26 +17,33 @@ tabPanel(title=uiOutput(ns("title_panel")),value="data",
 data_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns  
   
+  out <-reactiveValues()
+  observe({
+    out$info <- if (!is.null(query$data.info)){query$data.info}else{NULL}
+    out$caption <- if (!is.null(query$data.caption)){query$data.caption}else{NULL}
+    out$format<-if (!is.null(query$data.format)){query$data.format}else{'wide'}  
+  })
+  
 output$title_panel <- renderText({
   if (!is.null(query$data.title)){query$data.title}else{"Data"}
 })
   
 output$info <-renderUI({
-  circleButton(ns("info"),icon = icon("info-circle"),size='xs')
+  if(!is.null(out$info)){
+    circleButton(ns("info"),icon = icon("info-circle"),size='xs')
+  }else{NULL}
 })
-  
+
 observeEvent(input$info, {
   showModal(modalDialog(
-    if (!is.null(query$data.info)){query$data.info}else{NULL}
+    if (!is.null(out$info)){out$info}else{NULL}
   ))
 })
   
 output$table <- DT::renderDT(server = FALSE, {
 
   df<-as.data.frame(data)
-  data.caption <-if (!is.null(query$data.caption)){query$data.caption}else{NULL}
   pid<-if (!is.null(query$pid)){query$pid}else{NULL}
-  data.format<-if (!is.null(query$data.format)){query$data.format}else{'wide'}  
   
   if(length(setdiff('geometry',names(df)))==0){
     df<-subset(df,select=-c(geometry))
@@ -52,14 +59,13 @@ output$table <- DT::renderDT(server = FALSE, {
 
   colnames(df)<-paste0(dsd$MemberName," [",dsd$MemberCode,"] ",dsd$MeasureUnitSymbol)
   
-  if(data.format=='long'){
+  if(out$format=='long'){
   df<-data.frame(t(df))
-  
   }
   
   DT::datatable(
           df,
-          caption = data.caption,
+          caption = out$caption,
           extensions = c("Buttons"),
           escape = FALSE,
           options = list(
