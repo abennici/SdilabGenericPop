@@ -1,8 +1,8 @@
 ui <- fluidPage(
   
 setBackgroundColor(color = "white"),
-useShinydashboard(),
-useShinyjs(),
+useShinydashboard(),# to use ShinyDashboard widgets
+useShinyjs(),#to call javascript code
 tags$head(tags$link(rel="stylesheet", type="text/css", href="popup.css")),
   fluidRow(
     column(

@@ -3,7 +3,7 @@
 #' This module create a tab inside 'Sdilab Generic Pop' app including a dynamic line plot for time serie views.
 #' It include a parameter box for dynamically select the x and y axis, the time period, 
 #' a cumulate or slit by element views and the number of most present elements to show.
-#' @param data subset datatable produced by 'QueryData module'.  
+#' @param data subset datatable produced by 'DataConfig module'.  
 #' @param dsd metadata list produced by 'QueryInfo module' and including columns information.
 #' @param query$line.title mandatory url parameter, give a title to the tabs. 
 #' @param query$line.info optional url parameter, allow to add a user guideline or description of tab inside info bubble.
@@ -23,11 +23,9 @@ line_ui <- function(id) {
       column(1,offset=10,uiOutput(ns("info")))
     ),
     fluidRow(
-      #actionLink required to set button-like action
       actionLink(ns("toggleButton"), "Show parameters", style = "padding-left:15px;") 
     ),
     fluidRow(
-      #combined UI for selector (managed server-side)  
       uiOutput(ns("selector"))
     ),
     fluidRow(
@@ -42,7 +40,7 @@ line_server <- function(input, output, session,data,dsd,query) {
   
   ns <- session$ns 
   
-  #we create a reactiveValues controller to store all variables that are input to plot
+  #a reactiveValues controller to store all variables that are input to plot
   out <-reactiveValues(
     data_to_display = as.data.frame(data),
     param_x = NULL,
@@ -62,10 +60,12 @@ line_server <- function(input, output, session,data,dsd,query) {
     
   })
   
+  #change the name of the tab
   output$title_panel <- renderText({
     if (!is.null(query$line.title)){query$line.title}else{"Line"}
   })
   
+  #add a clickable info icon with a description text
   output$info <-renderUI({
     if(!is.null(out$info)){
     circleButton(ns("info"),icon = icon("info-circle"),size='xs')
@@ -88,13 +88,9 @@ line_server <- function(input, output, session,data,dsd,query) {
       max = max(out$data_to_display[,out$param_x])
     )
     out$param_s <- c(period$min, period$max)
+    nb_unique<-nrow(unique(subset(out$data_to_display,select=out$param_z)))
+    nb_select<-ifelse(nb_unique>=10,10,nb_unique)                
 
-    #nb_unique <- NULL
-    #nb_select <- NULL
-    #if(out$display_by_column){
-      nb_unique<-nrow(unique(subset(out$data_to_display,select=out$param_z)))
-      nb_select<-ifelse(nb_unique>=10,10,nb_unique)                
-    #}
       
     tags$div(
       id = ns("selector_form"), width=12, style = "display:none",
@@ -146,7 +142,6 @@ line_server <- function(input, output, session,data,dsd,query) {
     
     if(default_rendering){
       #default rendering
-      
       output$plot <- renderPlotly({
         
         df <- out$data_to_display

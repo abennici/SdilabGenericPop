@@ -1,19 +1,23 @@
 server <- function(input, output, session) {
 
-  #query parameters
   query<-reactiveValues(query=NULL, panel_items = NULL)
+  
   observe({
+  #query all parameters of url
     query$query <- parseQueryString(session$clientData$url_search)
+  #format a vector with panel items decared in 'panel' parameter
     query$panel_items <- if (!is.null(query$query$panel)){
       unlist(strsplit(as.character(query$query$panel),"[[:space:]]")) 
     }
   })
   
+  #Configurate data
   data<-callModule(module = DataConfig, id = "data",query=query$query)
   
+  #Header content
   callModule(module = FlagName,id="name",data=data$data,query=query$query)
 
-  #tabsetPanel
+  #Add tabs items 
   output$tabs <- renderUI({
     if(!is.null(query$panel_items)){
       tabPanels <- lapply(query$panel_items, function(panel_item){

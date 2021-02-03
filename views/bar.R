@@ -1,9 +1,9 @@
 #' @title Bar Module
 #' @description 
-#' This module create a tab inside 'Sdilab Generic Pop' app including a dynamic bar plot for time serie views.
-#' It include a parameter box for dynamically select the x and y axis, the time period, 
+#' This module create a tab inside 'Sdilab Generic Pop' app including a dynamic bar plot.
+#' It include a parameter box for dynamically select the x and y axis, the time period if x axis is in year format , 
 #' a cumulate or slit by element views and the number of most present elements to show.
-#' @param data subset datatable produced by 'QueryData module'.  
+#' @param data subset datatable produced by 'DataConfig module'.  
 #' @param dsd metadata list produced by 'QueryInfo module' and including columns information.
 #' @param query$bar.title mandatory url parameter, give a title to the tabs. 
 #' @param query$bar.info optional url parameter, allow to add a user guidebar or description of tab inside info bubble.

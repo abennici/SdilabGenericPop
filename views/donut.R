@@ -2,13 +2,13 @@
 #' @description 
 #' This module create a tab inside 'Sdilab Generic Pop' app including a dynamic donuts chart.
 #' It include a parameter box for dynamically select the attribute to display, the value and the time period
-#' @param data subset datatable produced by 'QueryData module'.  
+#' @param data subset datatable produced by 'DataConfig module'.  
 #' @param dsd metadata list produced by 'QueryInfo module' and including columns information.
 #' @param query$donut.title mandatory url parameter, give a title to the tabs. 
 #' @param query$donut.info optional url parameter, allow to add a user guideline or description of tab inside info bubble.
-#' @param query$donut.x optional url parameter, select the default column to xxx. Must be an exact column name of data. If NULL the first column name of data is choosed.   
-#' @param query$donut.y optional url parameter, select the default column to xxx. Must be an exact column name of data. If NULL the first column name of data is choosed.
-#' @param query$donut.z optional url parameter, select the default column to xxx. Must be an exact column name of data. If NULL the first column name of data is choosed.
+#' @param query$donut.x optional url parameter, select the default column to attribute. Must be an exact column name of data. If NULL the first column name of data is choosed.   
+#' @param query$donut.y optional url parameter, select the default column to value. Must be an exact column name of data. If NULL the first column name of data is choosed.
+#' @param query$donut.z optional url parameter, select the default column to display as time period. Must be an exact column name of data. If NULL the first column name of data is choosed.
 #' @param query$donut.caption optional parameter, allow to add a caption of plot. 
 #' @author Alexandre Bennici, \email{bennicialexandre@@gmail.com}
 
@@ -17,20 +17,20 @@ donut_ui <- function(id) {
   ns <- NS(id)
   
   tabPanel(title=uiOutput(ns("title_panel")),value="donut", 
-           fluidRow(
-             column(1,offset=10, uiOutput(ns("info")))
-           ), 
-           fluidRow(
-             #actionLink required to set button-like action
-             actionLink(ns("toggleButton"), "Show parameters", style = "padding-left:15px;") 
-           ),
-           fluidRow(
-             #combined UI for selector (managed server-side)  
-             uiOutput(ns("selector"))
-           ),
-           fluidRow(
-             div(plotlyOutput(ns('plot'))%>%withSpinner(type = 2),  style = "font-size:80%")
-           )
+    fluidRow(
+      column(1,offset=10, uiOutput(ns("info")))
+    ), 
+    fluidRow(
+    #actionLink required to set button-like action
+      actionLink(ns("toggleButton"), "Show parameters", style = "padding-left:15px;") 
+    ),
+    fluidRow(
+    #combined UI for selector (managed server-side)  
+      uiOutput(ns("selector"))
+    ),
+    fluidRow(
+      div(plotlyOutput(ns('plot'))%>%withSpinner(type = 2),  style = "font-size:80%")
+    )
   )
   
 }
