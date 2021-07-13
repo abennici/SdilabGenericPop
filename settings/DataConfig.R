@@ -3,8 +3,8 @@
 DataConfig <- function(input, output, session,query) {
   dataConf<-reactiveValues(data=NULL,dsd=NULL)
   data<-callModule(module = QueryInfo, id = "data")
+  
   observe({
-    
     dataConf$dsd<-data$dsd
 
     #QueryParameters
@@ -16,7 +16,10 @@ DataConfig <- function(input, output, session,query) {
     strategy<-query$strategy
 	par<-query$par
 
-if(strategy=="ogc_viewparams"&&grep("aggregation_method|aggregation_methods",par)==1){
+	dataConf$data<-data$data
+	
+if(strategy=="ogc_viewparams")if(!is.null(par))if(grep("aggregation_method|aggregation_methods",par)==1){
+
 #query par modification	
 	data_id<-subset(as.data.frame(data$data),select=geoCol)[1,]
     par<-str_replace(query$par, "aggregation_method:sum", "aggregation_method:none")
@@ -57,6 +60,7 @@ if(strategy=="ogc_viewparams"&&grep("aggregation_method|aggregation_methods",par
     }
 	dataConf$data<-subset(data,select=ColumnName)
 	}else{
+	print("WE ARE HERE")
 	dataConf$data<-data$data
 	}
     
