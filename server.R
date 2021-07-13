@@ -13,7 +13,6 @@ server <- function(input, output, session) {
   
   #Configurate data
   data<-callModule(module = DataConfig, id = "data",query=query$query)
-  
   #Header content
   callModule(module = FlagName,id="name",data=data$data,query=query$query)
 
