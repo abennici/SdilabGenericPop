@@ -144,6 +144,17 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   })   
   
   output$graph <- renderPlotly({
+    vline <- function(x = 0, color = "red") {
+      list(
+        type = "line", 
+        y0 = 0, 
+        y1 = 1, 
+        yref = "paper",
+        x0 = x, 
+        x1 = x, 
+        line = list(color = color)
+      )
+    }
     data<-out$data_period%>%
       mutate(chlor_a = na_if(chlor_a,"none"))%>%
       mutate(sst = na_if(sst,"none"))%>%
@@ -151,7 +162,8 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
       plot_ly(data)%>%
       add_trace(x = ~time, y = ~chlor_a, type = 'scatter',mode = 'lines+markers',name="Chlor_a", text = paste("Concentration of chlorophyll a"," : ",data$chlor_a))%>%
       add_trace(x = ~time, y = ~sst, type = 'scatter',mode = 'lines+markers',name="SST",yaxis="y2", text = paste("Sea surface temperature"," : ",data$sst))%>%
-      layout(legend = list(orientation = "h", xanchor = "center",x = 0.5),
+      layout(shapes = list (vline(out$posix_time)),
+             legend = list(orientation = "h", xanchor = "center",x = 0.5),
              xaxis = list(type = "date",range=c(min(data$time), max(data$time)),title=NULL),
              yaxis = list(title="Concentration of chlorophyll a"),
              yaxis2 = list(overlaying = "y",side = "right",title="Sea surface temerature",showticklabels = TRUE,automargin = TRUE))
