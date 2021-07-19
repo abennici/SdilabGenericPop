@@ -171,7 +171,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   })   
   
   output$graph <- renderPlotly({
-    vline <- function(x = 0, color = "red") {
+    vline <- function(x = 0, color = "grey") {
       list(
         type = "line", 
         y0 = 0, 
