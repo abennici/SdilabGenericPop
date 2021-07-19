@@ -5,7 +5,8 @@ fao_aqua_env_ui <- function(id) {
   ns <- NS(id)
   
   tabPanel(title=uiOutput(ns("title_panel")),value="fao_aqua_env",
-           tabsetPanel(
+        
+        tabsetPanel(
            tabPanel("Summary",
              fluidRow(
                uiOutput(ns("img"))
@@ -14,16 +15,13 @@ fao_aqua_env_ui <- function(id) {
                 htmlOutput(ns("data_time"))
               ),
               fluidRow(
-               htmlOutput(ns("chlor_a_value"))
-              ),
-             fluidRow(
-               htmlOutput(ns("sst_value"))
-             )
+                htmlOutput(ns("env_values"))
+              )
            ),
            tabPanel("Table",
-              fluidRow(
-                div(DTOutput(ns('table'))%>%withSpinner(type = 2),  style = "font-size:50%")
-              )),
+                    fluidRow(
+                      div(DTOutput(ns('table'))%>%withSpinner(type = 2),  style = "font-size:50%")
+                    )),
            tabPanel("Stat",
              fluidRow(
                div(DTOutput(ns('stat'))%>%withSpinner(type = 2),  style = "font-size:70%")
@@ -34,6 +32,10 @@ fao_aqua_env_ui <- function(id) {
                plotlyOutput(ns('graph'))
              )
            )
+           # tabPanel("Selection",
+           #          fluidRow(
+           #            uiOutput(ns("selector"))
+           #          ))
           )
           
   )  
@@ -41,7 +43,7 @@ fao_aqua_env_ui <- function(id) {
 
 # Function for module server
 fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
-  ns<-session$ns  
+  ns<-session$ns
   
   out <-reactiveValues(
     data=as.data.frame(data)
@@ -71,64 +73,89 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
     out$PeriodLabel<-c("Day -7","Day -6","Day -5","Day -4","Day -3","Day -2","Day -1","Select Day","Day +1","Day +2","Day +3","Day +4","Day +5","Day +6","Day +7")
     paste0("<b>Tile date :</b> ",time)
   })
-   
-  output$chlor_a_value <- renderText({
-   CHLORO_WMS <- ows4R::WMSClient$new(url ="https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?", serviceVersion = "1.3.0", logger = "DEBUG")
-   CHLORO_Layer<-CHLORO_WMS$capabilities$findLayerByName("chlor_a")
-   out$CHLORO_Layer<-CHLORO_Layer
-   timeSerie<-CHLORO_Layer$getTimeDimension()$values
-   tmp<-data.frame(chlor_a=timeSerie)
-   tmp$round<-lubridate::floor_date(as.POSIXct(tmp$chlor_a,format="%Y-%m-%dT%H:%M:%OSZ"), "day")
-   timeMatch<-subset(tmp,round==lubridate::floor_date(out$posix_time, "day"))$chlor_a
-   out$CHLORO_week<-subset(tmp,round%in%out$Period)$chlor_a
-   
-   #ExactMatch
-   if(length(timeMatch)>0){
-      CHLORO<-CHLORO_Layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time = timeMatch,info_format = "text/xml")
-      paste0("<b>Concentration of chlorophyll a :</b> ",CHLORO$value," [",timeMatch,"]")
-    }else{
-      paste0("<b>Concentration of chlorophyll a :</b> No Data Available")
-    }
+  
+  env<-data.frame(
+    id=c("chlor_a",
+         "sst",
+       #  "sss",
+         "wave_height",
+         "wind_dir"),
+    wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?",
+          "https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?",
+        #  "https://www.star.nesdis.noaa.gov/thredds/wms/smosSSS3ScanDailyAggLoM?service=WMS",
+          "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?",
+          "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?"),
+    layer=c("chlor_a",
+            "CRW_SST",
+         #   "sss",
+            "Thgt",
+            "wdir"),
+    label=c("Concentration of chlorophyll a",
+          "Sea surface temperature",
+         # "Sea surface salinity",
+          "Sea surface wave height",
+          "Sea surface wind direction")
+  )
+  
+  # output$selector <- renderUI({
+  #   checkboxGroupInput(ns("env_select"), "Choose variables:",
+  #                    choiceNames =unique(env$label),
+  #                    choiceValues =unique(env$id),
+  #                    selected = unique(env$id))
+  # })
+
+   output$env_values <- renderText({
+     txt<-""
+     outt<-list()
+     #if(!is.null(input$env_select))env<-subset(env,id %in% input$env_select)
+     for(i in 1:nrow(env)){
+       WMS<-ows4R::WMSClient$new(url = env[i,2], serviceVersion = "1.3.0", logger = "DEBUG")
+       outt[[env[i,1]]]$wms<-WMS
+       Layer<-WMS$capabilities$findLayerByName(env[i,3])
+       outt[[env[i,1]]]$layer<-Layer
+       timeSerie<-Layer$getTimeDimension()$values
+       outt[[env[i,1]]]$timeSerie<-timeSerie
+       tmp<-data.frame(timeSerie)
+       names(tmp)<-env[i,1]
+       tmp$round<-lubridate::floor_date(as.POSIXct(tmp[,1],format="%Y-%m-%dT%H:%M:%OSZ"), "day")
+       timeMatch<-subset(tmp,round==lubridate::floor_date(out$posix_time, "day"))[1,1]
+       Week<-tmp%>%
+         filter(round %in% out$Period)%>%
+          group_by(round)%>%
+          summarise(timeSerie=first(!! sym(env[i,1])))%>%
+         select(timeSerie)
+       outt[[env[i,1]]]$week<-as.data.frame(Week)$timeSerie
+       
+       if(length(timeMatch)>0){
+         Feature<-Layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time = timeMatch,info_format = "text/xml")
+         txt<-paste0(txt,"<b>",env[i,4]," : </b> ",Feature$value," [",timeMatch,"]<br>")
+       }else{
+         txt<-paste0(txt,"<b>",env[i,4]," : </b>No Data Available")
+       }
+     }
+     out$env<-outt
+     txt
    })
   
-  output$sst_value <- renderText({
-    SST_WMS <- ows4R::WMSClient$new(url ="https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?", serviceVersion = "1.3.0", logger = "DEBUG")
-    SST_Layer<-SST_WMS$capabilities$findLayerByName("CRW_SST")
-    out$SST_Layer<-SST_Layer
-    timeSerie<-SST_Layer$getTimeDimension()$values
-    tmp<-data.frame(sst=timeSerie)
-    tmp$round<-lubridate::floor_date(as.POSIXct(tmp$sst,format="%Y-%m-%dT%H:%M:%OSZ"), "day")
-    timeMatch<-subset(tmp,round==lubridate::floor_date(out$posix_time, "day"))$sst
-    out$SST_week<-subset(tmp,round%in%out$Period)$sst
-    #ExactMatch
-    if(length(timeMatch)>0){
-      SST<-SST_Layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time = timeMatch,info_format = "text/xml")
-      paste0("<b>Sea surface temperature : </b>",SST$value," [",timeMatch,"]")
-    }else{
-      paste0("<b>Sea surface temperature :</b> No Data Available")
-    }
-  })
   
   output$table <- DT::renderDT(server = FALSE, {
-
-    CHLORO_period<-do.call("rbind",lapply(out$CHLORO_week,function(time){out$CHLORO_Layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time =time,info_format = "text/xml")}))
-    CHLORO_period$time<-lubridate::floor_date(as.POSIXct(CHLORO_period$time,format="%Y-%m-%dT%H:%M:%OSZ"), "day")
-    CHLORO_period<-subset(as.data.frame(CHLORO_period),select=c(time,value))
-    names(CHLORO_period)[names(CHLORO_period) == 'value'] <- 'chlor_a'
-    CHLORO_period<-as.data.frame(CHLORO_period)
-    
-    SST_period<-do.call("rbind",lapply(out$SST_week,function(time){out$SST_Layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time =time,info_format = "text/xml")}))
-    SST_period$time<-lubridate::floor_date(as.POSIXct(SST_period$time,format="%Y-%m-%dT%H:%M:%OSZ"), "day")
-    SST_period<-subset(as.data.frame(SST_period),select=c(time,value))
-    names(SST_period)[names(SST_period) == 'value'] <- 'sst'
-    
-    data_period<-merge(CHLORO_period,SST_period)
+    #if(!is.null(input$env_selection))env<-subset(env,id %in% input$env_select)
+    data_period<-NULL
+    for(i in env$id){
+      week<-out$env[[i]]$week
+      table<-do.call("rbind",lapply(week,function(time){out$env[[i]]$layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time =time,info_format = "text/xml")}))
+      table$time<-as.character(lubridate::floor_date(as.POSIXct(table$time,format="%Y-%m-%dT%H:%M:%OSZ"), "day"))
+      table<-subset(as.data.frame(table),select=c(time,value))
+      names(table)[names(table) == 'value'] <- i
+      table<-as.data.frame(table)
+      print(table)
+      data_period<-if(is.null(data_period)) table else merge(data_period,table)
+    }
     data_period$chronology<-out$PeriodLabel
     out$data_period<-data_period
-   datatable(out$data_period)%>%
-     formatStyle("chronology",target = 'row',fontWeight = "bold",backgroundColor = styleEqual(c("Select Day"), c("orange")))
-     
-   })
+    datatable(out$data_period)%>%
+      formatStyle("chronology",target = 'row',fontWeight = "bold",backgroundColor = styleEqual(c("Select Day"), c("orange")))
+  })
   
   output$stat <- DT::renderDT(server = FALSE, {
     datatable(
@@ -156,17 +183,24 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
       )
     }
     data<-out$data_period%>%
-      mutate(chlor_a = na_if(chlor_a,"none"))%>%
-      mutate(sst = na_if(sst,"none"))%>%
-      mutate(time = as.POSIXct(time,format="%Y-%m-%dT%H:%M:%OSZ"))
+      mutate(chlor_a = as.numeric(na_if(chlor_a,"none")))%>%
+      mutate(sst = as.numeric(na_if(sst,"none")))%>%
+      mutate(wave_height = as.numeric(na_if(wave_height,"none")))%>%
+      mutate(wind_dir = as.numeric(na_if(wind_dir,"none")))%>%
+      mutate(time = as.POSIXct(time,format="%Y-%m-%d"))
+    
       plot_ly(data)%>%
-      add_trace(x = ~time, y = ~chlor_a, type = 'scatter',mode = 'lines+markers',name="Chlor_a", text = paste("Concentration of chlorophyll a"," : ",data$chlor_a))%>%
-      add_trace(x = ~time, y = ~sst, type = 'scatter',mode = 'lines+markers',name="SST",yaxis="y2", text = paste("Sea surface temperature"," : ",data$sst))%>%
+      add_trace(x = ~time, y = ~chlor_a,line = list(color = 'green'),marker = list(color = 'green'), type = 'scatter',mode = 'lines+markers',name="Chlor_a", text = paste("Concentration of chlorophyll a"," : ",data$chlor_a))%>%
+      add_trace(x = ~time, y = ~sst,line = list(color='red'),marker = list(color = 'red'), type = 'scatter',mode = 'lines+markers',name="SST",yaxis="y2", text = paste("Sea surface temperature"," : ",data$sst))%>%
+      add_trace(x = ~time, y = ~wave_height,line = list(color='blue'),marker = list(color = 'blue'), type = 'scatter',mode = 'lines+markers',name="wave_height",yaxis="y3", text = paste("Sea surface wave height"," : ",data$sst))%>%
+      add_trace(x = ~time, y = ~wind_dir,line = list(color='orange'),marker = list(color = 'orange'), type = 'scatter',mode = 'lines+markers',name="wind_dir",yaxis="y4", text = paste("Sea surface wind direction"," : ",data$sst))%>%
       layout(shapes = list (vline(out$posix_time)),
-             legend = list(orientation = "h", xanchor = "center",x = 0.5),
-             xaxis = list(type = "date",range=c(min(data$time), max(data$time)),title=NULL),
-             yaxis = list(title="Concentration of chlorophyll a"),
-             yaxis2 = list(overlaying = "y",side = "right",title="Sea surface temerature",showticklabels = TRUE,automargin = TRUE))
+             xaxis = list(domain = c(0.13, 0.83),type = "date",range=c(min(data$time), max(data$time)),title="",titlefont = list(size = 7), tickfont = list(size = 7)),
+             yaxis = list(position=0,title=list(text="Concentration of chlorophyll a",standoff=1),hoverformat = '.3f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "green"), tickfont = list(size = 7,color = "green")),
+             yaxis2 = list(position=0.13,overlaying = "y",side = "left",title=list(text="Sea surface temerature",standoff=1),hoverformat = '.3f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "red"), tickfont = list(size = 7,color = "red")),
+             yaxis3 = list(position =0.83,overlaying = "y",side = "right",title=list(text="Sea surface wave height",standoff=1),hoverformat = '.3f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "blue"), tickfont = list(size = 7,color = "blue")),
+             yaxis4 = list(position =0.95,overlaying = "y",side = "right",title=list(text="Sea surface wind direction",standoff=3),hoverformat = '.2f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "orange"), tickfont = list(size = 7,color = "orange")),
+             legend = list(orientation = "h", x = 0, y= -0.2, anchor="center",font = list(size = 7)))
   })
   
 }
