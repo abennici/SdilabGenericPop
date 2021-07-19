@@ -2,7 +2,6 @@ FROM rocker/r-ver:3.6.3
 
 MAINTAINER Alexandre Bennici "bennicialexandre@gmail.com"
 
-
 # system libraries of general use
 
 RUN apt-get update && apt-get install -y \
@@ -16,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     git 
    
-  RUN apt-get update && apt-get upgrade -y
+RUN apt-get update && apt-get upgrade -y
 
 # install dependencies of the app
 
