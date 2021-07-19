@@ -4,8 +4,6 @@ MAINTAINER Alexandre Bennici "bennicialexandre@gmail.com"
 
 
 # system libraries of general use
-  # mainly for installing sf (which requires units/rgeos/rgdal)
-
 
 RUN apt-get update && apt-get install -y \
     sudo \
@@ -15,19 +13,31 @@ RUN apt-get update && apt-get install -y \
     libgdal-dev \
     libssl-dev \
     libcurl4-openssl-dev \
-    libxml2 \
     libxml2-dev \
     git 
    
   RUN apt-get update && apt-get upgrade -y
 
-# install dependencies of the Fao Capture popup app
+# install dependencies of the app
+
 RUN R -e "install.packages(c('devtools'), repos='https://cran.r-project.org/')"
 RUN R -e "devtools::install_version('XML', version='3.99-0.3', repos = 'http://cran.r-project.org')"
-RUN R -e "install.packages(c('R6','readr','shinycssloaders','stringr','ggplot2', 'httr','plotly','dplyr','sp','sf','rgdal','geometa','shiny','DT','shinyWidgets','jsonlite','remotes'), repos='http://cran.r-project.org')"
-
-RUN R -e "remotes::install_github('eblondel/ows4R')"
-#RUN R -e "remotes::install_github('daattali/shinycssloaders')"
+RUN R -e "devtools::install_version('shiny', version='1.5.0', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('shinyjs', version='1.1', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('shinydashboard', version='0.7.1', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('shinyWidgets', version='0.5.3', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('lubridate', version='1.7.9', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('dplyr', version='1.0.0', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('plotly', version='4.9.2.1', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('readr', version='1.3.1', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('jsonlite', version='1.7.1', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('stringr', version='1.4.0', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('DT', version='0.17', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('reshape', version='0.8.8', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('base64', version='2.0', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('sp', version='1.4-2', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('shinycssloaders', version='1.0.0', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_github('eblondel/ows4R')"
 
 RUN git -C /root/ clone https://github.com/abennici/SdilabGenericPop.git && echo "OK!"
 RUN mkdir -p /srv/shiny/
