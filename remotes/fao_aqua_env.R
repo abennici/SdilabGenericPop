@@ -37,7 +37,7 @@ fao_aqua_env_ui <- function(id) {
            tabPanel("Map_interaction",
                     fluidRow(
                       extendShinyjs(text = jsCode),
-                      actionButton(ns("mapview"), "Switch 2D/3D view on map", class = "btn-success"),
+                      actionButton(ns("mapview"), "Switch 2D/3D view on map"),
                     )
            )
            # tabPanel("Selection",
@@ -53,9 +53,10 @@ fao_aqua_env_ui <- function(id) {
 fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns
   
-  onclick(ns("mapview"),{
+  observeEvent(input$mapview,{
     #window.parent.OFV.SwitchMapView()
     js$SwitchMapView()
+    cat("click!")
   })
   
   out <-reactiveValues(
