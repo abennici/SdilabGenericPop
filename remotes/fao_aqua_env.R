@@ -53,7 +53,7 @@ fao_aqua_env_ui <- function(id) {
 fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns
   
-  on.click(input$mapview,{
+  observeEvent(input$mapview,{
     #window.parent.OFV.SwitchMapView()
     js$SwitchMapView()
     cat("click!")
