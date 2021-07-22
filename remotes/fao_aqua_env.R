@@ -36,7 +36,7 @@ fao_aqua_env_ui <- function(id) {
            ),
            tabPanel("Map_interaction",
                     fluidRow(
-                      extendShinyjs(text = jsCode),
+                      extendShinyjs(text = jsCode,functions = c()),
                       actionButton(ns("mapview"), "Switch 2D/3D view on map"),
                     )
            )
