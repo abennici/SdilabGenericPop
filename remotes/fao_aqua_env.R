@@ -34,8 +34,20 @@ fao_aqua_env_ui <- function(id) {
                plotlyOutput(ns('graph'))
              )
            ),
+           tabPanel("Wind Rose",
+              fluidRow(
+                plotOutput(ns('windrose'))
+              )
+            
+           ),
            tabPanel("Map_interaction",
                     fluidRow(
+    #                   tags$script("
+    #   Shiny.addCustomMessageHandler('background-color', function(color) {
+    #     document.body.style.backgroundColor = color;
+    #     document.body.innerText = color;
+    #   });
+    # "),
                       extendShinyjs(text = jsCode,functions = c()),
                       actionButton(ns("mapview"), "Switch 2D/3D view on map"),
                     )
@@ -54,6 +66,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns
   
   observeEvent(input$mapview,{
+    #session$sendCustomMessage("background-color", nextColor())
     #window.parent.OFV.SwitchMapView()
     js$SwitchMapView()
     cat("click!")
@@ -206,7 +219,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
       plot_ly(data)%>%
       add_trace(x = ~time, y = ~chlor_a,line = list(color = 'green'),marker = list(color = 'green'), type = 'scatter',mode = 'lines+markers',name="Chlor_a", text = paste("Concentration of chlorophyll a"," : ",data$chlor_a))%>%
       add_trace(x = ~time, y = ~sst,line = list(color='red'),marker = list(color = 'red'), type = 'scatter',mode = 'lines+markers',name="SST",yaxis="y2", text = paste("Sea surface temperature"," : ",data$sst))%>%
-      add_trace(x = ~time, y = ~wave_height,line = list(color='blue'),marker = list(color = 'blue'), type = 'scatter',mode = 'lines+markers',name="wave_height",yaxis="y3", text = paste("Sea surface wave height"," : ",data$sst))%>%
+      add_trace(x = ~time, y = ~wave_height,marker = list(color = 'blue'), type = 'scatter',mode = 'markers',name="wave_height",yaxis="y3", text = paste("Sea surface wave height"," : ",data$sst))%>%
       add_trace(x = ~time, y = ~wind_dir,line = list(color='orange'),marker = list(color = 'orange'), type = 'scatter',mode = 'lines+markers',name="wind_dir",yaxis="y4", text = paste("Sea surface wind direction"," : ",data$sst))%>%
       layout(shapes = list (vline(out$posix_time)),
              xaxis = list(domain = c(0.13, 0.83),type = "date",range=c(min(data$time), max(data$time)),title="",titlefont = list(size = 7), tickfont = list(size = 7)),
@@ -216,6 +229,48 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
              yaxis4 = list(position =0.95,overlaying = "y",side = "right",title=list(text="Sea surface wind direction",standoff=3),hoverformat = '.2f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "orange"), tickfont = list(size = 7,color = "orange")),
              legend = list(orientation = "h", x = 0, y= -0.2, anchor="center",font = list(size = 7)))
   })
-  
+ 
+  output$windrose <- renderPlot({
+    directions<-data.frame(
+      cardinal=c("N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"),
+      degree_min=c(348.75,11.25,33.75,56.25,78.75,101.25,123.75,146.25,168.75,191.25,213.75,236.25,258.75,281.25,303.75,326.25),
+      degree_max=c(11.25,33.75,56.25,78.75,101.25,123.75,146.25,168.75,191.25,213.75,236.25,258.75,281.25,303.75,326.25,348.75)
+    )
+    
+    wind_dir <- out$data_period %>%
+      select(time,wind_dir)%>%
+      filter(wind_dir!="none")%>%
+      mutate(wd_cardinal = cut(
+        as.numeric(wind_dir), 
+        breaks = c(0, directions$degree_max, 360), 
+        labels = c(directions$cardinal, 'N')
+      ))%>%
+      count(wd_cardinal)%>%
+      complete(wd_cardinal = c("N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"),fill=list(n=0))
+    
+    wind_dir$wd_cardinal<-factor(wind_dir$wd_cardinal,c("N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"))
+    
+    ggplot(wind_dir, aes(x=wd_cardinal))+
+      geom_col(aes(y=max(n)),width = 1, fill = "black") +
+      labs(x=NULL,y=NULL)+
+      geom_col(aes(y=n,fill=n),width = 1)+
+      scale_fill_gradient2(low="green", high="red", mid="yellow",midpoint=median(wind_dir$n))+
+      geom_hline(yintercept = seq(0, max(wind_dir$n), by = 1),
+                 color = "white", size = 0.5) +
+      geom_vline(xintercept = seq(.5, 16.5, by = 1),
+                 color = "white", size = 0.5)+
+      coord_polar(start=)+
+      theme(axis.text.x = element_text(size=5),
+            axis.text.y = element_blank(),
+            axis.ticks.y = element_blank(),
+            axis.ticks.x = element_blank(),
+            panel.background = element_rect(fill="NA"),
+            legend.position = "none",
+            plot.margin = unit(c(1,1,1,1), "cm"),
+            panel.grid = element_blank()
+      )
+  }) 
+   
 }
+
 ####

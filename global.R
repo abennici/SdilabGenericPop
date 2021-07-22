@@ -17,6 +17,7 @@ library("stringr")
 library("base64")
 library("lubridate")
 library("reshape")
+library('tidyr')
 #Commons
 
 # Options for Spinner
