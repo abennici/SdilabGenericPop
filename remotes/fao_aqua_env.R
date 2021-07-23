@@ -163,9 +163,9 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
        
        if(length(timeMatch)>0){
          Feature<-Layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time = timeMatch,info_format = "text/xml")
-         txt<-paste0(txt,"<a href=",env[i,5],">",env[i,4]," : </a> ",Feature$value," ",env[i,6]," [",timeMatch,"]<br>")
+         txt<-paste0(txt,"<a href=",env[i,5]," target=_blank>",env[i,4]," : </a> ",Feature$value," ",env[i,6]," [",timeMatch,"]<br>")
        }else{
-         txt<-paste0(txt,"<a href=",env[i,5],">",env[i,4]," : </a>No Data Available")
+         txt<-paste0(txt,"<a href=",env[i,5]," target=_blank>",env[i,4]," : </a>No Data Available")
        }
      }
      out$env<-outt
