@@ -17,7 +17,7 @@ fao_aqua_env_ui <- function(id) {
                 htmlOutput(ns("data_time"))
               ),
               fluidRow(
-                htmlOutput(ns("env_values"))
+                div(htmlOutput(ns("env_values"))%>%withSpinner(type = 2))
               )
            ),
            tabPanel("Table",
@@ -73,7 +73,8 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   })
   
   out <-reactiveValues(
-    data=as.data.frame(data)
+    data=as.data.frame(data),
+    go=FALSE
   )
   
   output$img <-renderUI({
@@ -168,13 +169,13 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
          txt<-paste0(txt,"<a href=",env[i,5]," target=_blank>",env[i,4]," : </a>No Data Available")
        }
      }
+     out$go<-TRUE
      out$env<-outt
      txt
    })
-  
-  
-  output$table <- DT::renderDT(server = FALSE, {
-    #if(!is.null(input$env_selection))env<-subset(env,id %in% input$env_select)
+   
+  observe({
+    if(out$go){
     data_period<-NULL
     for(i in env$id){
       week<-out$env[[i]]$week
@@ -188,11 +189,18 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
     }
     data_period$chronology<-out$PeriodLabel
     out$data_period<-data_period
+    }
+  })
+   
+  output$table <- DT::renderDT(server = FALSE, {
+    if(!is.null(out$data_period)){
     datatable(out$data_period)%>%
       formatStyle("chronology",target = 'row',fontWeight = "bold",backgroundColor = styleEqual(c("Select Day"), c("orange")))
-  })
+    }else{NULL}
+      })
   
   output$stat <- DT::renderDT(server = FALSE, {
+    if(!is.null(out$data_period)){
     datatable(
       reshape::melt(out$data_period, id=c("time","chronology"))%>%
       group_by(variable)%>%
@@ -203,9 +211,11 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
                 median=round(median(as.numeric(na.omit(value))),2),
                 sd=round(sd(as.numeric(na.omit(value))),2)),
     options = list(dom = 't'), rownames = FALSE)
+    }else{NULL}
   })   
   
   output$graph <- renderPlotly({
+    if(!is.null(out$data_period)){
     vline <- function(x = 0, color = "grey") {
       list(
         type = "line", 
@@ -236,9 +246,11 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
              yaxis3 = list(position =0.83,overlaying = "y",side = "right",title=list(text="Sea surface wave height (m)",standoff=1),hoverformat = '.3f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "blue"), tickfont = list(size = 7,color = "blue")),
              yaxis4 = list(position =0.95,overlaying = "y",side = "right",title=list(text="Sea surface wind direction (degree)",standoff=3),hoverformat = '.2f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "orange"), tickfont = list(size = 7,color = "orange")),
              legend = list(orientation = "h", x = 0, y= -0.2, anchor="center",font = list(size = 7)))
+  }else{NULL}
   })
  
   output$windrose <- renderPlot({
+    if(!is.null(out$data_period)){
     directions<-data.frame(
       cardinal=c("N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"),
       degree_min=c(348.75,11.25,33.75,56.25,78.75,101.25,123.75,146.25,168.75,191.25,213.75,236.25,258.75,281.25,303.75,326.25),
@@ -277,6 +289,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
             plot.margin = unit(c(1,1,1,1), "cm"),
             panel.grid = element_blank()
       )
+    }else{NULL}
   }) 
    
 }
