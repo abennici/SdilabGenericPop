@@ -109,7 +109,6 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
          "wind_dir"),
     wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?",
           "https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?",
-        #  "https://www.star.nesdis.noaa.gov/thredds/wms/smosSSS3ScanDailyAggLoM?service=WMS",
           "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?",
           "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?"),
     layer=c("chlor_a",
@@ -119,9 +118,18 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
             "wdir"),
     label=c("Concentration of chlorophyll a",
           "Sea surface temperature",
-         # "Sea surface salinity",
           "Sea surface wave height",
-          "Sea surface wind direction")
+          "Sea surface wind direction"),
+    source=c("https://oceancolor.gsfc.nasa.gov/atbd/chlor_a",
+             "https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php",
+             "https://polar.ncep.noaa.gov/waves/products.shtml?",
+             "https://polar.ncep.noaa.gov/waves/products.shtml?",
+             ),
+    unit=c("mg/m3",
+           "°C",
+           "m",
+           "degree"
+           )
   )
   
   # output$selector <- renderUI({
@@ -155,9 +163,9 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
        
        if(length(timeMatch)>0){
          Feature<-Layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time = timeMatch,info_format = "text/xml")
-         txt<-paste0(txt,"<b>",env[i,4]," : </b> ",Feature$value," [",timeMatch,"]<br>")
+         txt<-paste0(txt,"<a href=",env[i,5],">",env[i,4]," : </a> ",Feature$value," ",env[i,6]," [",timeMatch,"]<br>")
        }else{
-         txt<-paste0(txt,"<b>",env[i,4]," : </b>No Data Available")
+         txt<-paste0(txt,"<a href=",env[i,5],">",env[i,4]," : </a>No Data Available")
        }
      }
      out$env<-outt
@@ -223,10 +231,10 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
       add_trace(x = ~time, y = ~wind_dir,line = list(color='orange'),marker = list(color = 'orange'), type = 'scatter',mode = 'lines+markers',name="wind_dir",yaxis="y4", text = paste("Sea surface wind direction"," : ",data$sst))%>%
       layout(shapes = list (vline(out$posix_time)),
              xaxis = list(domain = c(0.13, 0.83),type = "date",range=c(min(data$time), max(data$time)),title="",titlefont = list(size = 7), tickfont = list(size = 7)),
-             yaxis = list(position=0,title=list(text="Concentration of chlorophyll a",standoff=1),hoverformat = '.3f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "green"), tickfont = list(size = 7,color = "green")),
-             yaxis2 = list(position=0.13,overlaying = "y",side = "left",title=list(text="Sea surface temerature",standoff=1),hoverformat = '.3f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "red"), tickfont = list(size = 7,color = "red")),
-             yaxis3 = list(position =0.83,overlaying = "y",side = "right",title=list(text="Sea surface wave height",standoff=1),hoverformat = '.3f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "blue"), tickfont = list(size = 7,color = "blue")),
-             yaxis4 = list(position =0.95,overlaying = "y",side = "right",title=list(text="Sea surface wind direction",standoff=3),hoverformat = '.2f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "orange"), tickfont = list(size = 7,color = "orange")),
+             yaxis = list(position=0,title=list(text="Concentration of chlorophyll a (mg/m3)",standoff=1),hoverformat = '.3f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "green"), tickfont = list(size = 7,color = "green")),
+             yaxis2 = list(position=0.13,overlaying = "y",side = "left",title=list(text="Sea surface temperature (°C)",standoff=1),hoverformat = '.3f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "red"), tickfont = list(size = 7,color = "red")),
+             yaxis3 = list(position =0.83,overlaying = "y",side = "right",title=list(text="Sea surface wave height (m)",standoff=1),hoverformat = '.3f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "blue"), tickfont = list(size = 7,color = "blue")),
+             yaxis4 = list(position =0.95,overlaying = "y",side = "right",title=list(text="Sea surface wind direction (degree)",standoff=3),hoverformat = '.2f',showticklabels = T,automargin = F,titlefont = list(size = 7,color = "orange"), tickfont = list(size = 7,color = "orange")),
              legend = list(orientation = "h", x = 0, y= -0.2, anchor="center",font = list(size = 7)))
   })
  
