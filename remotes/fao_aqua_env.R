@@ -123,7 +123,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
     source=c("https://oceancolor.gsfc.nasa.gov/atbd/chlor_a",
              "https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php",
              "https://polar.ncep.noaa.gov/waves/products.shtml?",
-             "https://polar.ncep.noaa.gov/waves/products.shtml?",
+             "https://polar.ncep.noaa.gov/waves/products.shtml?"
              ),
     unit=c("mg/m3",
            "°C",
