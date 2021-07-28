@@ -1,7 +1,7 @@
 ###FAO Aquaculture image display and environmental enrichment Module
 ##Query Example : /?pid=aquaculture_farm_detection&layer=aquaculture_farm_detection&wfs_server=https://geoserver-sdi-lab.d4science.org/geoserver/sdilab_fisheriesatlas/ows&wfs_version=1.0.0&wms_server=https://geoserver-sdi-lab.d4science.org/geoserver/sdilab_fisheriesatlas/wms&wms_version=1.1.0&feature_geom=false&strategy=ogc_filters&geom=the_geom&x=217&y=181&width=256&height=256&bbox=-8140237.7642581295,-5165920.119625352,-8101102.005776119,-5126784.361143342&srs=EPSG:3857&geoCol=null&panel=fao_aqua_env&fao_aqua_env.title=Aquaculture-Environmental%20enrichment&fao_aqua_env.script=https://raw.githubusercontent.com/abennici/SdilabGenericPop/master/remotes/fao_aqua_env.R
 # Function for module UI
-jsCode <- "shinyjs.SwitchMapView = function(){window.parent.OFV.SwitchMapView();}"
+jsCode <- "shinyjs.SwitchMapView = function(){parent.postMessage('OFV.switchMapView()','*');}"
 
 fao_aqua_env_ui <- function(id) {
   ns <- NS(id)
@@ -42,13 +42,13 @@ fao_aqua_env_ui <- function(id) {
            ),
            tabPanel("Map_interaction",
                     fluidRow(
-    #                   tags$script("
-    #   Shiny.addCustomMessageHandler('background-color', function(color) {
-    #     document.body.style.backgroundColor = color;
-    #     document.body.innerText = color;
-    #   });
-    # "),
-                      extendShinyjs(text = jsCode,functions = c()),
+     #                  tags$script("
+     #   Shiny.addCustomMessageHandler('background-color', function(color) {
+     #     document.body.style.backgroundColor = color;
+     #     document.body.innerText = color;
+     #   });
+     #"),
+                      #extendShinyjs(text = jsCode,functions = c()),
                       actionButton(ns("mapview"), "Switch 2D/3D view on map"),
                     )
            )
@@ -65,32 +65,30 @@ fao_aqua_env_ui <- function(id) {
 fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns
   
-  observeEvent(input$mapview,{
-    #session$sendCustomMessage("background-color", nextColor())
-    #window.parent.OFV.SwitchMapView()
-    js$SwitchMapView()
-    cat("click!")
-  })
+  onclick(input$mapview,"parent.postMessage('OFV.switchMapView()','*');")
+  #   #session$sendCustomMessage("background-color", nextColor())
+  #   #window.parent.OFV.SwitchMapView()
+  #   js$SwitchMapView()
+  #   cat("click!")
+  # })
   
   out <-reactiveValues(
-    data=as.data.frame(data),
+    data=NULL,
     go=FALSE
   )
   
-  output$img <-renderUI({
-     df<-out$data
-     img<-df[1,]$s2_crop
-     print(img)
-     if(!is.null(img)||img==""){
-       img_clean<-str_replace(img,"base64:","")
-       img_url<-sprintf("<center><img src=\"data:image/png;base64,\n%s\" alt=\"image\" /></center>",  img_clean)
-       HTML(img_url)
-     }else{
-       div("No image to display !")
-     }
-   })
+  observe({
+    out$data<-as.data.frame(data)
+  })
   
-  output$data_time <-renderText({
+  observe({
+    df<-out$data
+    img<-df[1,]$s2_crop
+    img_clean<-str_replace(img,"base64:","")
+    out$img_url<-sprintf("<center><img src=\"data:image/png;base64,\n%s\" alt=\"image\" /></center>",  img_clean)
+  })
+  
+  observe({
     time<-unique(as.character(out$data$tile_date))
     out$data_time<-time
     posix_time<-as.POSIXct(out$data_time, format="%Y-%m-%d")
@@ -99,13 +97,27 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
     weekAfter<-seq(out$posix_time, by = "1 day", length.out = 8)
     out$Period<-lubridate::floor_date(sort(unique(c(weekBefore,weekAfter))),'day')
     out$PeriodLabel<-c("Day -7","Day -6","Day -5","Day -4","Day -3","Day -2","Day -1","Select Day","Day +1","Day +2","Day +3","Day +4","Day +5","Day +6","Day +7")
-    paste0("<b>Tile date :</b> ",time)
+  })
+  
+  output$img <-renderUI({
+     if(!is.null(out$img_url)){
+       HTML(out$img_url)
+     }else{
+       div("No image to display !")
+     }
+   })
+  
+  output$data_time <-renderText({
+    if(is.null(out$data_time)){
+      paste0("<b>Tile date :</b> ","loading...") 
+    }else{
+      paste0("<b>Tile date :</b> ",out$data_time)
+    }
   })
   
   env<-data.frame(
     id=c("chlor_a",
          "sst",
-       #  "sss",
          "wave_height",
          "wind_dir"),
     wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?",
@@ -114,7 +126,6 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
           "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?"),
     layer=c("chlor_a",
             "CRW_SST",
-         #   "sss",
             "Thgt",
             "wdir"),
     label=c("Concentration of chlorophyll a",
@@ -140,38 +151,41 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   #                    selected = unique(env$id))
   # })
 
-   output$env_values <- renderText({
-     txt<-""
-     outt<-list()
-     #if(!is.null(input$env_select))env<-subset(env,id %in% input$env_select)
-     for(i in 1:nrow(env)){
-       WMS<-ows4R::WMSClient$new(url = env[i,2], serviceVersion = "1.3.0", logger = "DEBUG")
-       outt[[env[i,1]]]$wms<-WMS
-       Layer<-WMS$capabilities$findLayerByName(env[i,3])
-       outt[[env[i,1]]]$layer<-Layer
-       timeSerie<-Layer$getTimeDimension()$values
-       outt[[env[i,1]]]$timeSerie<-timeSerie
-       tmp<-data.frame(timeSerie)
-       names(tmp)<-env[i,1]
-       tmp$round<-lubridate::floor_date(as.POSIXct(tmp[,1],format="%Y-%m-%dT%H:%M:%OSZ"), "day")
-       timeMatch<-subset(tmp,round==lubridate::floor_date(out$posix_time, "day"))[1,1]
-       Week<-tmp%>%
-         filter(round %in% out$Period)%>%
-          group_by(round)%>%
-          summarise(timeSerie=first(!! sym(env[i,1])))%>%
-         select(timeSerie)
-       outt[[env[i,1]]]$week<-as.data.frame(Week)$timeSerie
-       
-       if(length(timeMatch)>0){
-         Feature<-Layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time = timeMatch,info_format = "text/xml")
-         txt<-paste0(txt,"<a href=",env[i,5]," target=_blank>",env[i,4]," : </a> ",Feature$value," ",env[i,6]," [",timeMatch,"]<br>")
-       }else{
-         txt<-paste0(txt,"<a href=",env[i,5]," target=_blank>",env[i,4]," : </a>No Data Available")
-       }
-     }
-     out$go<-TRUE
-     out$env<-outt
-     txt
+  observe({
+  txt<-""
+  outt<-list()
+  #if(!is.null(input$env_select))env<-subset(env,id %in% input$env_select)
+  for(i in 1:nrow(env)){
+    WMS<-ows4R::WMSClient$new(url = env[i,2], serviceVersion = "1.3.0", logger = "DEBUG")
+    outt[[env[i,1]]]$wms<-WMS
+    Layer<-WMS$capabilities$findLayerByName(env[i,3])
+    outt[[env[i,1]]]$layer<-Layer
+    timeSerie<-Layer$getTimeDimension()$values
+    outt[[env[i,1]]]$timeSerie<-timeSerie
+    tmp<-data.frame(timeSerie)
+    names(tmp)<-env[i,1]
+    tmp$round<-lubridate::floor_date(as.POSIXct(tmp[,1],format="%Y-%m-%dT%H:%M:%OSZ"), "day")
+    timeMatch<-subset(tmp,round==lubridate::floor_date(out$posix_time, "day"))[1,1]
+    Week<-tmp%>%
+      filter(round %in% out$Period)%>%
+      group_by(round)%>%
+      summarise(timeSerie=first(!! sym(env[i,1])))%>%
+      select(timeSerie)
+    outt[[env[i,1]]]$week<-as.data.frame(Week)$timeSerie
+    
+    if(length(timeMatch)>0){
+      Feature<-Layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time = timeMatch,info_format = "text/xml")
+      txt<-paste0(txt,"<a href=",env[i,5]," target=_blank>",env[i,4]," : </a> ",Feature$value," ",env[i,6]," [",timeMatch,"]<br>")
+    }else{
+      txt<-paste0(txt,"<a href=",env[i,5]," target=_blank>",env[i,4]," : </a>No Data Available")
+    }
+  }
+  out$go<-TRUE
+  out$env<-outt
+  out$txt<-txt
+  })
+  output$env_values <- renderText({
+    out$txt
    })
    
   observe({
