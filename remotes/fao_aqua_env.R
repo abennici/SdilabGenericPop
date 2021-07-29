@@ -116,7 +116,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   
   onclick(input$mapview1,"parent.postMessage('OFV.switchMapView()','*');")
   
-  observeEvent(input$mapview3{
+  observeEvent(input$mapview3,{
     session$sendCustomMessage("alert", list(
       val = 2, 
       size = 11
