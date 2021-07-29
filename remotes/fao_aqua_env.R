@@ -50,31 +50,31 @@ fao_aqua_env_ui <- function(id) {
   tabPanel(title=uiOutput(ns("title_panel")),value="fao_aqua_env",
            
     tabsetPanel(
-      tabPanel("Test1",
-               fluidRow(
-                 actionButton(ns("mapview1"), "Switch 2D/3D view on map")
-               )),
-       tabPanel("Test2",
-                fluidRow(
-                  tags$script("parent.postMessage('OFV.switchMapView()','*');")
-                )),
-      tabPanel("Test3",
-               fluidRow(
-                 actionButton(ns("mapview3"), "Switch 2D/3D view on map"),
-                 tags$script("
-Shiny.addCustomMessageHandler('alert', function(arg) {
-  alert(arg.val);
-  alert(arg.size);
-});")
-               )),
-      tabPanel("Test4",
-               fluidRow(
-                 actionButton(ns("mapview4"), "Switch 2D/3D view on map"),
-                 tags$script("
-Shiny.addCustomMessageHandler('switch', function(arg) {
-parent.postMessage(arg.text,arg.origin);
-});")
-               )),
+      # tabPanel("Test1",
+      #          fluidRow(
+      #            actionButton(ns("mapview1"), "Switch 2D/3D view on map")
+      #          )),
+      #  tabPanel("Test2",
+      #           fluidRow(
+      #             tags$script("parent.postMessage('OFV.switchMapView()','*');")
+      #           )),
+#       tabPanel("Test3",
+#                fluidRow(
+#                  actionButton(ns("mapview3"), "Switch 2D/3D view on map"),
+#                  tags$script("
+# Shiny.addCustomMessageHandler('alert', function(arg) {
+#   alert(arg.val);
+#   alert(arg.size);
+# });")
+#                )),
+#       tabPanel("Test4",
+#                fluidRow(
+#                  actionButton(ns("mapview4"), "Switch 2D/3D view on map"),
+#                  tags$script("
+# Shiny.addCustomMessageHandler('switch', function(arg) {
+# parent.postMessage(arg.text,arg.origin);
+# });")
+#                )),
       tabPanel("Test5",
                fluidRow(
                  actionButton(ns("mapview5"), "Switch 2D/3D view on map"),
