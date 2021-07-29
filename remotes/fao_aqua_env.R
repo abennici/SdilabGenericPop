@@ -144,7 +144,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   output$draw_polygon<-renderUI({
     if(input$mapview2){
       cat("click")
-      tags$script("parent.postMessage('OFV.drawFeatureFromWKT('POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))')','*');")  
+      tags$script("parent.postMessage('OFV.drawFeatureFromWKT(\"POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))\")','*');")  
     }else{
       cat("Not click")
       NULL
