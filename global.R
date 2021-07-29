@@ -26,7 +26,6 @@ options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.siz
 
 #load module functions
 source("https://raw.githubusercontent.com/eblondel/OpenFairViewer/master/src/resources/shinyModule/QueryInfo.R")
-#source("D:/FAO-BLUECLOUD_04052020_11082020/02-R/04-Github/OpenFairViewer/src/resources/shinyModule/QueryInfo.R")
 source("settings/DataConfig.R")
 source("settings/FlagName.R")
 source("ui.R")
