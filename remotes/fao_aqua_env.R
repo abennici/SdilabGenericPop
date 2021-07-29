@@ -116,8 +116,10 @@ fao_aqua_env_ui <- function(id) {
       ),
       tabPanel("Map interaction",
                fluidRow(
-                 actionButton(ns("mapview5"), "Switch 2D/3D view on map"),
-                 uiOutput(ns("map_switch"))
+                 actionButton(ns("mapview1"), "Switch 2D/3D view on map"),
+                 uiOutput(ns("map_switch")),
+                 actionButton(ns("mapview2"), "Draw a polygon"),
+                 uiOutput(ns("draw_polygon"))
                ))
     )
   )  
@@ -130,7 +132,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   #onclick(input$mapview1,"parent.postMessage('OFV.switchMapView()','*');")
   
   output$map_switch<-renderUI({
-    if(input$mapview5){
+    if(input$mapview1){
       cat("click")
       tags$script("parent.postMessage('OFV.switchMapView()','*');")  
     }else{
@@ -138,6 +140,17 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
       NULL
       }
   })
+  
+  output$draw_polygon<-renderUI({
+    if(input$mapview2){
+      cat("click")
+      tags$script("parent.postMessage('OFV.drawFeatureFromWKT('POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))')','*');")  
+    }else{
+      cat("Not click")
+      NULL
+    }
+  })
+  
   
   # observeEvent(input$mapview3,{
   #   session$sendCustomMessage("alert", list(
