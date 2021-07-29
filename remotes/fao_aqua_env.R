@@ -50,6 +50,23 @@ fao_aqua_env_ui <- function(id) {
   tabPanel(title=uiOutput(ns("title_panel")),value="fao_aqua_env",
            
     tabsetPanel(
+      tabPanel("Test1",
+               fluidRow(
+                 actionButton(ns("mapview1"), "Switch 2D/3D view on map")
+               )),
+      tabPanel("Test2",
+               fluidRow(
+                 tags$script("parent.postMessage('OFV.switchMapView()','*');")
+               )),
+      tabPanel("Test3",
+               fluidRow(
+                 actionButton(ns("mapview3"), "Switch 2D/3D view on map"),
+                 tags$script("
+Shiny.addCustomMessageHandler('alert', function(arg) {
+  alert(arg.val);
+  alert(arg.size);
+});")
+               )),
       tabPanel("Summary",
         fluidRow(
           uiOutput(ns("img"))
@@ -97,12 +114,14 @@ fao_aqua_env_ui <- function(id) {
 fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns
   
-  onclick(input$mapview,"parent.postMessage('OFV.switchMapView()','*');")
-  #   #session$sendCustomMessage("background-color", nextColor())
-  #   #window.parent.OFV.SwitchMapView()
-  #   js$SwitchMapView()
-  #   cat("click!")
-  # })
+  onclick(input$mapview1,"parent.postMessage('OFV.switchMapView()','*');")
+  
+  observeEvent(input$mapview3{
+    session$sendCustomMessage("alert", list(
+      val = 2, 
+      size = 11
+    ))
+  })
   
   out <-reactiveValues(
     data=NULL
