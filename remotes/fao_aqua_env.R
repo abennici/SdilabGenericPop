@@ -54,10 +54,10 @@ fao_aqua_env_ui <- function(id) {
                fluidRow(
                  actionButton(ns("mapview1"), "Switch 2D/3D view on map")
                )),
-      tabPanel("Test2",
-               fluidRow(
-                 tags$script("parent.postMessage('OFV.switchMapView()','*');")
-               )),
+      # tabPanel("Test2",
+      #          fluidRow(
+      #            tags$script("parent.postMessage('OFV.switchMapView()','*');")
+      #          )),
       tabPanel("Test3",
                fluidRow(
                  actionButton(ns("mapview3"), "Switch 2D/3D view on map"),
@@ -74,6 +74,11 @@ Shiny.addCustomMessageHandler('alert', function(arg) {
 Shiny.addCustomMessageHandler('switch', function(arg) {
 parent.postMessage(arg.text,arg.origin);
 });")
+               )),
+      tabPanel("Test5",
+               fluidRow(
+                 actionButton(ns("mapview5"), "Switch 2D/3D view on map"),
+                 uiOutput(ns("map_switch"))
                )),
       tabPanel("Summary",
         fluidRow(
@@ -123,6 +128,12 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns
   
   onclick(input$mapview1,"parent.postMessage('OFV.switchMapView()','*');")
+  
+  output$map_switch<-renderUI({
+    if(input$mapview5){
+      tags$script("parent.postMessage('OFV.switchMapView()','*');")  
+    }else{NULL}
+  })
   
   observeEvent(input$mapview3,{
     session$sendCustomMessage("alert", list(
