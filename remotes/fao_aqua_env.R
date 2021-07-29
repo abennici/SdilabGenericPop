@@ -127,27 +127,31 @@ fao_aqua_env_ui <- function(id) {
 fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns
   
-  onclick(input$mapview1,"parent.postMessage('OFV.switchMapView()','*');")
+  #onclick(input$mapview1,"parent.postMessage('OFV.switchMapView()','*');")
   
   output$map_switch<-renderUI({
     if(input$mapview5){
+      cat("click")
       tags$script("parent.postMessage('OFV.switchMapView()','*');")  
-    }else{NULL}
+    }else{
+      cat("Not click")
+      NULL
+      }
   })
   
-  observeEvent(input$mapview3,{
-    session$sendCustomMessage("alert", list(
-      val = 2, 
-      size = 11
-    ))
-  })
+  # observeEvent(input$mapview3,{
+  #   session$sendCustomMessage("alert", list(
+  #     val = 2, 
+  #     size = 11
+  #   ))
+  # })
   
-  observeEvent(input$mapview4,{
-    session$sendCustomMessage("switch", list(
-      text = 'OFV.switchMapView()', 
-      origin = '*'
-    ))
-  })
+  # observeEvent(input$mapview4,{
+  #   session$sendCustomMessage("switch", list(
+  #     text = 'OFV.switchMapView()', 
+  #     origin = '*'
+  #   ))
+  # })
   
   out <-reactiveValues(
     data=NULL
