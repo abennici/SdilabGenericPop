@@ -54,10 +54,10 @@ fao_aqua_env_ui <- function(id) {
                fluidRow(
                  actionButton(ns("mapview1"), "Switch 2D/3D view on map")
                )),
-      # tabPanel("Test2",
-      #          fluidRow(
-      #            tags$script("parent.postMessage('OFV.switchMapView()','*');")
-      #          )),
+       tabPanel("Test2",
+                fluidRow(
+                  tags$script("parent.postMessage('OFV.switchMapView()','*');")
+                )),
       tabPanel("Test3",
                fluidRow(
                  actionButton(ns("mapview3"), "Switch 2D/3D view on map"),
