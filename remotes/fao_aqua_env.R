@@ -75,11 +75,6 @@ fao_aqua_env_ui <- function(id) {
 # parent.postMessage(arg.text,arg.origin);
 # });")
 #                )),
-      tabPanel("Test5",
-               fluidRow(
-                 actionButton(ns("mapview5"), "Switch 2D/3D view on map"),
-                 uiOutput(ns("map_switch"))
-               )),
       tabPanel("Summary",
         fluidRow(
           uiOutput(ns("img"))
@@ -118,7 +113,12 @@ fao_aqua_env_ui <- function(id) {
         fluidRow(
           div(plotOutput(ns('windrose'))%>%withSpinner(type = 2))
         )
-      )
+      ),
+      tabPanel("Map interaction",
+               fluidRow(
+                 actionButton(ns("mapview5"), "Switch 2D/3D view on map"),
+                 uiOutput(ns("map_switch"))
+               ))
     )
   )  
 }
