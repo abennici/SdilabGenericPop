@@ -119,7 +119,9 @@ fao_aqua_env_ui <- function(id) {
                  actionButton(ns("mapview1"), "Switch 2D/3D view on map"),
                  uiOutput(ns("map_switch")),
                  actionButton(ns("mapview2"), "Draw a polygon"),
-                 uiOutput(ns("draw_polygon"))
+                 uiOutput(ns("draw_polygon")),
+                 actionButton(ns("mapview3"), "Create buffer around feature"),
+                 uiOutput(ns("draw_buffer"))
                ))
     )
   )  
@@ -169,6 +171,21 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   out <-reactiveValues(
     data=NULL
   )
+  
+  observe({
+    out$sf<-data
+  })
+  
+   output$draw_buffer<-renderUI({
+     if(input$mapview3){
+       cat("click")
+       bbox<-reactive({st_buffer(out$sf$geometry[[1]], dist = 1, endCapStyle="ROUND")})
+       tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"POINT ((",bbox(),"))\")','*');"))  
+     }else{
+       cat("Not click")
+       NULL
+     }
+   })
   
   observe({
     out$data<-as.data.frame(data)
