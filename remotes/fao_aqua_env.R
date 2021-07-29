@@ -67,6 +67,14 @@ Shiny.addCustomMessageHandler('alert', function(arg) {
   alert(arg.size);
 });")
                )),
+      tabPanel("Test4",
+               fluidRow(
+                 actionButton(ns("mapview4"), "Switch 2D/3D view on map"),
+                 tags$script("
+Shiny.addCustomMessageHandler('switch', function(arg) {
+parent.postMessage(arg.text,arg.origin);
+});")
+               )),
       tabPanel("Summary",
         fluidRow(
           uiOutput(ns("img"))
@@ -120,6 +128,13 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
     session$sendCustomMessage("alert", list(
       val = 2, 
       size = 11
+    ))
+  })
+  
+  observeEvent(input$mapview4,{
+    session$sendCustomMessage("switch", list(
+      text = 'OFV.switchMapView()', 
+      origin = '*'
     ))
   })
   
