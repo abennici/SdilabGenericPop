@@ -7,32 +7,40 @@ map_interaction_ui <- function(id) {
   ns <- NS(id)
   
   tabPanel(title=uiOutput(ns("title_panel")),value="map_interaction",
-
-                    fluidRow(
-     #                  tags$script("
-     #   Shiny.addCustomMessageHandler('background-color', function(color) {
-     #     document.body.style.backgroundColor = color;
-     #     document.body.innerText = color;
-     #   });
-     #"),
-                      #extendShinyjs(text = jsCode,functions = c()),
-                      actionButton(ns("mapview"), "Switch 2D/3D view on map"),
-                    )
-           )
-           # tabPanel("Selection",
-           #          fluidRow(
-           #            uiOutput(ns("selector"))
-           #          ))
-          
-          
-   
+    tabsetPanel(
+      tabPanel("Test1",
+        fluidRow(
+          actionButton(ns("mapview1"), "Switch 2D/3D view on map")
+        )),
+      tabPanel("Test2",
+               fluidRow(
+                 tags$script("parent.postMessage('OFV.switchMapView()','*');")
+               )),
+      tabPanel("Test3",
+        fluidRow(
+          actionButton(ns("mapview3"), "Switch 2D/3D view on map"),
+         tags$script("
+Shiny.addCustomMessageHandler('alert', function(arg) {
+  alert(arg.val);
+  alert(arg.size);
+});")
+      ))
+    )
+  )
 }
 
 # Function for module server
 map_interaction_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns
   
-  onclick(input$mapview,"parent.postMessage('OFV.switchMapView()','*');")
+  onclick(input$mapview1,"parent.postMessage('OFV.switchMapView()','*');")
+
+  observeEvent(input$mapview3{
+    session$sendCustomMessage("alert", list(
+      val = 2, 
+      size = 11
+    ))
+  })
   #   #session$sendCustomMessage("background-color", nextColor())
   #   #window.parent.OFV.SwitchMapView()
   #   js$SwitchMapView()
