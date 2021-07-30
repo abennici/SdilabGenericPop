@@ -122,11 +122,10 @@ fao_aqua_env_ui <- function(id) {
                  uiOutput(ns("draw_polygon")),
                ),
                fluidRow(
-                 column(6,sliderInput(ns("dist"), "Choose radius of buffer (m)",min=100,max=10000,step=100,value=1000)),
-                 column(6,actionButton(ns("mapview3"), "Create buffer around feature")),
+                 sliderInput(ns("dist"), "Choose radius of buffer (m)",min=0,max=10000,step=100,value=0),
                  uiOutput(ns("draw_buffer"))
-               ))
-    )
+               )
+    ))
   )  
 }
 
@@ -180,7 +179,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   })
   
    output$draw_buffer<-renderUI({
-     if(input$mapview3){
+     if(input$dist>0){
        cat("click")
        bbox<-reactive({st_as_text(st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist, endCapStyle="ROUND"), crs = 3857),4326))})
        print(bbox())
