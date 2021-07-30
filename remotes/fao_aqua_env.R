@@ -182,9 +182,9 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
    output$draw_buffer<-renderUI({
      if(input$mapview3){
        cat("click")
-       bbox<-reactive({st_as_text(st_buffer(out$sf$geometry[[1]], dist = input$dist, endCapStyle="ROUND"))})
+       bbox<-reactive({st_as_text(st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist, endCapStyle="ROUND"), crs = 3857),4326))})
        print(bbox())
-       tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"POLYGON((",bbox(),"))\")','*');"))  
+       tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"",bbox(),"\")','*');"))  
      }else{
        cat("Not click")
        NULL
