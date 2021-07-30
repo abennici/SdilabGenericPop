@@ -120,7 +120,10 @@ fao_aqua_env_ui <- function(id) {
                  uiOutput(ns("map_switch")),
                  actionButton(ns("mapview2"), "Draw a polygon"),
                  uiOutput(ns("draw_polygon")),
-                 actionButton(ns("mapview3"), "Create buffer around feature"),
+               ),
+               fluidRow(
+                 column(6,sliderInput(ns("dist"), "Choose radius of buffer (m)",min=100,max=10000,step=100,value=1000)),
+                 column(6,actionButton(ns("mapview3"), "Create buffer around feature")),
                  uiOutput(ns("draw_buffer"))
                ))
     )
@@ -179,8 +182,9 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
    output$draw_buffer<-renderUI({
      if(input$mapview3){
        cat("click")
-       bbox<-reactive({st_buffer(out$sf$geometry[[1]], dist = 1, endCapStyle="ROUND")})
-       tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"POINT ((",bbox(),"))\")','*');"))  
+       bbox<-reactive({st_buffer(out$sf$geometry[[1]], dist = input$dist, endCapStyle="ROUND")})
+       print(bbox())
+       tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"",bbox(),"\")','*');"))  
      }else{
        cat("Not click")
        NULL
