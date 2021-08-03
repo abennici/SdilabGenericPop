@@ -6,11 +6,11 @@
 
 env<-data.frame(
   id=c("chlor_a",
-       "sst",
+       #"sst",
        "wave_height",
        "wind_dir"),
   wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?",
-        "https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?",
+        #"https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?",
         "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?",
         "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?"),
   layer=c("chlor_a",
@@ -18,11 +18,11 @@ env<-data.frame(
           "Thgt",
           "wdir"),
   label=c("Concentration of chlorophyll a",
-          "Sea surface temperature",
+          #"Sea surface temperature",
           "Sea surface wave height",
           "Sea surface wind direction"),
   source=c("https://oceancolor.gsfc.nasa.gov/atbd/chlor_a",
-           "https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php",
+           #"https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php",
            "https://polar.ncep.noaa.gov/waves/products.shtml?",
            "https://polar.ncep.noaa.gov/waves/products.shtml?"
   ),
