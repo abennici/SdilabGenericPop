@@ -122,11 +122,14 @@ fao_aqua_env_ui <- function(id) {
                  uiOutput(ns("draw_polygon")),
                ),
                fluidRow(
-                 sliderInput(ns("dist"), "Choose radius of buffer (km)",min=0,max=100,step=1,value=0),
+                 sliderInput(ns("dist"), "Choose radius of buffer (km)",min=0,max=50,step=0.5,value=0),
                  uiOutput(ns("draw_buffer"))
                ),
                fluidRow(
                  htmlOutput(ns("nb_ferry"))
+               ),
+               fluidRow(
+                 htmlOutput(ns("near_town"))
                )
     ))
   )  
@@ -199,7 +202,21 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
    q <- opq (bbox()) %>%
      add_osm_feature(key = "amenity", value = "ferry_terminal") %>%
      osmdata_sf()
-     paste0("Number of ferry terminal around <b>",input$dist,"<b/> km : ",nrow(q$osm_points)) 
+     paste0("Number of ferry terminal around <b>",input$dist,"</b> km : ",nrow(q$osm_points)) 
+     }
+   })
+   
+   output$near_town<-renderText({
+     if(input$dist>0){
+       bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
+       q <- opq (bbox()) %>%
+         add_osm_feature(key = "place", value = "town") %>%
+         osmdata_sf()
+       if(!is.null(q$osm_points)){
+       paste0("Near town around <b>",input$dist,"</b> km : ",as.data.frame(q$osm_points)[1,"name"])
+       }else{
+        paste0("No town around <b>",input$dist,"</b> km")  
+       }
      }
    })
   
