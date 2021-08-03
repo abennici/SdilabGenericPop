@@ -19,6 +19,7 @@ library("base64")
 library("lubridate")
 library("reshape")
 library('tidyr')
+library('osmdata')
 #Commons
 
 # Options for Spinner
