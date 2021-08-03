@@ -122,8 +122,11 @@ fao_aqua_env_ui <- function(id) {
                  uiOutput(ns("draw_polygon")),
                ),
                fluidRow(
-                 sliderInput(ns("dist"), "Choose radius of buffer (m)",min=0,max=10000,step=100,value=0),
+                 sliderInput(ns("dist"), "Choose radius of buffer (km)",min=0,max=100,step=1,value=0),
                  uiOutput(ns("draw_buffer"))
+               ),
+               fluidRow(
+                 htmlOutput(ns("nb_ferry"))
                )
     ))
   )  
@@ -181,12 +184,22 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
    output$draw_buffer<-renderUI({
      if(input$dist>0){
        cat("click")
-       bbox<-reactive({st_as_text(st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist, endCapStyle="ROUND"), crs = 3857),4326))})
+       bbox<-reactive({st_as_text(st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326))})
        print(bbox())
        tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"",bbox(),"\")','*');"))  
      }else{
        cat("Not click")
        NULL
+     }
+   })
+   
+   output$nb_ferry<-renderText({
+     if(input$dist>0){
+     bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
+   q <- opq (bbox()) %>%
+     add_osm_feature(key = "amenity", value = "ferry_terminal") %>%
+     osmdata_sf()
+     paste0("Number of ferry terminal around <b>",input$dist,"<b/> km : ",nrow(q$osm_points)) 
      }
    })
   
