@@ -27,12 +27,12 @@ env<-data.frame(
            "https://polar.ncep.noaa.gov/waves/products.shtml?"
   ),
   unit=c("mg/m3",
-         "°C",
+         #"°C",
          "m",
          "degree"
   ),
   color=c("green",
-          "red",
+          #"red",
           "blue",
           "orange")
 )
