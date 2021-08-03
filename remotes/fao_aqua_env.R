@@ -14,7 +14,7 @@ env<-data.frame(
         "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?",
         "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?"),
   layer=c("chlor_a",
-          "CRW_SST",
+          #"CRW_SST",
           "Thgt",
           "wdir"),
   label=c("Concentration of chlorophyll a",
