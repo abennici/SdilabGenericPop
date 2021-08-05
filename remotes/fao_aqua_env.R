@@ -246,7 +246,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
    if(input$dist>0){
      bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
      
-     in_buffer<-st_join(out$other_data,st_sf(bbox()), join = st_within)
+     in_buffer<-st_intersection(out$other_data,st_sf(bbox()))
      if(!is.null(in_buffer)){
        paste0("Number of farm around <b>",input$dist,"</b> km : ",nrow(in_buffer))
      }else{
