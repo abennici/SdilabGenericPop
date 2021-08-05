@@ -129,7 +129,13 @@ fao_aqua_env_ui <- function(id) {
                  htmlOutput(ns("nb_ferry"))
                ),
                fluidRow(
+                 htmlOutput(ns("near_ferry"))
+               ),
+               fluidRow(
                  htmlOutput(ns("near_town"))
+               ),
+               fluidRow(
+                 htmlOutput(ns("nb_farm"))
                )
     ))
   )  
@@ -161,27 +167,24 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
     }
   })
   
-  
-  # observeEvent(input$mapview3,{
-  #   session$sendCustomMessage("alert", list(
-  #     val = 2, 
-  #     size = 11
-  #   ))
-  # })
-  
-  # observeEvent(input$mapview4,{
-  #   session$sendCustomMessage("switch", list(
-  #     text = 'OFV.switchMapView()', 
-  #     origin = '*'
-  #   ))
-  # })
-  
   out <-reactiveValues(
     data=NULL
   )
   
   observe({
     out$sf<-data
+    
+    WFS <- ows4R::WFSClient$new(url = query$wfs_server,serviceVersion = query$wfs_version,logger = "DEBUG")
+    ft <- WFS$capabilities$findFeatureTypeByName(query$layer)
+    data <- ft$getFeatures(propertyName="area,geom")
+    
+    other_data <- data%>%
+      select(gml_id)%>%
+      filter(gml_id!=out$sf$id)
+    
+    st_crs(other_data)<-4326
+    
+    out$other_data<-other_data
   })
   
    output$draw_buffer<-renderUI({
@@ -206,6 +209,25 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
      }
    })
    
+   output$near_ferry<-renderText({
+     if(input$dist>0){
+       bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
+       ferry <- opq (bbox()) %>%
+         add_osm_feature(key = "amenity", value = "ferry_terminal") %>%
+         osmdata_sf()
+       ferry<-ferry$osm_points
+       target<-st_transform( st_sfc(out$sf$geometry[[1]], crs = 3857),4326)
+       if(nrow(ferry)>0){
+         for(i in 1:nrow(ferry)){
+           ferry[i,"dist"]<-as.numeric(st_distance(target,ferry[i,]))
+         }
+         nearest<-ferry[order(ferry$dist),][1,]
+         
+         paste0("The nearest ferry terminal is distant to : <b>",round(nearest$dist/1000,2),"</b> km") 
+         }
+     }
+   })
+   
    output$near_town<-renderText({
      if(input$dist>0){
        bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
@@ -219,7 +241,20 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
        }
      }
    })
-  
+   
+   output$nb_farm<-renderText({
+   if(input$dist>0){
+     bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
+     
+     in_buffer<-st_join(out$other_data,st_sf(bbox()), join = st_within)
+     if(!is.null(in_buffer)){
+       paste0("Number of farm around <b>",input$dist,"</b> km : ",nrow(in_buffer))
+     }else{
+       paste0("No farm around <b>",input$dist,"</b> km")  
+     }
+   }   
+   })
+   
   observe({
     out$data<-as.data.frame(data)
   })
