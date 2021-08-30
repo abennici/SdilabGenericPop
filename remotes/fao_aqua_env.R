@@ -6,33 +6,33 @@
 
 env<-data.frame(
   id=c("chlor_a",
-       #"sst",
+       "sst",
        "wave_height",
        "wind_dir"),
   wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?",
-        #"https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?",
+        "https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?",
         "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?",
         "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?"),
   layer=c("chlor_a",
-          #"CRW_SST",
+          "CRW_SST",
           "Thgt",
           "wdir"),
   label=c("Concentration of chlorophyll a",
-          #"Sea surface temperature",
+          "Sea surface temperature",
           "Sea surface wave height",
           "Sea surface wind direction"),
   source=c("https://oceancolor.gsfc.nasa.gov/atbd/chlor_a",
-           #"https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php",
+           "https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php",
            "https://polar.ncep.noaa.gov/waves/products.shtml?",
            "https://polar.ncep.noaa.gov/waves/products.shtml?"
   ),
   unit=c("mg/m3",
-         #"°C",
+         "°C",
          "m",
          "degree"
   ),
   color=c("green",
-          #"red",
+          "red",
           "blue",
           "orange")
 )
@@ -136,6 +136,9 @@ fao_aqua_env_ui <- function(id) {
                ),
                fluidRow(
                  htmlOutput(ns("nb_farm"))
+               ),
+               fluidRow(
+                 htmlOutput(ns("nearest_farm"))
                )
     ))
   )  
@@ -247,12 +250,31 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
      bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
      
      in_buffer<-st_intersection(out$other_data,st_sf(bbox()))
+     out$in_buffer<-in_buffer
      if(!is.null(in_buffer)){
        paste0("Number of farm around <b>",input$dist,"</b> km : ",nrow(in_buffer))
      }else{
        paste0("No farm around <b>",input$dist,"</b> km")  
      }
    }   
+   })
+   
+   output$nearest_farm<-renderText({
+     if(!is.null(out$in_buffer)){
+       target<-st_transform( st_sfc(out$sf$geometry[[1]], crs = 3857),4326)
+       in_buffer<-out$in_buffer
+       if(nrow(in_buffer)>0){
+         for(i in 1:nrow(in_buffer)){
+           in_buffer[i,"dist"]<-as.numeric(st_distance(target,in_buffer[i,]))
+         }
+         nearest<-in_buffer[order(in_buffer$dist),][1,]
+         
+         print(target)
+         print(nearest)
+         
+         paste0("The nearest farm is distant to : <b>",round(nearest$dist/1000,2),"</b> km") 
+       }
+     }
    })
    
   observe({
