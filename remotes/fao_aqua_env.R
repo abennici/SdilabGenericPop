@@ -258,7 +258,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
            "yes",
            "amenity",
            "waterway",
-           "leasure"),
+           "leisure"),
      value=c("town",
              "industrial",
              "aerodrome",
@@ -272,7 +272,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
                 "osm_points",
                 "osm_points",
                 "osm_polygons",
-                "osm_points"),stringsAsFactors = F)
+                "osm_polygons"),stringsAsFactors = F)
 
 osm_response<-reactiveVal(NULL)
     observeEvent(list(input$interactWith,bbox()),{
