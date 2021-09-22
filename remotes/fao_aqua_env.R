@@ -240,7 +240,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
                                                     "Riverbank"="riverbank",
                                                     "Nature reserve"="nature_reserve"), 
                               "Data" = c("others Farm"="farm")),
-               selected = FALSE,multiple=F,selectize=F)
+               selected = "nature_reserve",multiple=F,selectize=F)
     }
     })
    
@@ -283,8 +283,7 @@ osm_response<-reactiveVal(NULL)
        }else{
          target<-subset(osm,id==input$interactWith)
          q <- opq (bbox()) %>%
-           add_osm_feature(key = "place", value = "town") %>%
-           #add_osm_feature(key = target$key, value = target$value) %>%
+           add_osm_feature(key = target$key, value = target$value) %>%
            osmdata_sf()
          print(q)
          osm_response(q)
@@ -296,7 +295,7 @@ osm_response<-reactiveVal(NULL)
    
    output$result<-renderUI({
    if(!is.null(osm_response())){
-     response<-osm_response()$osm_points
+     response<-osm_response()$osm_polygons
      fluidRow(
      HTML(paste0("Quantity of elements corresponding to '",input$interactWith,"' : ",nrow(response))),
      if(nrow(response)>0){actionButton(ns("project_them"),"Project them ?")}else{NULL},
@@ -307,9 +306,9 @@ osm_response<-reactiveVal(NULL)
    
    output$message<-renderUI({
      req(input$project_them)
-     if(input$project_them){x<-as(geojson::as.geojson(osm_response()$osm_points),"character")
+     if(input$project_them){x<-gsub("\"","\'",as(geojson::as.geojson(osm_response()$osm_polygonss),"character"))
      print(x)
-     tags$script("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,")','*');") }else{NULL}
+     tags$script('parent.postMessage("OFV.drawFeaturesFromGeoJSON(',x,')","*");') }else{NULL}
    })
     # observeEvent(input$project_them,{
     #   x<-gsub("\"","'",as(geojson::as.geojson(osm_response()$osm_points),"character"))
