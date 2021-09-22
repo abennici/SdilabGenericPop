@@ -267,7 +267,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
              "riverbank",
              "nature_reserve"),
      geometry=c("osm_points",
-                "osm_polygonss",
+                "osm_polygons",
                 "osm_points",
                 "osm_points",
                 "osm_points",
