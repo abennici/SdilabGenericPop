@@ -307,8 +307,12 @@ osm_response<-reactiveVal(NULL)
    output$message<-renderUI({
      req(input$project_them)
      if(input$project_them&nrow(osm_response())>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()),"character"))
-     print(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,")','*');"))  
-     tags$script(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,")','*');")) }else{NULL}
+     style<-if(input$interactWith=="town"){"new Style({image: new CircleStyle({radius: 2,fill: new Fill({color: 'rgba(140, 208, 95, 1.0)',}),stroke: null,}),}),"}else{
+       "new Style({stroke: new Stroke({color: 'rgba(170, 170, 170, 1.0)',width: 1,}),fill: new Fill({color: 'rgba(170, 170, 170, 0.3)',}),}),"}
+     
+     print(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,",",style,")','*');"))
+     
+     tags$script(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,",",style,")','*');")) }else{NULL}
    })
     # observeEvent(input$project_them,{)','*');"
     #   x<-gsub("\"","'",as(geojson::as.geojson(osm_response()$osm_points),"character"))
