@@ -1,40 +1,51 @@
 ###FAO Aquaculture image display and environmental enrichment Module
 ##Query Example : /?pid=aquaculture_farm_detection&layer=aquaculture_farm_detection&wfs_server=https://geoserver-sdi-lab.d4science.org/geoserver/sdilab_fisheriesatlas/ows&wfs_version=1.0.0&wms_server=https://geoserver-sdi-lab.d4science.org/geoserver/sdilab_fisheriesatlas/wms&wms_version=1.1.0&feature_geom=false&strategy=ogc_filters&geom=the_geom&x=217&y=181&width=256&height=256&bbox=-8140237.7642581295,-5165920.119625352,-8101102.005776119,-5126784.361143342&srs=EPSG:3857&geoCol=null&panel=fao_aqua_env&fao_aqua_env.title=Aquaculture-Environmental%20enrichment&fao_aqua_env.script=https://raw.githubusercontent.com/abennici/SdilabGenericPop/master/remotes/fao_aqua_env.R
-# Function for module UI
+#/?pid=aquaculture_farm_detection&layer=aquaculture_farm_detection&wfs_server=https://geoserver-sdi-lab.d4science.org/geoserver/sdilab_fisheriesatlas/ows&wfs_version=1.0.0&wms_server=https://geoserver-sdi-lab.d4science.org/geoserver/sdilab_fisheriesatlas/wms&wms_version=1.1.0&feature_geom=false&strategy=ogc_filters&geom=the_geom&x=217&y=181&width=256&height=256&bbox=-8140237.7642581295,-5165920.119625352,-8101102.005776119,-5126784.361143342&srs=EPSG:3857&geoCol=null&panel=fao_aqua_env&fao_aqua_env.title=Aquaculture-Environmental%20enrichment
+#Function for module UI
 
 ##Environemental table
 
+# env<-data.frame(
+#   id=c("chlor_a",
+#        "sst",
+#        "wave_height",
+#        "wind_dir"),
+#   wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?",
+#         "https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?",
+#         "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?",
+#         "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?"),
+#   layer=c("chlor_a",
+#           "CRW_SST",
+#           "Thgt",
+#           "wdir"),
+#   label=c("Concentration of chlorophyll a",
+#           "Sea surface temperature",
+#           "Sea surface wave height",
+#           "Sea surface wind direction"),
+#   source=c("https://oceancolor.gsfc.nasa.gov/atbd/chlor_a",
+#            "https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php",
+#            "https://polar.ncep.noaa.gov/waves/products.shtml?",
+#            "https://polar.ncep.noaa.gov/waves/products.shtml?"
+#   ),
+#   unit=c("mg/m3",
+#          "°C",
+#          "m",
+#          "degree"
+#   ),
+#   color=c("green",
+#           "red",
+#           "blue",
+#           "orange"),stringsAsFactors = F
+# )
+
 env<-data.frame(
-  id=c("chlor_a",
-       "sst",
-       "wave_height",
-       "wind_dir"),
-  wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?",
-        "https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?",
-        "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?",
-        "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?"),
-  layer=c("chlor_a",
-          "CRW_SST",
-          "Thgt",
-          "wdir"),
-  label=c("Concentration of chlorophyll a",
-          "Sea surface temperature",
-          "Sea surface wave height",
-          "Sea surface wind direction"),
-  source=c("https://oceancolor.gsfc.nasa.gov/atbd/chlor_a",
-           "https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php",
-           "https://polar.ncep.noaa.gov/waves/products.shtml?",
-           "https://polar.ncep.noaa.gov/waves/products.shtml?"
-  ),
-  unit=c("mg/m3",
-         "°C",
-         "m",
-         "degree"
-  ),
-  color=c("green",
-          "red",
-          "blue",
-          "orange")
+  id=c("chlor_a"),
+  wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?"),
+  layer=c("chlor_a"),
+  label=c("Concentration of chlorophyll a"),
+  source=c("https://oceancolor.gsfc.nasa.gov/atbd/chlor_a"),
+  unit=c("mg/m3"),
+  color=c("green"),stringsAsFactors = F
 )
 
 # Cardinal directions
@@ -114,32 +125,40 @@ fao_aqua_env_ui <- function(id) {
           div(plotOutput(ns('windrose'))%>%withSpinner(type = 2))
         )
       ),
-      tabPanel("Map interaction",
+      # tabPanel("Play with Map",
+      #          fluidRow(
+      #            actionButton(ns("mapview1"), "Switch 2D/3D view on map"),
+      #            uiOutput(ns("map_switch")),
+      #            actionButton(ns("mapview2"), "Draw a polygon"),
+      #            uiOutput(ns("draw_polygon"))
+      #          )
+      #          ),
+      tabPanel("Proximity Tools",
                fluidRow(
-                 actionButton(ns("mapview1"), "Switch 2D/3D view on map"),
-                 uiOutput(ns("map_switch")),
-                 actionButton(ns("mapview2"), "Draw a polygon"),
-                 uiOutput(ns("draw_polygon")),
-               ),
-               fluidRow(
-                 sliderInput(ns("dist"), "Choose radius of buffer (km)",min=0,max=50,step=0.5,value=0),
+                 sliderInput(ns("dist"), "Choose radius (in km) around select point",min=0,max=50,step=0.5,value=0),
                  uiOutput(ns("draw_buffer"))
                ),
                fluidRow(
-                 htmlOutput(ns("nb_ferry"))
-               ),
+                uiOutput(ns("interact_selector"))
+                ),
                fluidRow(
-                 htmlOutput(ns("near_ferry"))
-               ),
-               fluidRow(
-                 htmlOutput(ns("near_town"))
-               ),
-               fluidRow(
-                 htmlOutput(ns("nb_farm"))
-               ),
-               fluidRow(
-                 htmlOutput(ns("nearest_farm"))
+                 uiOutput(ns("result"))
                )
+               # fluidRow(
+               #   htmlOutput(ns("nb_ferry"))
+               # ),
+               # fluidRow(
+               #   htmlOutput(ns("near_ferry"))
+               # ),
+               # fluidRow(
+               #   htmlOutput(ns("near_town"))
+               # ),
+               # fluidRow(
+               #   htmlOutput(ns("nb_farm"))
+               # ),
+               # fluidRow(
+               #   htmlOutput(ns("nearest_farm"))
+               # )
     ))
   )  
 }
@@ -148,27 +167,27 @@ fao_aqua_env_ui <- function(id) {
 fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns
   
-  #onclick(input$mapview1,"parent.postMessage('OFV.switchMapView()','*');")
-  
-  output$map_switch<-renderUI({
-    if(input$mapview1){
-      cat("click")
-      tags$script("parent.postMessage('OFV.switchMapView()','*');")  
-    }else{
-      cat("Not click")
-      NULL
-      }
-  })
-  
-  output$draw_polygon<-renderUI({
-    if(input$mapview2){
-      cat("click")
-      tags$script("parent.postMessage('OFV.drawFeatureFromWKT(\"POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))\")','*');")  
-    }else{
-      cat("Not click")
-      NULL
-    }
-  })
+# ###Play with Map Part
+#    output$map_switch<-renderUI({
+#      if(input$mapview1){
+#        cat("click")
+#        tags$script("parent.postMessage('OFV.switchMapView()','*');")  
+#      }else{
+#        cat("Not click")
+#        NULL
+#        }
+#    })
+#   
+#    output$draw_polygon<-renderUI({
+#      if(input$mapview2){
+#        cat("click")
+#        tags$script("parent.postMessage('OFV.drawFeatureFromWKT(\"POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))\")','*');")  
+#      }else{
+#        cat("Not click")
+#        NULL
+#      }
+#    })
+# ###
   
   out <-reactiveValues(
     data=NULL
@@ -190,92 +209,188 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
     out$other_data<-other_data
   })
   
+  bbox<-reactiveVal(NULL)
+  
+  observeEvent(input$dist,{
+  if(input$dist>0){
+    print(sprintf("Searching area : %s km",input$dist))
+    newbbox<-st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)
+    bbox(newbbox)  
+  }
+  })
+
    output$draw_buffer<-renderUI({
-     if(input$dist>0){
+     if(!is.null(bbox())){
        cat("click")
-       bbox<-reactive({st_as_text(st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326))})
-       print(bbox())
-       tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"",bbox(),"\")','*');"))  
+       tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"",st_as_text(bbox()),"\")','*');"))  
      }else{
-       cat("Not click")
-       NULL
+       return(NULL)
      }
    })
    
-   output$nb_ferry<-renderText({
-     if(input$dist>0){
-     bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
-   q <- opq (bbox()) %>%
-     add_osm_feature(key = "amenity", value = "ferry_terminal") %>%
-     osmdata_sf()
-     paste0("Number of ferry terminal around <b>",input$dist,"</b> km : ",nrow(q$osm_points)) 
-     }
-   })
+   output$interact_selector<-renderUI({
+    if(!is.null(bbox())){
+   selectInput(ns("interactWith"), 
+               "Interacts with :", 
+               choices = list("Open Street Map" = c("Town"="town",
+                                                    "Industrial"="industrial",
+                                                    "Aerodrome"="aerodrome",
+                                                    "Harbour"="harbour",
+                                                    "Ferry terminal"="ferry_terminal",
+                                                    "Riverbank"="riverbank",
+                                                    "Nature reserve"="nature_reserve"), 
+                              "Data" = c("others Farm"="farm")),
+               selected = FALSE,multiple=F,selectize=F)
+    }
+    })
    
-   output$near_ferry<-renderText({
-     if(input$dist>0){
-       bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
-       ferry <- opq (bbox()) %>%
-         add_osm_feature(key = "amenity", value = "ferry_terminal") %>%
-         osmdata_sf()
-       ferry<-ferry$osm_points
-       target<-st_transform( st_sfc(out$sf$geometry[[1]], crs = 3857),4326)
-       if(nrow(ferry)>0){
-         for(i in 1:nrow(ferry)){
-           ferry[i,"dist"]<-as.numeric(st_distance(target,ferry[i,]))
-         }
-         nearest<-ferry[order(ferry$dist),][1,]
-         
-         paste0("The nearest ferry terminal is distant to : <b>",round(nearest$dist/1000,2),"</b> km") 
-         }
-     }
-   })
-   
-   output$near_town<-renderText({
-     if(input$dist>0){
-       bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
-       q <- opq (bbox()) %>%
-         add_osm_feature(key = "place", value = "town") %>%
-         osmdata_sf()
-       if(!is.null(q$osm_points)){
-       paste0("Near town around <b>",input$dist,"</b> km : ",as.data.frame(q$osm_points)[1,"name"])
+   osm<-data.frame(
+     id=c("town",
+          "industrial",
+          "aerodrome",
+          "harbour",
+          "ferry_terminal",
+          "riverbank",
+          "nature_reserve"),
+     key=c("place",
+           "landuse",
+           "aeroway",
+           "yes",
+           "amenity",
+           "waterway",
+           "leasure"),
+     value=c("town",
+             "industrial",
+             "aerodrome",
+             "harbour",
+             "ferry_terminal",
+             "riverbank",
+             "nature_reserve"),
+     geometry=c("osm_points",
+                "osm_points",
+                "osm_points",
+                "osm_points",
+                "osm_points",
+                "osm_points",
+                "osm_points"),stringsAsFactors = F)
+
+osm_response<-reactiveVal(NULL)
+    observeEvent(list(input$interactWith,bbox()),{
+      if(!is.null(bbox())){
+        if(!is.null(input$interactWith)){
+      print(input$interactWith)
+       if(input$interactWith=='farm'){
        }else{
-        paste0("No town around <b>",input$dist,"</b> km")  
+         target<-subset(osm,id==input$interactWith)
+         q <- opq (bbox()) %>%
+           add_osm_feature(key = "place", value = "town") %>%
+           #add_osm_feature(key = target$key, value = target$value) %>%
+           osmdata_sf()
+         print(q)
+         osm_response(q)
        }
-     }
+        }
+        }
+     })
+   
+   
+   output$result<-renderUI({
+   if(!is.null(osm_response())){
+     response<-osm_response()$osm_points
+     fluidRow(
+     HTML(paste0("Quantity of elements corresponding to '",input$interactWith,"' : ",nrow(response))),
+     if(nrow(response)>0){actionButton(ns("project_them"),"Project them ?")}else{NULL},
+     uiOutput(ns("message"))
+     )
+   } 
    })
    
-   output$nb_farm<-renderText({
-   if(input$dist>0){
-     bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
-     
-     in_buffer<-st_intersection(out$other_data,st_sf(bbox()))
-     out$in_buffer<-in_buffer
-     if(!is.null(in_buffer)){
-       paste0("Number of farm around <b>",input$dist,"</b> km : ",nrow(in_buffer))
-     }else{
-       paste0("No farm around <b>",input$dist,"</b> km")  
-     }
-   }   
+   output$message<-renderUI({
+     req(input$project_them)
+     if(input$project_them){x<-gsub("\"","'",as(geojson::as.geojson(osm_response()$osm_points),"character"))
+     print(x)
+     tags$script("parent.postMessage('OFV.drawFeatureFromGeoJSON(\"",x,"\")','*');") }else{NULL}
    })
+    # observeEvent(input$project_them,{
+    #   x<-gsub("\"","'",as(geojson::as.geojson(osm_response()$osm_points),"character"))
+    #   print(x)
+    #   tags$script("parent.postMessage('OFV.drawFeatureFromGeoJSON(\"",x,"\")','*');") 
+    # })
    
-   output$nearest_farm<-renderText({
-     if(!is.null(out$in_buffer)){
-       target<-st_transform( st_sfc(out$sf$geometry[[1]], crs = 3857),4326)
-       in_buffer<-out$in_buffer
-       if(nrow(in_buffer)>0){
-         for(i in 1:nrow(in_buffer)){
-           in_buffer[i,"dist"]<-as.numeric(st_distance(target,in_buffer[i,]))
-         }
-         nearest<-in_buffer[order(in_buffer$dist),][1,]
-         
-         print(target)
-         print(nearest)
-         
-         paste0("The nearest farm is distant to : <b>",round(nearest$dist/1000,2),"</b> km") 
-       }
-     }
-   })
+   # output$nb_ferry<-renderText({
+   #   if(input$dist>0){
+   #   bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
+   # q <- opq (bbox()) %>%
+   #   add_osm_feature(key = "amenity", value = "ferry_terminal") %>%
+   #   osmdata_sf()
+   #   paste0("Number of ferry terminal around <b>",input$dist,"</b> km : ",nrow(q$osm_points)) 
+   #   }
+   # })
+   # 
+   # output$near_ferry<-renderText({
+   #   if(input$dist>0){
+   #     bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
+   #     ferry <- opq (bbox()) %>%
+   #       add_osm_feature(key = "amenity", value = "ferry_terminal") %>%
+   #       osmdata_sf()
+   #     ferry<-ferry$osm_points
+   #     target<-st_transform( st_sfc(out$sf$geometry[[1]], crs = 3857),4326)
+   #     if(nrow(ferry)>0){
+   #       for(i in 1:nrow(ferry)){
+   #         ferry[i,"dist"]<-as.numeric(st_distance(target,ferry[i,]))
+   #       }
+   #       nearest<-ferry[order(ferry$dist),][1,]
+   #       
+   #       paste0("The nearest ferry terminal is distant to : <b>",round(nearest$dist/1000,2),"</b> km") 
+   #       }
+   #   }
+   # })
+   # 
+   # output$near_town<-renderText({
+   #   if(input$dist>0){
+   #     bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
+   #     q <- opq (bbox()) %>%
+   #       add_osm_feature(key = "place", value = "town") %>%
+   #       osmdata_sf()
+   #     if(!is.null(q$osm_points)){
+   #     paste0("Near town around <b>",input$dist,"</b> km : ",as.data.frame(q$osm_points)[1,"name"])
+   #     }else{
+   #      paste0("No town around <b>",input$dist,"</b> km")  
+   #     }
+   #   }
+   # })
+   # 
+   # output$nb_farm<-renderText({
+   # if(input$dist>0){
+   #   bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
+   #   
+   #   in_buffer<-st_intersection(out$other_data,st_sf(bbox()))
+   #   out$in_buffer<-in_buffer
+   #   if(!is.null(in_buffer)){
+   #     paste0("Number of farm around <b>",input$dist,"</b> km : ",nrow(in_buffer))
+   #   }else{
+   #     paste0("No farm around <b>",input$dist,"</b> km")  
+   #   }
+   # }   
+   # })
+   # 
+   # output$nearest_farm<-renderText({
+   #   if(!is.null(out$in_buffer)){
+   #     target<-st_transform( st_sfc(out$sf$geometry[[1]], crs = 3857),4326)
+   #     in_buffer<-out$in_buffer
+   #     if(nrow(in_buffer)>0){
+   #       for(i in 1:nrow(in_buffer)){
+   #         in_buffer[i,"dist"]<-as.numeric(st_distance(target,in_buffer[i,]))
+   #       }
+   #       nearest<-in_buffer[order(in_buffer$dist),][1,]
+   #       
+   #       print(target)
+   #       print(nearest)
+   #       
+   #       paste0("The nearest farm is distant to : <b>",round(nearest$dist/1000,2),"</b> km") 
+   #     }
+   #   }
+   # })
    
   observe({
     out$data<-as.data.frame(data)

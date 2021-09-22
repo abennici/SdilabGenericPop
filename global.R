@@ -20,6 +20,7 @@ library("lubridate")
 library("reshape")
 library('tidyr')
 library('osmdata')
+library('geojson')
 #Commons
 
 # Options for Spinner
