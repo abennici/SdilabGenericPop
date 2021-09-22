@@ -307,10 +307,10 @@ osm_response<-reactiveVal(NULL)
    output$message<-renderUI({
      req(input$project_them)
      if(input$project_them){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()$osm_polygons),"character"))
-     print(x)
-     tags$script("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,")','*');'") }else{NULL}
+     print(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,")','*');"))  
+     tags$script(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,")','*');")) }else{NULL}
    })
-    # observeEvent(input$project_them,{
+    # observeEvent(input$project_them,{)','*');"
     #   x<-gsub("\"","'",as(geojson::as.geojson(osm_response()$osm_points),"character"))
     #   print(x)
     #   tags$script("parent.postMessage('OFV.drawFeatureFromGeoJSON(\"",x,"\")','*');") 
