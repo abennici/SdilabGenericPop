@@ -240,7 +240,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
                                                     "Riverbank"="riverbank",
                                                     "Nature reserve"="nature_reserve"), 
                               "Data" = c("others Farm"="farm")),
-               selected = "nature_reserve",multiple=F,selectize=F)
+               selected = "riverbank",multiple=F,selectize=F)
     }
     })
    
