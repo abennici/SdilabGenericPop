@@ -309,7 +309,7 @@ osm_response<-reactiveVal(NULL)
      req(input$project_them)
      if(input$project_them){x<-gsub("\"","'",as(geojson::as.geojson(osm_response()$osm_points),"character"))
      print(x)
-     tags$script("parent.postMessage('OFV.drawFeatureFromGeoJSON(\"",x,"\")','*');") }else{NULL}
+     tags$script("parent.postMessage('OFV.drawFeatureFromGeoJSON(",x,")','*');") }else{NULL}
    })
     # observeEvent(input$project_them,{
     #   x<-gsub("\"","'",as(geojson::as.geojson(osm_response()$osm_points),"character"))
