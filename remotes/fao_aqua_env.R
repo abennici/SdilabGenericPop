@@ -286,7 +286,7 @@ osm_response<-reactiveVal(NULL)
            add_osm_feature(key = target$key, value = target$value) %>%
            osmdata_sf()
          print(q)
-         osm_response(q[target$geometry])
+         osm_response(q[[target$geometry]])
        }
         }
         }
