@@ -222,7 +222,8 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
    output$draw_buffer<-renderUI({
      if(!is.null(bbox())){
        cat("click")
-       tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"",st_as_text(bbox()),"\")','*');"))  
+       style<-"new Style({stroke: new Stroke({color: \"rgba(51, 224,255, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(51, 224,255, 0.2)\",}),}),"
+       tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"",st_as_text(bbox()),"\",",style,")','*');"))  
      }else{
        return(NULL)
      }
@@ -272,7 +273,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
              "protected_area"),
      geometry=c("osm_points",
                 "osm_polygons",
-                "osm_points",
+                "osm_polygons",
                 "osm_points",
                 "osm_points",
                 "osm_polygons",
