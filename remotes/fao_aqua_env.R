@@ -238,9 +238,10 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
                                                     "Harbour"="harbour",
                                                     "Ferry terminal"="ferry_terminal",
                                                     "Riverbank"="riverbank",
-                                                    "Nature reserve"="nature_reserve"), 
+                                                    "Nature reserve"="nature_reserve",
+                                                    "Protected Area"="protected_area"), 
                               "Data" = c("others Farm"="farm")),
-               selected = "riverbank",multiple=F,selectize=F)
+               selected = "town",multiple=F,selectize=F)
     }
     })
    
@@ -251,26 +252,30 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
           "harbour",
           "ferry_terminal",
           "riverbank",
-          "nature_reserve"),
+          "nature_reserve",
+          "protected_area"),
      key=c("place",
            "landuse",
            "aeroway",
            "yes",
            "amenity",
            "waterway",
-           "leisure"),
+           "leisure",
+           "boundary"),
      value=c("town",
              "industrial",
              "aerodrome",
              "harbour",
              "ferry_terminal",
              "riverbank",
-             "nature_reserve"),
+             "nature_reserve",
+             "protected_area"),
      geometry=c("osm_points",
                 "osm_polygons",
                 "osm_points",
                 "osm_points",
                 "osm_points",
+                "osm_polygons",
                 "osm_polygons",
                 "osm_polygons"),stringsAsFactors = F)
 
@@ -309,8 +314,7 @@ osm_response<-reactiveVal(NULL)
      if(input$project_them&nrow(osm_response())>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()),"character"))
      style<-if(input$interactWith=="ferry_terminal"){"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/6/62/Anchor_pictogram.svg\", scale:0.1,}),}),"
      }else if(subset(osm,id==input$interactWith)$geometry=="osm_points"){"new Style({image: new Circle({radius: 25,fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),stroke: null,}),}),"}else{
-       "new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),
-       "}
+       "new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"}
      
      print(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,",",style,")','*');"))
      
