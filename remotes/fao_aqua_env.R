@@ -222,9 +222,9 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
    output$draw_buffer<-renderUI({
      if(!is.null(bbox())){
        cat("click")
+       x<-gsub("'","\'",as(geojson::as.geojson(osm_response()),"character"))
        style<-"new Style({stroke: new Stroke({color: \"rgba(51, 224,255, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(51, 224,255, 0.2)\",}),}),"
-       #tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"",st_as_text(bbox()),"\",",style,")','*');"))  
-       tags$script(paste0("parent.postMessage('OFV.addGeoJSONLayer(0, \"test_buffer\", \"test_buffer\", \"Buffer circle around farm\",\"", st_as_text(bbox()),"\",",style,")','*');"))
+       tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"",st_as_text(bbox()),"\",",style,")','*');"))  
      }else{
        return(NULL)
      }
@@ -320,7 +320,8 @@ osm_response<-reactiveVal(NULL)
      
      print(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,",",style,")','*');"))
      
-     tags$script(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,",",style,")','*');")) }else{NULL}
+     #tags$script(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,",",style,")','*');")) }else{NULL}
+     tags$script(paste0("parent.postMessage('OFV.addGeoJSONLayer(0, \"test_osm\", \"test_osm\", \"Test element Open Street Map\",",x,",",style,")','*');")) }else{NULL}
    })
     # observeEvent(input$project_them,{)','*');"
     #   x<-gsub("\"","'",as(geojson::as.geojson(osm_response()$osm_points),"character"))
