@@ -287,9 +287,12 @@ osm_response<-reactiveVal(NULL)
        if(input$interactWith=='farm'){
        }else{
          target<-subset(osm,id==input$interactWith)
+         show_modal_spinner(spin = "flower", color = "#112446",
+                            text = "Request sending...please wait", session = shiny::getDefaultReactiveDomain()) 
          q <- opq (bbox()) %>%
            add_osm_feature(key = target$key, value = target$value) %>%
            osmdata_sf()
+         remove_modal_spinner()
          print(q)
          osm_response(q[[target$geometry]])
        }
@@ -303,15 +306,14 @@ osm_response<-reactiveVal(NULL)
      response<-osm_response()
      fluidRow(
      HTML(paste0("Quantity of elements corresponding to '",input$interactWith,"' : ",nrow(response))),
-     if(nrow(response)>0){actionButton(ns("project_them"),"Project them ?")}else{NULL},
      uiOutput(ns("message"))
      )
    } 
    })
    
    output$message<-renderUI({
-     req(input$project_them)
-     if(input$project_them&nrow(osm_response())>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()),"character"))
+     req(osm_response())
+     if(nrow(osm_response())>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()),"character"))
      style<-if(input$interactWith=="ferry_terminal"){"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/6/62/Anchor_pictogram.svg\", scale:0.1,}),}),"
      }else if(subset(osm,id==input$interactWith)$geometry=="osm_points"){"new Style({image: new Circle({radius: 25,fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),stroke: null,}),}),"}else{
        "new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"}
@@ -319,7 +321,8 @@ osm_response<-reactiveVal(NULL)
      print(paste0("parent.postMessage('OFV.addGeoJSONLayer(0, \"test_osm\", \"test_osm\", \"Test element Open Street Map\",",x,",",style,")','*');"))
      
      #tags$script(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,",",style,")','*');")) }else{NULL}
-     tags$script(paste0("parent.postMessage('OFV.addGeoJSONLayer(0, \"",input$interactWith,"\", \"",input$interactWith,"\", \"",input$interactWith,"\",",x,",",style,")','*');")) }else{NULL}
+     tags$script(paste0("parent.postMessage('OFV.addGeoJSONLayer(0, \"",input$interactWith,"\", \"",input$interactWith,"\", \"",input$interactWith,"\",",x,",",style,")','*');")) 
+     }else{NULL}
    })
     # observeEvent(input$project_them,{)','*');"
     #   x<-gsub("\"","'",as(geojson::as.geojson(osm_response()$osm_points),"character"))
