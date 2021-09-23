@@ -142,7 +142,8 @@ fao_aqua_env_ui <- function(id) {
                 uiOutput(ns("interact_selector"))
                 ),
                fluidRow(
-                 uiOutput(ns("result"))
+                 uiOutput(ns("result")),
+                 uiOutput(ns("message"))
                )
                # fluidRow(
                #   htmlOutput(ns("nb_ferry"))
@@ -305,8 +306,8 @@ osm_response<-reactiveVal(NULL)
    if(!is.null(osm_response())){
      response<-osm_response()
      fluidRow(
-     HTML(paste0("Quantity of elements corresponding to '",input$interactWith,"' : ",nrow(response))),
-     uiOutput(ns("message"))
+     HTML(paste0("Quantity of elements corresponding to '",input$interactWith,"' : ",nrow(response)))
+     #uiOutput(ns("message"))
      )
    } 
    })
