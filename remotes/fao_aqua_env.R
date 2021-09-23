@@ -321,7 +321,7 @@ osm_response<-reactiveVal(NULL)
      print(paste0("parent.postMessage('OFV.addGeoJSONLayer(0, \"test_osm\", \"test_osm\", \"Test element Open Street Map\",",x,",",style,")','*');"))
      
      #tags$script(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,",",style,")','*');")) }else{NULL}
-     tags$script(paste0("parent.postMessage('OFV.addGeoJSONLayer(0, \"",input$interactWith,"\", \"",input$interactWith,"\", \"",input$interactWith,"\",",x,",",style,")','*');")) 
+     tags$script(paste0("parent.postMessage('OFV.addGeoJSONLayer(0, \"",input$interactWith[1],"\", \"",input$interactWith[1],"\", \"",input$interactWith[1],"\",",x[1],",",style[1],")','*');")) 
      }else{NULL}
    })
     # observeEvent(input$project_them,{)','*');"
