@@ -318,10 +318,10 @@ osm_response<-reactiveVal(NULL)
      }else if(subset(osm,id==input$interactWith)$geometry=="osm_points"){"new Style({image: new Circle({radius: 25,fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),stroke: null,}),}),"}else{
        "new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"}
      
-     print(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,",",style,")','*');"))
+     print(paste0("parent.postMessage('OFV.addGeoJSONLayer(0, \"test_osm\", \"test_osm\", \"Test element Open Street Map\",",x,",",style,")','*');"))
      
      #tags$script(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,",",style,")','*');")) }else{NULL}
-     tags$script(paste0("parent.postMessage('OFV.addGeoJSONLayer(0, \"test_osm\", \"test_osm\", \"Test element Open Street Map\",",x,",",style,")','*');")) }else{NULL}
+     tags$script(paste0("parent.postMessage('OFV.addGeoJSONLayer(0, \"",input$interactWith,"\", \"",input$interactWith,"\", \"",input$interactWith,"\",",x,",",style,")','*');")) }else{NULL}
    })
     # observeEvent(input$project_them,{)','*');"
     #   x<-gsub("\"","'",as(geojson::as.geojson(osm_response()$osm_points),"character"))
