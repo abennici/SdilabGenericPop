@@ -342,7 +342,13 @@ osm_info<-reactiveVal(NULL)
           style<-"new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"
         }
       },
-      "marina"={},
+      "marina"={
+        if(input$type_geometry=="osm_points"){
+          style<-"new Style({image: new Icon({src:\"https://nl.wikipedia.org/wiki/Bestand:Sailboat_symbol.svg\", scale:0.1,}),}),"
+        }else{
+          style<-"new Style({stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
+        }
+      },
       "ferry_terminal"={
         if(input$type_geometry=="osm_points"){
           style<-"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/6/62/Anchor_pictogram.svg\", scale:0.1,}),}),"
