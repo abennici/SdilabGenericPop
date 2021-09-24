@@ -351,7 +351,7 @@ osm_info<-reactiveVal(NULL)
       },
       "ferry_terminal"={
         if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Icon({src:\"https://commons.wikimedia.org/wiki/File:Maki-ferry-15.svg#/media/File:Maki-ferry-15.svg\", scale:1.0,}),}),"
+          style<-"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/1/1e/Ferry_symbol.svg\", scale:1.0,}),}),"
         }else{
           style<-"new Style({stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
         }
