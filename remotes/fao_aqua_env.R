@@ -313,7 +313,7 @@ osm_info<-reactiveVal(NULL)
      if(nrow(osm_response())>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()),"character"))
      
       #style
-     switch(input$interacWith,
+     switch(input$interactWith,
       "town"={
         if(input$type_geometry=="osm_points"){
           style<-"new Style({image: new Circle({radius: 25,fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),stroke: null,}),}),"
