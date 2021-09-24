@@ -252,6 +252,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
                 "osm_polygons"),stringsAsFactors = F)
 
 osm_response<-reactiveVal(NULL)
+osm_info<-reactiveVal(NULL)
     observeEvent(input$send_request,{
       print(input$interactWith)
        if(input$interactWith=='farm'){
@@ -259,23 +260,39 @@ osm_response<-reactiveVal(NULL)
          target<-subset(osm,id==input$interactWith)
          show_modal_spinner(spin = "flower", color = "#112446",
                             text = "Request sending...please wait", session = shiny::getDefaultReactiveDomain()) 
+        
+        #Request send to OSM API
          q <- opq (bbox()) %>%
            add_osm_feature(key = target$key, value = target$value) %>%
            osmdata_sf()
-         remove_modal_spinner()
          print(q)
-         osm_response(q)
+        
+        #Buffer intersection
+         q<-q[[input$type_geometry]]
+         if(is.null(q)){
+          info<-paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ","0")
+          osm_info(info)
+          osm_response(NULL)
+         }else if(nrow(q)==0){
+           info<-paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ","0")
+           osm_info(info)
+           osm_response(NULL)
+         }else{
+           in_buffer<-st_intersection(q,bbox())
+           info<-paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ",nrow(in_buffer))
+           osm_info(info)
+           osm_response(in_buffer)
+         }
+         
+         remove_modal_spinner()
        }
      })
    
    
    output$result<-renderUI({
-   if(!is.null(osm_response())){
-     response<-osm_response()[[input$type_geometry]]
-     response<-if(is.null(response)){0}else{nrow(response)}
-     
+   if(!is.null(osm_info())){
      fluidRow(
-     HTML(paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ",response))
+     HTML(osm_info())
      )
    } 
    })
@@ -283,8 +300,8 @@ osm_response<-reactiveVal(NULL)
    layer_message<-reactiveVal(NULL)
    observeEvent(input$send_request,{
      req(osm_response())
-     if(!is.null(osm_response()[[input$type_geometry]])){
-     if(nrow(osm_response()[[input$type_geometry]])>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()[[input$type_geometry]]),"character"))
+     if(!is.null(osm_response())){
+     if(nrow(osm_response())>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()),"character"))
      style<-if(input$interactWith=="ferry_terminal"){"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/6/62/Anchor_pictogram.svg\", scale:0.1,}),}),"
      }else if(input$type_geometry=="osm_points"){"new Style({image: new Circle({radius: 25,fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),stroke: null,}),}),"}else{
        "new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"}
