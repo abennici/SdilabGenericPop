@@ -131,9 +131,9 @@ fao_aqua_env_ui <- function(id) {
                  uiOutput(ns("draw_buffer"))
                  
                ),
-               fluidRow(column(5,
+               fluidRow(column(4,
                  selectInput(ns("interactWith"),
-                             "Interacts with :",
+                             "Type of item:",
                              choices = list("Open Street Map" = c("Town"="town",
                                                                   "Industrial"="industrial",
                                                                   "Aerodrome"="aerodrome",
@@ -145,13 +145,13 @@ fao_aqua_env_ui <- function(id) {
                                             "Data" = c("others Farm"="farm")),
                              selected = "town",multiple=F,selectize=F)
                ),
-               column(5,
+               column(4,
                   selectInput(ns("type_geometry"),
-                            "Type of features :",
+                            "Type of features:",
                             choices = c("points"="osm_points",
                                         "lines"="osm_lines",
                                         "multilines"="osm_multilines",
-                                        "polygons"="osm_polygones",
+                                        "polygons"="osm_polygons",
                                         "multipolygons"="osm_multipolygons"),
                             selected = "points",multiple=F,selectize=F)
                 )
@@ -264,16 +264,18 @@ osm_response<-reactiveVal(NULL)
            osmdata_sf()
          remove_modal_spinner()
          print(q)
-         osm_response(q[[input$type_geometry]])
+         osm_response(q)
        }
      })
    
    
    output$result<-renderUI({
    if(!is.null(osm_response())){
-     response<-osm_response()
+     response<-osm_response()[[input$type_geometry]]
+     response<-if(is.null(response)){0}else{nrow(response)}
+     
      fluidRow(
-     HTML(paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ",nrow(response)))
+     HTML(paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ",response))
      )
    } 
    })
@@ -281,13 +283,17 @@ osm_response<-reactiveVal(NULL)
    layer_message<-reactiveVal(NULL)
    observeEvent(input$send_request,{
      req(osm_response())
-     if(nrow(osm_response())>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()),"character"))
+     if(!is.null(osm_response()[[input$type_geometry]])){
+     if(nrow(osm_response()[[input$type_geometry]])>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()[[input$type_geometry]]),"character"))
      style<-if(input$interactWith=="ferry_terminal"){"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/6/62/Anchor_pictogram.svg\", scale:0.1,}),}),"
      }else if(input$type_geometry=="osm_points"){"new Style({image: new Circle({radius: 25,fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),stroke: null,}),}),"}else{
        "new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"}
      request<-paste0("parent.postMessage('OFV.setGeoJSONLayer(0, \"",input$interactWith[1],"\", \"",input$interactWith[1],"\", \"",input$interactWith[1],"\", \"",input$interactWith[1],"\",",x[1],",",style[1],")','*');")
      }else{
      request<-NULL}
+     layer_message(request)
+     }else{
+       request<-NULL}
      layer_message(request)
    })
    output$message<-renderUI({
