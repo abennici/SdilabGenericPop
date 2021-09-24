@@ -286,8 +286,8 @@ osm_info<-reactiveVal(NULL)
            osm_info(info)
            osm_response(NULL)
          }else{
-           #in_buffer<-st_intersection(q,bbox())
-           in_buffer<-q
+           in_buffer<-st_intersection(q,bbox())
+           #in_buffer<-q
            info<-paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ",nrow(in_buffer))
            osm_info(info)
            osm_response(in_buffer)
@@ -337,7 +337,7 @@ osm_info<-reactiveVal(NULL)
       },
       "harbour"={
         if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Icon({src:\"https://commons.wikimedia.org/wiki/File:Maki-ferry-15.svg#/media/File:Maki-ferry-15.svg\", scale:0.1,}),}),"
+          style<-"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/6/62/Anchor_pictogram.svg\", scale:0.1,}),}),"
         }else{
           style<-"new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"
         }
@@ -351,7 +351,7 @@ osm_info<-reactiveVal(NULL)
       },
       "ferry_terminal"={
         if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/6/62/Anchor_pictogram.svg\", scale:0.1,}),}),"
+          style<-"new Style({image: new Icon({src:\"https://commons.wikimedia.org/wiki/File:Maki-ferry-15.svg#/media/File:Maki-ferry-15.svg\", scale:0.1,}),}),"
         }else{
           style<-"new Style({stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
         }
