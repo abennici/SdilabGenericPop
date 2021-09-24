@@ -125,35 +125,32 @@ fao_aqua_env_ui <- function(id) {
           div(plotOutput(ns('windrose'))%>%withSpinner(type = 2))
         )
       ),
-      # tabPanel("Play with Map",
-      #          fluidRow(
-      #            actionButton(ns("mapview1"), "Switch 2D/3D view on map"),
-      #            uiOutput(ns("map_switch")),
-      #            actionButton(ns("mapview2"), "Draw a polygon"),
-      #            uiOutput(ns("draw_polygon"))
-      #          )
-      #          ),
       tabPanel("Proximity Tools",
                fluidRow(
-                 sliderInput(ns("dist"), "Choose radius (in km) around select point",min=0,max=50,step=0.5,value=0),
+                 sliderInput(ns("dist"), "Searching at how many distance (km) around point :",min=0.1,max=30,step=0.1,value=0.1, post=" km"),
                  uiOutput(ns("draw_buffer"))
+                 
                ),
                fluidRow(
-                uiOutput(ns("interact_selector"))
+                 selectInput(ns("interactWith"),
+                             "Interacts with :",
+                             choices = list("Open Street Map" = c("Town"="town",
+                                                                  "Industrial"="industrial",
+                                                                  "Aerodrome"="aerodrome",
+                                                                  "Harbour"="harbour",
+                                                                  "Ferry terminal"="ferry_terminal",
+                                                                  "Riverbank"="riverbank",
+                                                                  "Nature reserve"="nature_reserve",
+                                                                  "Protected Area"="protected_area"),
+                                            "Data" = c("others Farm"="farm")),
+                             selected = "town",multiple=F,selectize=F),
+                materialSwitch(ns("project_result"),"Project result in viewer : "),
+                actionButton(ns("send_request"),"Send request")
                 ),
                fluidRow(
                  uiOutput(ns("result")),
                  uiOutput(ns("message"))
                )
-               # fluidRow(
-               #   htmlOutput(ns("nb_ferry"))
-               # ),
-               # fluidRow(
-               #   htmlOutput(ns("near_ferry"))
-               # ),
-               # fluidRow(
-               #   htmlOutput(ns("near_town"))
-               # ),
                # fluidRow(
                #   htmlOutput(ns("nb_farm"))
                # ),
@@ -167,28 +164,6 @@ fao_aqua_env_ui <- function(id) {
 # Function for module server
 fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns
-  
-# ###Play with Map Part
-#    output$map_switch<-renderUI({
-#      if(input$mapview1){
-#        cat("click")
-#        tags$script("parent.postMessage('OFV.switchMapView()','*');")  
-#      }else{
-#        cat("Not click")
-#        NULL
-#        }
-#    })
-#   
-#    output$draw_polygon<-renderUI({
-#      if(input$mapview2){
-#        cat("click")
-#        tags$script("parent.postMessage('OFV.drawFeatureFromWKT(\"POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))\")','*');")  
-#      }else{
-#        cat("Not click")
-#        NULL
-#      }
-#    })
-# ###
   
   out <-reactiveValues(
     data=NULL
@@ -229,23 +204,6 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
      }
    })
    
-   output$interact_selector<-renderUI({
-    if(!is.null(bbox())){
-   selectInput(ns("interactWith"),
-               "Interacts with :",
-               choices = list("Open Street Map" = c("Town"="town",
-                                                    "Industrial"="industrial",
-                                                    "Aerodrome"="aerodrome",
-                                                    "Harbour"="harbour",
-                                                    "Ferry terminal"="ferry_terminal",
-                                                    "Riverbank"="riverbank",
-                                                    "Nature reserve"="nature_reserve",
-                                                    "Protected Area"="protected_area"),
-                              "Data" = c("others Farm"="farm")),
-               selected = "town",multiple=F,selectize=F)
-    }
-    })
-   
    osm<-data.frame(
      id=c("town",
           "industrial",
@@ -281,9 +239,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
                 "osm_polygons"),stringsAsFactors = F)
 
 osm_response<-reactiveVal(NULL)
-    observeEvent(list(input$interactWith,bbox()),{
-      if(!is.null(bbox())){
-        if(!is.null(input$interactWith)){
+    observeEvent(input$send_request,{
       print(input$interactWith)
        if(input$interactWith=='farm'){
        }else{
@@ -297,8 +253,6 @@ osm_response<-reactiveVal(NULL)
          print(q)
          osm_response(q[[target$geometry]])
        }
-        }
-        }
      })
    
    
@@ -307,30 +261,33 @@ osm_response<-reactiveVal(NULL)
      response<-osm_response()
      fluidRow(
      HTML(paste0("Quantity of elements corresponding to '",input$interactWith,"' : ",nrow(response)))
-     #uiOutput(ns("message"))
      )
    } 
    })
    
-   output$message<-renderUI({
+   layer_message<-reactiveVal(NULL)
+   observeEvent(input$send_request,{
      req(osm_response())
      if(nrow(osm_response())>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()),"character"))
      style<-if(input$interactWith=="ferry_terminal"){"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/6/62/Anchor_pictogram.svg\", scale:0.1,}),}),"
      }else if(subset(osm,id==input$interactWith)$geometry=="osm_points"){"new Style({image: new Circle({radius: 25,fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),stroke: null,}),}),"}else{
        "new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"}
      request<-paste0("parent.postMessage('OFV.setGeoJSONLayer(0, \"",input$interactWith[1],"\", \"",input$interactWith[1],"\", \"",input$interactWith[1],"\", \"",input$interactWith[1],"\",",x[1],",",style[1],")','*');")
-     print(request)
-     
-     #tags$script(paste0("parent.postMessage('OFV.drawFeaturesFromGeoJSON(",x,",",style,")','*');")) }else{NULL}
-     tags$script(request) 
+     }else{
+     request<-NULL}
+     layer_message(request)
+   })
+   output$message<-renderUI({
+     req(osm_response())
+     req(layer_message())
+     if(input$project_result){
+     if(!is.null(layer_message())){
+       print(layer_message())
+     tags$script(layer_message()) 
+     }else{NULL}
      }else{NULL}
    })
-    # observeEvent(input$project_them,{)','*');"
-    #   x<-gsub("\"","'",as(geojson::as.geojson(osm_response()$osm_points),"character"))
-    #   print(x)
-    #   tags$script("parent.postMessage('OFV.drawFeatureFromGeoJSON(\"",x,"\")','*');") 
-    # })
-   
+
    # output$nb_ferry<-renderText({
    #   if(input$dist>0){
    #   bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
