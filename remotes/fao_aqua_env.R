@@ -286,7 +286,8 @@ osm_info<-reactiveVal(NULL)
            osm_info(info)
            osm_response(NULL)
          }else{
-           in_buffer<-st_intersection(q,bbox())
+           #in_buffer<-st_intersection(q,bbox())
+           in_buffer<-q
            info<-paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ",nrow(in_buffer))
            osm_info(info)
            osm_response(in_buffer)
