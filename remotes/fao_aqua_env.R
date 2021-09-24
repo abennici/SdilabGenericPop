@@ -138,8 +138,12 @@ fao_aqua_env_ui <- function(id) {
                                                                   "Industrial"="industrial",
                                                                   "Aerodrome"="aerodrome",
                                                                   "Harbour"="harbour",
+                                                                  "Marina"="marina",
                                                                   "Ferry terminal"="ferry_terminal",
+                                                                  "Ferry route"="ferry_route",
                                                                   "Riverbank"="riverbank",
+                                                                  "Wetland"="wetland",
+                                                                  "Natural"="natural",
                                                                   "Nature reserve"="nature_reserve",
                                                                   "Protected Area"="protected_area"),
                                             "Data" = c("others Farm"="farm")),
@@ -222,34 +226,38 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
           "industrial",
           "aerodrome",
           "harbour",
+          "marina",
           "ferry_terminal",
+          "ferry_route",
           "riverbank",
+          "wetland",
           "nature_reserve",
-          "protected_area"),
+          "protected_area",
+          "natural"),
      key=c("place",
            "landuse",
            "aeroway",
-           "yes",
-           "amenity",
-           "waterway",
+           "harbour",
            "leisure",
-           "boundary"),
+           "amenity",
+           "route",
+           "waterway",
+           "wetland",
+           "leisure",
+           "boundary",
+           "natural"),
      value=c("town",
              "industrial",
              "aerodrome",
-             "harbour",
+             "yes",
+             "marina",
              "ferry_terminal",
+             "ferry",
              "riverbank",
+             "yes",
              "nature_reserve",
-             "protected_area"),
-     geometry=c("osm_points",
-                "osm_polygons",
-                "osm_polygons",
-                "osm_points",
-                "osm_points",
-                "osm_polygons",
-                "osm_polygons",
-                "osm_polygons"),stringsAsFactors = F)
+             "protected_area",
+             "yes"),stringsAsFactors = F)
 
 osm_response<-reactiveVal(NULL)
 osm_info<-reactiveVal(NULL)
@@ -302,9 +310,88 @@ osm_info<-reactiveVal(NULL)
      req(osm_response())
      if(!is.null(osm_response())){
      if(nrow(osm_response())>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()),"character"))
-     style<-if(input$interactWith=="ferry_terminal"){"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/6/62/Anchor_pictogram.svg\", scale:0.1,}),}),"
-     }else if(input$type_geometry=="osm_points"){"new Style({image: new Circle({radius: 25,fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),stroke: null,}),}),"}else{
-       "new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"}
+     
+      #style
+     switch(input$interacWith,
+      "town"={
+        if(input$type_geometry=="osm_points"){
+          style<-"new Style({image: new Circle({radius: 25,fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),stroke: null,}),}),"
+        }else{
+          style<-"new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"
+        }
+      },
+      "industrial"={
+        if(input$type_geometry=="osm_points"){
+          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(241, 196, 15, 0.3)\",}),stroke: null,}),}),"
+        }else{
+          style<-"new Style({stroke: new Stroke({color: \"rgba(241, 196, 15, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(241, 196, 15, 0.3)\",}),}),"
+        }
+      },
+      "aerodrome"={
+        if(input$type_geometry=="osm_points"){
+          style<-"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/1/17/Plane_icon_nose_up.svg\", scale:0.1,}),}),"
+        }else{
+          style<-"new Style({stroke: new Stroke({color: \"rgba(112, 123, 124, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(112, 123, 124, 0.3)\",}),}),"
+        }
+      },
+      "harbour"={
+        if(input$type_geometry=="osm_points"){
+          style<-"new Style({image: new Icon({src:\"https://commons.wikimedia.org/wiki/File:Maki-ferry-15.svg#/media/File:Maki-ferry-15.svg\", scale:0.1,}),}),"
+        }else{
+          style<-"new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"
+        }
+      },
+      "marina"={},
+      "ferry_terminal"={
+        if(input$type_geometry=="osm_points"){
+          style<-"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/6/62/Anchor_pictogram.svg\", scale:0.1,}),}),"
+        }else{
+          style<-"new Style({stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
+        }
+      },
+      "ferry_route"={
+        if(input$type_geometry=="osm_points"){
+          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),stroke: null,}),}),"
+        }else{
+          style<-"new Style({stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
+        }
+      },    
+      "riverbank"={
+        if(input$type_geometry=="osm_points"){
+          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(133, 193, 233, 0.3)\",}),stroke: null,}),}),"
+        }else{
+          style<-"new Style({stroke: new Stroke({color: \"rgba(133, 193, 233, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(133, 193, 233, 0.3)\",}),}),"
+        }
+      },      
+      "wetland"={
+        if(input$type_geometry=="osm_points"){
+          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),stroke: null,}),}),"
+        }else{
+          style<-"new Style({stroke: new Stroke({color: \"rgba(118, 215, 196, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),}),"
+        }
+      },        
+      "nature_reserve"={
+        if(input$type_geometry=="osm_points"){
+          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(80, 216, 205, 0.3)\",}),stroke: null,}),}),"
+        }else{
+          style<-"new Style({stroke: new Stroke({color: \"rgba(80, 216, 205, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(80, 216, 205, 0.3)\",}),}),"
+        }
+      }, 
+      "protected_area"={
+        if(input$type_geometry=="osm_points"){
+          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(165, 105, 189, 0.3)\",}),stroke: null,}),}),"
+        }else{
+          style<-"new Style({stroke: new Stroke({color: \"rgba(165, 105, 189, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(165, 105, 189, 0.3)\",}),}),"
+        }
+      }, 
+      "natural"={
+        if(input$type_geometry=="osm_points"){
+          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(82, 190, 128, 0.3)\",}),stroke: null,}),}),"
+        }else{
+          style<-"new Style({stroke: new Stroke({color: \"rgba(82, 190, 128, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(82, 190, 128, 0.3)\",}),}),"
+        }
+      })
+
      request<-paste0("parent.postMessage('OFV.setGeoJSONLayer(0, \"",input$interactWith[1],"\", \"",input$interactWith[1],"\", \"",input$interactWith[1],"\", \"",input$interactWith[1],"\",",x[1],",",style[1],")','*');")
      }else{
      request<-NULL}
