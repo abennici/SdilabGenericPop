@@ -131,7 +131,7 @@ fao_aqua_env_ui <- function(id) {
                  uiOutput(ns("draw_buffer"))
                  
                ),
-               fluidRow(
+               fluidRow(column(5,
                  selectInput(ns("interactWith"),
                              "Interacts with :",
                              choices = list("Open Street Map" = c("Town"="town",
@@ -143,19 +143,22 @@ fao_aqua_env_ui <- function(id) {
                                                                   "Nature reserve"="nature_reserve",
                                                                   "Protected Area"="protected_area"),
                                             "Data" = c("others Farm"="farm")),
-                             selected = "town",multiple=F,selectize=F),
-                actionButton(ns("send_request"),"Send request"),
+                             selected = "town",multiple=F,selectize=F)
+               ),
+               column(5,
                   selectInput(ns("type_geometry"),
                             "Type of features :",
-                            choices = c("points"="osn_points",
+                            choices = c("points"="osm_points",
                                         "lines"="osm_lines",
                                         "multilines"="osm_multilines",
                                         "polygons"="osm_polygones",
                                         "multipolygons"="osm_multipolygons"),
-                            selected = "points",multiple=F,selectize=F),
-                
+                            selected = "points",multiple=F,selectize=F)
+                )
+               ),
+               fluidRow(
+                actionButton(ns("send_request"),"Send request"),
                 materialSwitch(ns("project_result"),"Project result in viewer : "),
-                
                 ),
                fluidRow(
                  uiOutput(ns("result")),
