@@ -164,7 +164,7 @@ fao_aqua_env_ui <- function(id) {
                  tags$div(class="col-xs-6",
                 materialSwitch(ns("project_result"),"Display : ")),
                 ),
-               fluidRow(
+               tags$div(
                  uiOutput(ns("result")),
                  uiOutput(ns("message"))
                )
