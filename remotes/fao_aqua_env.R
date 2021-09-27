@@ -130,7 +130,7 @@ fao_aqua_env_ui <- function(id) {
                  sliderInput(ns("dist"), "Searching at how many distance (km) around point :",min=0.1,max=30,step=0.1,value=0.1, post=" km"),
                  uiOutput(ns("draw_buffer"))
                ),
-               tags$div(
+               fluidRow(
                  tags$div(class="col-xs-6",
                  selectInput(ns("interactWith"),
                              "Type of item:",
@@ -158,16 +158,15 @@ fao_aqua_env_ui <- function(id) {
                                         "multipolygons"="osm_multipolygons"),
                             selected = "points",multiple=F,selectize=F)
                )),
-               tags$div(
+               fluidRow(
                  tags$div(class="col-xs-6",
                 actionButton(ns("send_request"),"Send request")),
                  tags$div(class="col-xs-6",
                 materialSwitch(ns("project_result"),"Display : ")),
                 ),
                tags$div(
-                 uiOutput(ns("result")),
+                 textOutput(ns("result_text"))),
                  uiOutput(ns("message"))
-               )
                # fluidRow(
                #   htmlOutput(ns("nb_farm"))
                # ),
@@ -286,8 +285,9 @@ osm_info<-reactiveVal(NULL)
            osm_info(info)
            osm_response(NULL)
          }else{
-           in_buffer<-st_intersection(q,bbox())
-           #in_buffer<-q
+           sel_buffer <- st_intersects(x = q, y = bbox())
+           sel_logical <- lengths(sel_buffer) > 0
+           in_buffer <- q[sel_logical,]
            info<-paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ",nrow(in_buffer))
            osm_info(info)
            osm_response(in_buffer)
@@ -298,12 +298,9 @@ osm_info<-reactiveVal(NULL)
      })
    
    
-   output$result<-renderUI({
+   output$result_text<-renderText({
    if(!is.null(osm_info())){
-     tags$div(
-     HTML(osm_info())
-     )
-   } 
+     osm_info()}else{NULL}
    })
    
    layer_message<-reactiveVal(NULL)
