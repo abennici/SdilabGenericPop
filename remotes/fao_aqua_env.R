@@ -378,7 +378,7 @@ osm_info<-reactiveVal(NULL)
         if(input$type_geometry=="osm_points"){
           style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(80, 216, 205, 0.3)\",}),stroke: null,}),}),"
         }else{
-          style<-"new Style({stroke: new Stroke({color: \"rgba(80, 216, 205, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(80, 216, 205, 0.3)\",}),}),"
+          style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/leisure/nature_reserve.png\",}),stroke: new Stroke({color: \"rgba(80, 216, 205, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(80, 216, 205, 0.3)\",}),}),"
         }
       }, 
       "protected_area"={
