@@ -126,12 +126,12 @@ fao_aqua_env_ui <- function(id) {
         )
       ),
       tabPanel("Proximity Tools",
-               fluidRow(
+               tags$div(
                  sliderInput(ns("dist"), "Searching at how many distance (km) around point :",min=0.1,max=30,step=0.1,value=0.1, post=" km"),
                  uiOutput(ns("draw_buffer"))
-                 
                ),
-               fluidRow(
+               tags$div(
+                 tags$div(class="col-xs-6",
                  selectInput(ns("interactWith"),
                              "Type of item:",
                              choices = list("Open Street Map" = c("Town"="town",
@@ -147,8 +147,9 @@ fao_aqua_env_ui <- function(id) {
                                                                   "Nature reserve"="nature_reserve",
                                                                   "Protected Area"="protected_area"),
                                             "Data" = c("others Farm"="farm")),
-                             selected = "town",multiple=F,selectize=F),
-                  selectInput(ns("type_geometry"),
+                             selected = "town",multiple=F,selectize=F)),
+                 tags$div(class="col-xs-6", 
+                 selectInput(ns("type_geometry"),
                             "Type of features:",
                             choices = c("points"="osm_points",
                                         "lines"="osm_lines",
@@ -156,10 +157,12 @@ fao_aqua_env_ui <- function(id) {
                                         "polygons"="osm_polygons",
                                         "multipolygons"="osm_multipolygons"),
                             selected = "points",multiple=F,selectize=F)
-               ),
-               fluidRow(
-                actionButton(ns("send_request"),"Send request"),
-                materialSwitch(ns("project_result"),"Project result in viewer : "),
+               )),
+               tags$div(
+                 tags$div(class="col-xs-6",
+                actionButton(ns("send_request"),"Send request")),
+                 tags$div(class="col-xs-6",
+                materialSwitch(ns("project_result"),"Display : ")),
                 ),
                fluidRow(
                  uiOutput(ns("result")),
@@ -586,6 +589,29 @@ osm_info<-reactiveVal(NULL)
       }
       data_period$chronology<-out$PeriodLabel
       out$data_period<-data_period
+      
+      ###Replace by WPS method
+      # WPS<-WPSClient$new(
+      #   url = "https://dataminer-prototypes.d4science.org/wps/WebProcessingService",
+      #   serviceVersion = "1.0.0", logger ="DEBUG",
+      #   headers = c("gcube-token"=query$gcube_token)
+      # 
+      # exec = WPS$execute(
+      #   identifier ="org.gcube.dataanalysis.wps.statisticalmanager.synchserver.mappedclasses.transducerers.ENVIRONMENTAL_ENRICHMENT_FROM_THREDDS",
+      #   dataInputs = list(
+      #     date = WPSLiteralData$new(value = out$data.time),
+      #     days_before = WPSLiteralData$new(value = 7),
+      #     days_after = WPSLiteralData$new(value = 7),
+      #     srs = WPSLiteralData$new(value = query$srs),
+      #     x = WPSLiteralData$new(value = query$x),
+      #     y = WPSLiteralData$new(value = query$y ),
+      #     width = WPSLiteralData$new(value = query$width ),
+      #     height = WPSLiteralData$new(value = query$height),
+      #     bbox = WPSLiteralData$new(value = query$bbox)
+      #   )
+      # )
+      #exec$getProcessOutputs()[[1]]$Data$getFeatures()
+      
     }
   })
   
