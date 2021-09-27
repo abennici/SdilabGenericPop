@@ -300,7 +300,7 @@ osm_info<-reactiveVal(NULL)
    
    output$result<-renderUI({
    if(!is.null(osm_info())){
-     fluidRow(
+     tags$div(
      HTML(osm_info())
      )
    } 
