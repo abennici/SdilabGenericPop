@@ -322,7 +322,7 @@ osm_info<-reactiveVal(NULL)
         if(input$type_geometry=="osm_points"){
           style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(241, 196, 15, 0.3)\",}),stroke: null,}),}),"
         }else{
-          style<-"new Style({stroke: new Stroke({color: \"rgba(241, 196, 15, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(241, 196, 15, 0.3)\",}),}),"
+          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(241, 196, 15, 0.3)\",}),stroke: null,}),stroke: new Stroke({color: \"rgba(241, 196, 15, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(241, 196, 15, 0.3)\",}),}),"
         }
       },
       "aerodrome"={
@@ -371,7 +371,7 @@ osm_info<-reactiveVal(NULL)
         if(input$type_geometry=="osm_points"){
           style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),stroke: null,}),}),"
         }else{
-          style<-"new Style({stroke: new Stroke({color: \"rgba(118, 215, 196, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),}),"
+          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),stroke: null,}),stroke: new Stroke({color: \"rgba(118, 215, 196, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),}),"
         }
       },        
       "nature_reserve"={
