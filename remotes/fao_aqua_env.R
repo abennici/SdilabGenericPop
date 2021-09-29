@@ -5,48 +5,48 @@
 
 ##Environemental table
 
-# env<-data.frame(
-#   id=c("chlor_a",
-#        "sst",
-#        "wave_height",
-#        "wind_dir"),
-#   wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?",
-#         "https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?",
-#         "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?",
-#         "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?"),
-#   layer=c("chlor_a",
-#           "CRW_SST",
-#           "Thgt",
-#           "wdir"),
-#   label=c("Concentration of chlorophyll a",
-#           "Sea surface temperature",
-#           "Sea surface wave height",
-#           "Sea surface wind direction"),
-#   source=c("https://oceancolor.gsfc.nasa.gov/atbd/chlor_a",
-#            "https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php",
-#            "https://polar.ncep.noaa.gov/waves/products.shtml?",
-#            "https://polar.ncep.noaa.gov/waves/products.shtml?"
-#   ),
-#   unit=c("mg/m3",
-#          "°C",
-#          "m",
-#          "degree"
-#   ),
-#   color=c("green",
-#           "red",
-#           "blue",
-#           "orange"),stringsAsFactors = F
-# )
-
 env<-data.frame(
-  id=c("chlor_a"),
-  wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?"),
-  layer=c("chlor_a"),
-  label=c("Concentration of chlorophyll a"),
-  source=c("https://oceancolor.gsfc.nasa.gov/atbd/chlor_a"),
-  unit=c("mg/m3"),
-  color=c("green"),stringsAsFactors = F
+  id=c("chlor_a",
+       "sst",
+       "wave_height",
+       "wind_dir"),
+  wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?",
+        "https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?",
+        "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?",
+        "https://pae-paha.pacioos.hawaii.edu/thredds/wms/ww3_global/WaveWatch_III_Global_Wave_Model_best.ncd?"),
+  layer=c("chlor_a",
+          "CRW_SST",
+          "Thgt",
+          "wdir"),
+  label=c("Concentration of chlorophyll a",
+          "Sea surface temperature",
+          "Sea surface wave height",
+          "Sea surface wind direction"),
+  source=c("https://oceancolor.gsfc.nasa.gov/atbd/chlor_a",
+           "https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php",
+           "https://polar.ncep.noaa.gov/waves/products.shtml?",
+           "https://polar.ncep.noaa.gov/waves/products.shtml?"
+  ),
+  unit=c("mg/m3",
+         "°C",
+         "m",
+         "degree"
+  ),
+  color=c("green",
+          "red",
+          "blue",
+          "orange"),stringsAsFactors = F
 )
+
+# env<-data.frame(
+#   id=c("chlor_a"),
+#   wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?"),
+#   layer=c("chlor_a"),
+#   label=c("Concentration of chlorophyll a"),
+#   source=c("https://oceancolor.gsfc.nasa.gov/atbd/chlor_a"),
+#   unit=c("mg/m3"),
+#   color=c("green"),stringsAsFactors = F
+# )
 
 # Cardinal directions
 directions<-data.frame(
@@ -341,9 +341,9 @@ osm_info<-reactiveVal(NULL)
       },
       "marina"={
         if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Icon({src:\"https://nl.wikipedia.org/wiki/Bestand:Sailboat_symbol.svg\", scale:0.1,}),}),"
+          style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/nautical/marina.png\",}),}),"
         }else{
-          style<-"new Style({stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
+          style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/nautical/marina.png\",}),stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
         }
       },
       "ferry_terminal"={
@@ -371,7 +371,7 @@ osm_info<-reactiveVal(NULL)
         if(input$type_geometry=="osm_points"){
           style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),stroke: null,}),}),"
         }else{
-          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),stroke: null,}),stroke: new Stroke({color: \"rgba(118, 215, 196, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),}),"
+          style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/leisure/nature_reserve.png\",}),image: new Circle({radius: 15,fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),stroke: null,}),stroke: new Stroke({color: \"rgba(118, 215, 196, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),}),"
         }
       },        
       "nature_reserve"={
@@ -385,14 +385,14 @@ osm_info<-reactiveVal(NULL)
         if(input$type_geometry=="osm_points"){
           style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(165, 105, 189, 0.3)\",}),stroke: null,}),}),"
         }else{
-          style<-"new Style({stroke: new Stroke({color: \"rgba(165, 105, 189, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(165, 105, 189, 0.3)\",}),}),"
+          style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/misc/landmark/plant.png\",}),stroke: new Stroke({color: \"rgba(165, 105, 189, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(165, 105, 189, 0.3)\",}),}),"
         }
       }, 
       "natural"={
         if(input$type_geometry=="osm_points"){
           style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(82, 190, 128, 0.3)\",}),stroke: null,}),}),"
         }else{
-          style<-"new Style({stroke: new Stroke({color: \"rgba(82, 190, 128, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(82, 190, 128, 0.3)\",}),}),"
+          style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/misc/landmark/trees.png\",}),stroke: new Stroke({color: \"rgba(82, 190, 128, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(82, 190, 128, 0.3)\",}),}),"
         }
       })
 
@@ -519,10 +519,10 @@ osm_info<-reactiveVal(NULL)
     out$data_time<-time
     posix_time<-as.POSIXct(out$data_time, format="%Y-%m-%d")
     out$posix_time<-posix_time
-    weekBefore<-seq(out$posix_time, by = "-1 day", length.out = 8)
-    weekAfter<-seq(out$posix_time, by = "1 day", length.out = 8)
-    out$Period<-lubridate::floor_date(sort(unique(c(weekBefore,weekAfter))),'day')
-    out$PeriodLabel<-c("Day -7","Day -6","Day -5","Day -4","Day -3","Day -2","Day -1","Select Day","Day +1","Day +2","Day +3","Day +4","Day +5","Day +6","Day +7")
+    # weekBefore<-seq(out$posix_time, by = "-1 day", length.out = 8)
+    # weekAfter<-seq(out$posix_time, by = "1 day", length.out = 8)
+    # out$Period<-lubridate::floor_date(sort(unique(c(weekBefore,weekAfter))),'day')
+    # out$PeriodLabel<-c("Day -7","Day -6","Day -5","Day -4","Day -3","Day -2","Day -1","Select Day","Day +1","Day +2","Day +3","Day +4","Day +5","Day +6","Day +7")
   })
   
   output$data_time <-renderText({
@@ -548,12 +548,12 @@ osm_info<-reactiveVal(NULL)
       names(tmp)<-env[i,1]
       tmp$round<-lubridate::floor_date(as.POSIXct(tmp[,1],format="%Y-%m-%dT%H:%M:%OSZ"), "day")
       timeMatch<-subset(tmp,round==lubridate::floor_date(out$posix_time, "day"))[1,1]
-      Week<-tmp%>%
-        filter(round %in% out$Period)%>%
-        group_by(round)%>%
-        summarise(timeSerie=first(!! sym(env[i,1])))%>%
-        select(timeSerie)
-      outt[[env[i,1]]]$week<-as.data.frame(Week)$timeSerie
+      # Week<-tmp%>%
+      #   filter(round %in% out$Period)%>%
+      #   group_by(round)%>%
+      #   summarise(timeSerie=first(!! sym(env[i,1])))%>%
+      #   select(timeSerie)
+      # outt[[env[i,1]]]$week<-as.data.frame(Week)$timeSerie
       
       if(length(timeMatch)>0){
         Feature<-Layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time = timeMatch,info_format = "text/xml")
@@ -573,43 +573,50 @@ osm_info<-reactiveVal(NULL)
   
   data_period<-reactive({
     if(out$go){
-      data_period<-NULL
-      for(i in env$id){
-        week<-out$env[[i]]$week
-        table<-do.call("rbind",lapply(week,function(time){out$env[[i]]$layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time =time,info_format = "text/xml")}))
-        table$time<-as.character(lubridate::floor_date(as.POSIXct(table$time,format="%Y-%m-%dT%H:%M:%OSZ"), "day"))
-        table<-subset(as.data.frame(table),select=c(time,value))
-        names(table)[names(table) == 'value'] <- i
-        table<-as.data.frame(table)
-        print(table)
-        data_period<-if(is.null(data_period)) table else merge(data_period,table)
-      }
-      data_period$chronology<-out$PeriodLabel
-      out$data_period<-data_period
+      #data_period<-NULL
+      # for(i in env$id){
+      #   week<-out$env[[i]]$week
+      #   table<-do.call("rbind",lapply(week,function(time){out$env[[i]]$layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time =time,info_format = "text/xml")}))
+      #   table$time<-as.character(lubridate::floor_date(as.POSIXct(table$time,format="%Y-%m-%dT%H:%M:%OSZ"), "day"))
+      #   table<-subset(as.data.frame(table),select=c(time,value))
+      #   names(table)[names(table) == 'value'] <- i
+      #   table<-as.data.frame(table)
+      #   print(table)
+      #   data_period<-if(is.null(data_period)) table else merge(data_period,table)
+      # }
+      # data_period$chronology<-out$PeriodLabel
+      # out$data_period<-data_period
       
       ###Replace by WPS method
-      # WPS<-WPSClient$new(
-      #   url = "https://dataminer-prototypes.d4science.org/wps/WebProcessingService",
-      #   serviceVersion = "1.0.0", logger ="DEBUG",
-      #   headers = c("gcube-token"=query$gcube_token)
-      # 
-      # exec = WPS$execute(
-      #   identifier ="org.gcube.dataanalysis.wps.statisticalmanager.synchserver.mappedclasses.transducerers.ENVIRONMENTAL_ENRICHMENT_FROM_THREDDS",
-      #   dataInputs = list(
-      #     date = WPSLiteralData$new(value = out$data.time),
-      #     days_before = WPSLiteralData$new(value = 7),
-      #     days_after = WPSLiteralData$new(value = 7),
-      #     srs = WPSLiteralData$new(value = query$srs),
-      #     x = WPSLiteralData$new(value = query$x),
-      #     y = WPSLiteralData$new(value = query$y ),
-      #     width = WPSLiteralData$new(value = query$width ),
-      #     height = WPSLiteralData$new(value = query$height),
-      #     bbox = WPSLiteralData$new(value = query$bbox)
-      #   )
-      # )
-      #exec$getProcessOutputs()[[1]]$Data$getFeatures()
       
-    }
+      token<-query$token
+      if(is.null(token)){
+        token<-"8051e2b4-529d-4da8-b777-180881efd71e-843339462"
+      }
+       WPS<-WPSClient$new(
+         url = "https://dataminer-prototypes-1804.d4science.org/wps/WebProcessingService",
+         serviceVersion = "1.0.0", logger ="DEBUG",
+         headers = c("gcube-token"=token)
+       )
+       
+       exec = WPS$execute(
+         identifier ="org.gcube.dataanalysis.wps.statisticalmanager.synchserver.mappedclasses.transducerers.ENVIRONMENTAL_ENRICHMENT_FROM_THREDDS",
+         dataInputs = list(
+           date = WPSLiteralData$new(value = out$data_time),
+           days_before = WPSLiteralData$new(value = 7),
+           days_after = WPSLiteralData$new(value = 7),
+           srs = WPSLiteralData$new(value = query$srs),
+           x = WPSLiteralData$new(value = query$x),
+           y = WPSLiteralData$new(value = query$y ),
+           width = WPSLiteralData$new(value = query$width ),
+           height = WPSLiteralData$new(value = query$height),
+           bbox = WPSLiteralData$new(value = query$bbox)
+         )
+       )
+       
+      exec$getProcessOutputs()[[1]]$Data$getFeatures()
+      out$data.period<-read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2]))
+    }else{NULL}
   })
   
   output$table <- DT::renderDT(server = FALSE, {
