@@ -38,16 +38,6 @@ env<-data.frame(
           "orange"),stringsAsFactors = F
 )
 
-# env<-data.frame(
-#   id=c("chlor_a"),
-#   wms=c("https://rsg.pml.ac.uk/thredds/wms/CCI_ALL-v5.0-1km-DAILY?"),
-#   layer=c("chlor_a"),
-#   label=c("Concentration of chlorophyll a"),
-#   source=c("https://oceancolor.gsfc.nasa.gov/atbd/chlor_a"),
-#   unit=c("mg/m3"),
-#   color=c("green"),stringsAsFactors = F
-# )
-
 # Cardinal directions
 directions<-data.frame(
   cardinal=c("N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"),
@@ -61,31 +51,6 @@ fao_aqua_env_ui <- function(id) {
   tabPanel(title=uiOutput(ns("title_panel")),value="fao_aqua_env",
            
     tabsetPanel(
-      # tabPanel("Test1",
-      #          fluidRow(
-      #            actionButton(ns("mapview1"), "Switch 2D/3D view on map")
-      #          )),
-      #  tabPanel("Test2",
-      #           fluidRow(
-      #             tags$script("parent.postMessage('OFV.switchMapView()','*');")
-      #           )),
-#       tabPanel("Test3",
-#                fluidRow(
-#                  actionButton(ns("mapview3"), "Switch 2D/3D view on map"),
-#                  tags$script("
-# Shiny.addCustomMessageHandler('alert', function(arg) {
-#   alert(arg.val);
-#   alert(arg.size);
-# });")
-#                )),
-#       tabPanel("Test4",
-#                fluidRow(
-#                  actionButton(ns("mapview4"), "Switch 2D/3D view on map"),
-#                  tags$script("
-# Shiny.addCustomMessageHandler('switch', function(arg) {
-# parent.postMessage(arg.text,arg.origin);
-# });")
-#                )),
       tabPanel("Summary",
         fluidRow(
           uiOutput(ns("img"))
@@ -519,10 +484,9 @@ osm_info<-reactiveVal(NULL)
     out$data_time<-time
     posix_time<-as.POSIXct(out$data_time, format="%Y-%m-%d")
     out$posix_time<-posix_time
-    # weekBefore<-seq(out$posix_time, by = "-1 day", length.out = 8)
-    # weekAfter<-seq(out$posix_time, by = "1 day", length.out = 8)
-    # out$Period<-lubridate::floor_date(sort(unique(c(weekBefore,weekAfter))),'day')
-    # out$PeriodLabel<-c("Day -7","Day -6","Day -5","Day -4","Day -3","Day -2","Day -1","Select Day","Day +1","Day +2","Day +3","Day +4","Day +5","Day +6","Day +7")
+    if(!is.null(posix_time)){
+    out$go<-TRUE
+    }
   })
   
   output$data_time <-renderText({
@@ -533,62 +497,8 @@ osm_info<-reactiveVal(NULL)
     }
   })
   
-  observe({
-    txt<-""
-    outt<-list()
-    #if(!is.null(input$env_select))env<-subset(env,id %in% input$env_select)
-    for(i in 1:nrow(env)){
-      WMS<-ows4R::WMSClient$new(url = env[i,2], serviceVersion = "1.3.0", logger = "DEBUG")
-      outt[[env[i,1]]]$wms<-WMS
-      Layer<-WMS$capabilities$findLayerByName(env[i,3])
-      outt[[env[i,1]]]$layer<-Layer
-      timeSerie<-Layer$getTimeDimension()$values
-      outt[[env[i,1]]]$timeSerie<-timeSerie
-      tmp<-data.frame(timeSerie)
-      names(tmp)<-env[i,1]
-      tmp$round<-lubridate::floor_date(as.POSIXct(tmp[,1],format="%Y-%m-%dT%H:%M:%OSZ"), "day")
-      timeMatch<-subset(tmp,round==lubridate::floor_date(out$posix_time, "day"))[1,1]
-      # Week<-tmp%>%
-      #   filter(round %in% out$Period)%>%
-      #   group_by(round)%>%
-      #   summarise(timeSerie=first(!! sym(env[i,1])))%>%
-      #   select(timeSerie)
-      # outt[[env[i,1]]]$week<-as.data.frame(Week)$timeSerie
-      
-      if(length(timeMatch)>0){
-        Feature<-Layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time = timeMatch,info_format = "text/xml")
-        txt<-paste0(txt,"<a href=",env[i,5]," target=_blank>",env[i,4]," : </a> ",Feature$value," ",env[i,6]," [",timeMatch,"]<br>")
-      }else{
-        txt<-paste0(txt,"<a href=",env[i,5]," target=_blank>",env[i,4]," : </a>No Data Available")
-      }
-    }
-    out$go<-TRUE
-    out$env<-outt
-    out$txt<-txt
-  })
-  
-  output$env_values <- renderText({
-    out$txt
-  })
-  
   data_period<-reactive({
     if(out$go){
-      #data_period<-NULL
-      # for(i in env$id){
-      #   week<-out$env[[i]]$week
-      #   table<-do.call("rbind",lapply(week,function(time){out$env[[i]]$layer$getFeatureInfo(srs = query$srs, x = query$x, y = query$y, width = query$width, height = query$height, feature_count = 1000000, bbox = query$bbox, time =time,info_format = "text/xml")}))
-      #   table$time<-as.character(lubridate::floor_date(as.POSIXct(table$time,format="%Y-%m-%dT%H:%M:%OSZ"), "day"))
-      #   table<-subset(as.data.frame(table),select=c(time,value))
-      #   names(table)[names(table) == 'value'] <- i
-      #   table<-as.data.frame(table)
-      #   print(table)
-      #   data_period<-if(is.null(data_period)) table else merge(data_period,table)
-      # }
-      # data_period$chronology<-out$PeriodLabel
-      # out$data_period<-data_period
-      
-      ###Replace by WPS method
-      
       token<-query$token
       if(is.null(token)){
         token<-"8051e2b4-529d-4da8-b777-180881efd71e-843339462"
@@ -603,20 +513,33 @@ osm_info<-reactiveVal(NULL)
          identifier ="org.gcube.dataanalysis.wps.statisticalmanager.synchserver.mappedclasses.transducerers.ENVIRONMENTAL_ENRICHMENT_FROM_THREDDS",
          dataInputs = list(
            date = WPSLiteralData$new(value = out$data_time),
-           days_before = WPSLiteralData$new(value = 7),
-           days_after = WPSLiteralData$new(value = 7),
+           days_before = WPSLiteralData$new(value = 3),
+           days_after = WPSLiteralData$new(value = 3),
            srs = WPSLiteralData$new(value = query$srs),
            x = WPSLiteralData$new(value = query$x),
            y = WPSLiteralData$new(value = query$y ),
            width = WPSLiteralData$new(value = query$width ),
            height = WPSLiteralData$new(value = query$height),
            bbox = WPSLiteralData$new(value = query$bbox)
-         )
+         )  
        )
        
       exec$getProcessOutputs()[[1]]$Data$getFeatures()
-      out$data.period<-read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2]))
+      return(read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2])))
+    
     }else{NULL}
+  })
+  
+  
+  output$env_values <- renderText({
+    if(!is.null(data_period())){
+    txt=""
+    target<-subset(data_period(),time==as.character(out$posix_time))
+    for(i in env$id){
+    txt<-paste0(txt,"<a href=",env[env$id==i,5]," target=_blank>",env[env$id==i,4]," : </a> ",target[,i]," ",env[env$id==i,6],"<br>")
+    }
+    txt
+    }
   })
   
   output$table <- DT::renderDT(server = FALSE, {
