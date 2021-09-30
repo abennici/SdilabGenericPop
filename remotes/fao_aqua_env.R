@@ -479,13 +479,14 @@ osm_info<-reactiveVal(NULL)
     }
   })
   
+  go<-reactiveVal(FALSE)
   observe({
     time<-unique(as.character(out$data$tile_date))
     out$data_time<-time
     posix_time<-as.POSIXct(out$data_time, format="%Y-%m-%d")
     out$posix_time<-posix_time
     if(!is.null(posix_time)){
-    out$go<-TRUE
+  go(TRUE)
     }
   })
   
@@ -497,8 +498,10 @@ osm_info<-reactiveVal(NULL)
     }
   })
   
-  data_period<-reactive({
-    if(out$go){
+  data_period<-reactiveVal(NULL)
+  
+  observeEvent(go(),{
+    if(go()){
       token<-query$token
       if(is.null(token)){
         token<-"8051e2b4-529d-4da8-b777-180881efd71e-843339462"
@@ -524,10 +527,9 @@ osm_info<-reactiveVal(NULL)
          )  
        )
        
-      exec$getProcessOutputs()[[1]]$Data$getFeatures()
-      return(read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2])))
+      data_period(read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2])))
     
-    }else{NULL}
+    }
   })
   
   
@@ -536,7 +538,7 @@ osm_info<-reactiveVal(NULL)
     txt=""
     target<-subset(data_period(),time==as.character(out$posix_time))
     for(i in env$id){
-    txt<-paste0(txt,"<a href=",env[env$id==i,5]," target=_blank>",env[env$id==i,4]," : </a> ",target[,i]," ",env[env$id==i,6],"<br>")
+    txt<-paste0(txt,"<a href=",env[env$id==i,5]," target=_blank>",env[env$id==i,4]," : </a> ",target[,i],ifelse(target[,i]=='none',"",paste0(" ",env[env$id==i,6])),"<br>")
     }
     txt
     }
