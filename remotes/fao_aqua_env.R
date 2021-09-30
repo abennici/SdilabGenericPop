@@ -480,6 +480,7 @@ osm_info<-reactiveVal(NULL)
   })
   
   go<-reactiveVal(FALSE)
+  
   observe({
     time<-unique(as.character(out$data$tile_date))
     out$data_time<-time
@@ -500,8 +501,7 @@ osm_info<-reactiveVal(NULL)
   
   data_period<-reactiveVal(NULL)
   
-  observeEvent(go(),{
-    if(go()){
+  observeEvent(req(go()==TRUE),{
       token<-query$token
       if(is.null(token)){
         token<-"8051e2b4-529d-4da8-b777-180881efd71e-843339462"
@@ -529,8 +529,7 @@ osm_info<-reactiveVal(NULL)
        
       data_period(read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2])))
     
-    }
-  })
+  }, once = TRUE)
   
   
   output$env_values <- renderText({
