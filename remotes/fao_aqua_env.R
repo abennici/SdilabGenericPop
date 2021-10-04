@@ -556,11 +556,11 @@ osm_info<-reactiveVal(NULL)
         reshape::melt(data_period(), id=c("time","chronology"))%>%
           group_by(variable)%>%
           mutate(value = na_if(value,"none"))%>%
-          summarise(min=round(min(as.numeric(na.omit(value))),2),
-                    max=round(max(as.numeric(na.omit(value))),2),
-                    mean=round(mean(as.numeric(na.omit(value))),2),
-                    median=round(median(as.numeric(na.omit(value))),2),
-                    sd=round(sd(as.numeric(na.omit(value))),2)),
+          summarise(min=ifelse(length(na.omit(value))==0,"none",round(min(as.numeric(na.omit(value))),2)),
+                    max=ifelse(length(na.omit(value))==0,"none",round(max(as.numeric(na.omit(value))),2)),
+                    mean=ifelse(length(na.omit(value))==0,"none",round(mean(as.numeric(na.omit(value))),2)),
+                    median=ifelse(length(na.omit(value))==0,"none",round(median(as.numeric(na.omit(value))),2)),
+                    sd=ifelse(length(na.omit(value))==0,"none",round(sd(as.numeric(na.omit(value))),2))),
         options = list(dom = 't'), rownames = FALSE)
     }else{NULL}
   })
