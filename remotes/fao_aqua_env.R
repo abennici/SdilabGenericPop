@@ -548,7 +548,7 @@ osm_info<-reactiveVal(NULL)
        })
       data_period(read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2])))
     
-  }, once = TRUE,ignoreInit = T)
+  }, once = TRUE)
   
   
   output$env_values <- renderText({
