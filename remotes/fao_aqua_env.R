@@ -512,8 +512,10 @@ osm_info<-reactiveVal(NULL)
          headers = c("gcube-token"=token)
        )
        
+       withProgress(message = 'Fetching data from WPS',min=0,max=100, value = 0, {
+       
        exec = WPS$execute(
-         identifier ="org.gcube.dataanalysis.wps.statisticalmanager.synchserver.mappedclasses.transducerers.ENVIRONMENTAL_ENRICHMENT_FROM_THREDDS",
+         identifier ="org.gcube.dataanalysis.wps.statisticalmanager.synchserver.mappedclasses.transducerers.ENVIRONMENTAL_ENRICHMENT_FROM_THREDDS",status=T,storeExecuteResponse = T,
          dataInputs = list(
            date = WPSLiteralData$new(value = out$data_time),
            days_before = WPSLiteralData$new(value = 3),
@@ -527,6 +529,23 @@ osm_info<-reactiveVal(NULL)
          )  
        )
        
+       percentCompleted<-exec$getStatus()$getPercentCompleted()
+       print(percentCompleted)
+       Status<-exec$getStatus()$getValue()
+       print(Status)
+       
+       setProgress(value = percentCompleted,message = 'Fetching data from WPS', detail = paste0(Status," ",percentCompleted,"%"))
+       
+       while(!exec$getStatus()$getValue() %in% c("ProcessSucceeded", "ProcessFailed")){
+         Sys.sleep(3)
+         exec<- exec$update()
+         percentCompleted<-exec$getStatus()$getPercentCompleted()
+         Status<-exec$getStatus()$getValue()
+         print(percentCompleted)
+         print(Status)
+         setProgress(value = percentCompleted,message = 'Fetching data from WPS', detail = paste0(Status," ",percentCompleted,"%"))
+       }
+       })
       data_period(read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2])))
     
   }, once = TRUE)
