@@ -557,11 +557,11 @@ osm_info<-reactiveVal(NULL)
         reshape::melt(data_period(), id=c("time","chronology"))%>%
           group_by(variable)%>%
           mutate(value = na_if(value,"none"))%>%
-          summarise(if(length(na.omit(value))==0){min="none"}else{min=round(min(as.numeric(na.omit(value))),2)},
-                    if(length(na.omit(value))==0){max="none"}else{max=round(max(as.numeric(na.omit(value))),2)},
-                    if(length(na.omit(value))==0){mean="none"}else{mean=round(mean(as.numeric(na.omit(value))),2)},
-                    if(length(na.omit(value))==0){median="none"}else{median=round(median(as.numeric(na.omit(value))),2)},
-                    if(length(na.omit(value))==0){sd="none"}else{sd=round(sd(as.numeric(na.omit(value))),2)}),
+          summarise(min=if(length(na.omit(value))==0){"none"}else{round(min(as.numeric(na.omit(value))),2)},
+                    max=if(length(na.omit(value))==0){"none"}else{round(max(as.numeric(na.omit(value))),2)},
+                    mean=if(length(na.omit(value))==0){"none"}else{round(mean(as.numeric(na.omit(value))),2)},
+                    median=if(length(na.omit(value))==0){"none"}else{round(median(as.numeric(na.omit(value))),2)},
+                    sd=if(length(na.omit(value))==0){"none"}else{round(sd(as.numeric(na.omit(value))),2)}),
         options = list(dom = 't'), rownames = FALSE)
     }else{NULL}
   })
