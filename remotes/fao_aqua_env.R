@@ -545,7 +545,8 @@ osm_info<-reactiveVal(NULL)
   
   output$table <- DT::renderDT(server = FALSE, {
     if(!is.null(data_period())){
-      datatable(data_period())%>%
+      datatable(data_period(),
+                options = list(dom = 't'), rownames = FALSE)%>%
         formatStyle("chronology",target = 'row',fontWeight = "bold",backgroundColor = styleEqual(c("Selected Day"), c("orange")))
     }else{NULL}
   })
