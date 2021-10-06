@@ -4,7 +4,6 @@
 #Function for module UI
 
 ##Environemental table
-
 env<-data.frame(
   id=c("chlor_a",
        "sst",
@@ -45,106 +44,221 @@ directions<-data.frame(
   degree_max=c(11.25,33.75,56.25,78.75,101.25,123.75,146.25,168.75,191.25,213.75,236.25,258.75,281.25,303.75,326.25,348.75)
 )
 
+# Open Street Map 
+osm<-data.frame(
+  id=c("town",
+       "industrial",
+       "aerodrome",
+       "harbour",
+       "marina",
+       "ferry_terminal",
+       "ferry_route",
+       "riverbank",
+       "wetland",
+       "nature_reserve",
+       "protected_area",
+       "natural"),
+  key=c("place",
+        "landuse",
+        "aeroway",
+        "harbour",
+        "leisure",
+        "amenity",
+        "route",
+        "waterway",
+        "wetland",
+        "leisure",
+        "boundary",
+        "natural"),
+  value=c("town",
+          "industrial",
+          "aerodrome",
+          "yes",
+          "marina",
+          "ferry_terminal",
+          "ferry",
+          "riverbank",
+          "yes",
+          "nature_reserve",
+          "protected_area",
+          "yes"),stringsAsFactors = F)
+
 fao_aqua_env_ui <- function(id) {
   ns <- NS(id)
   
   tabPanel(title=uiOutput(ns("title_panel")),value="fao_aqua_env",
-           
-    tabsetPanel(
-      tabPanel("Summary",
-        fluidRow(
-          uiOutput(ns("img"))
-        ),
-        fluidRow(
-          htmlOutput(ns("data_time"))
-        ),
-        fluidRow(
-          div(htmlOutput(ns("env_values"))%>%withSpinner(type = 2))
-        )
-      ),
-      tabPanel("Table",
-        fluidRow(
-          div(DTOutput(ns('table'))%>%withSpinner(type = 2),  style = "font-size:50%")
-        )
-      ),
-      tabPanel("Stat",
-        fluidRow(
-          div(DTOutput(ns('stat'))%>%withSpinner(type = 2),  style = "font-size:70%")
-        )
-      ),
-      tabPanel("Global Plot",
-        fluidRow(
-          div(plotlyOutput(ns('graph'))%>%withSpinner(type = 2))
-        )
-      ),
-      tabPanel("Individual Plot",
-               fluidRow(
-                 uiOutput(ns('selector'))
-               ),
-               fluidRow(
-                 div(plotlyOutput(ns('plot'))%>%withSpinner(type = 2))
-               )
-      ),
-      tabPanel("Wind Rose",
-        fluidRow(
-          div(plotOutput(ns('windrose'))%>%withSpinner(type = 2))
-        )
-      ),
-      tabPanel("Proximity Tools",
-               tags$div(
-                 sliderInput(ns("dist"), "Searching at how many distance (km) around point :",min=0.1,max=30,step=0.1,value=0.1, post=" km"),
-                 uiOutput(ns("draw_buffer"))
-               ),
-               fluidRow(
-                 tags$div(class="col-xs-6",
-                 selectInput(ns("interactWith"),
-                             "Type of item:",
-                             choices = list("Open Street Map" = c("Town"="town",
-                                                                  "Industrial"="industrial",
-                                                                  "Aerodrome"="aerodrome",
-                                                                  "Harbour"="harbour",
-                                                                  "Marina"="marina",
-                                                                  "Ferry terminal"="ferry_terminal",
-                                                                  "Ferry route"="ferry_route",
-                                                                  "Riverbank"="riverbank",
-                                                                  "Wetland"="wetland",
-                                                                  "Natural"="natural",
-                                                                  "Nature reserve"="nature_reserve",
-                                                                  "Protected Area"="protected_area"),
-                                            "Data" = c("others Farm"="farm")),
-                             selected = "town",multiple=F,selectize=F)),
-                 tags$div(class="col-xs-6", 
-                 selectInput(ns("type_geometry"),
-                            "Type of features:",
-                            choices = c("points"="osm_points",
-                                        "lines"="osm_lines",
-                                        "multilines"="osm_multilines",
-                                        "polygons"="osm_polygons",
-                                        "multipolygons"="osm_multipolygons"),
-                            selected = "points",multiple=F,selectize=F)
-               )),
-               fluidRow(
-                 tags$div(class="col-xs-6",
-                actionButton(ns("send_request"),"Send request")),
-                 tags$div(class="col-xs-6",
-                materialSwitch(ns("project_result"),"Display : ")),
-                ),
-               tags$div(
-                 textOutput(ns("result_text"))),
-                 uiOutput(ns("message"))
-               # fluidRow(
-               #   htmlOutput(ns("nb_farm"))
-               # ),
-               # fluidRow(
-               #   htmlOutput(ns("nearest_farm"))
-               # )
-    ))
+    uiOutput(ns("main_ui"))
   )  
 }
 
 # Function for module server
 fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   ns<-session$ns
+  
+  #UI Logic
+  
+  output$main_ui <- renderUI({
+  
+  if(status_wps()=="ProcessSucceeded"){
+  tabsetPanel(
+    tabPanel("Summary",
+             if(isTRUE(go())){
+             tagList(
+             fluidRow(
+               uiOutput(ns("img"))
+             ),
+             fluidRow(
+               if(isTRUE(go())){
+               htmlOutput(ns("data_time"))}
+             ),
+             fluidRow(
+               div(htmlOutput(ns("env_values"))%>%withSpinner(type = 2))
+             )
+             )
+               }else{
+              tagList( 
+               fluidRow(
+                 uiOutput(ns("img"))
+               ),
+               fluidRow(
+                 if(isTRUE(go())){
+                   htmlOutput(ns("data_time"))}
+               )
+              )
+             }
+    ),
+    tabPanel("Table",
+             fluidRow(
+               div(DTOutput(ns('table'))%>%withSpinner(type = 2),  style = "font-size:50%")
+             )
+    ),
+    tabPanel("Stat",
+             fluidRow(
+               div(DTOutput(ns('stat'))%>%withSpinner(type = 2),  style = "font-size:70%")
+             )
+    ),
+    tabPanel("Global Plot",
+             fluidRow(
+               div(plotlyOutput(ns('graph'))%>%withSpinner(type = 2))
+             )
+    ),
+    tabPanel("Individual Plot",
+             fluidRow(
+               uiOutput(ns('selector'))
+             ),
+             fluidRow(
+               div(plotlyOutput(ns('plot'))%>%withSpinner(type = 2))
+             )
+    ),
+    tabPanel("Wind Rose",
+             fluidRow(
+               div(plotOutput(ns('windrose'))%>%withSpinner(type = 2))
+             )
+    ),
+    tabPanel("Proximity Tools",
+             tags$div(
+               sliderInput(ns("dist"), "Searching at how many distance (km) around point :",min=0.1,max=30,step=0.1,value=0.1, post=" km"),
+               uiOutput(ns("draw_buffer"))
+             ),
+             fluidRow(
+               tags$div(class="col-xs-6",
+                        selectInput(ns("interactWith"),
+                                    "Type of item:",
+                                    choices = list("Open Street Map" = c("Town"="town",
+                                                                         "Industrial"="industrial",
+                                                                         "Aerodrome"="aerodrome",
+                                                                         "Harbour"="harbour",
+                                                                         "Marina"="marina",
+                                                                         "Ferry terminal"="ferry_terminal",
+                                                                         "Ferry route"="ferry_route",
+                                                                         "Riverbank"="riverbank",
+                                                                         "Wetland"="wetland",
+                                                                         "Natural"="natural",
+                                                                         "Nature reserve"="nature_reserve",
+                                                                         "Protected Area"="protected_area"),
+                                                   "Data" = c("others Farm"="farm")),
+                                    selected = "town",multiple=F,selectize=F)),
+               tags$div(class="col-xs-6", 
+                        selectInput(ns("type_geometry"),
+                                    "Type of features:",
+                                    choices = c("points"="osm_points",
+                                                "lines"="osm_lines",
+                                                "multilines"="osm_multilines",
+                                                "polygons"="osm_polygons",
+                                                "multipolygons"="osm_multipolygons"),
+                                    selected = "points",multiple=F,selectize=F)
+               )),
+             fluidRow(
+               tags$div(class="col-xs-6",
+                        actionButton(ns("send_request"),"Send request")),
+               tags$div(class="col-xs-6",
+                        materialSwitch(ns("project_result"),"Display : ")),
+             ),
+             tags$div(
+               textOutput(ns("result_text"))),
+             uiOutput(ns("message"))
+      )
+    )
+  }else{
+    tabsetPanel(
+      tabPanel("Summary",
+               fluidRow(
+                 uiOutput(ns("img"))
+               ),
+               fluidRow(
+                 if(isTRUE(go())){
+                   htmlOutput(ns("data_time"))}
+               ),
+               fluidRow(
+                 div(htmlOutput(ns("env_values"))%>%withSpinner(type = 2))
+               )
+      ),    
+      tabPanel("Proximity Tools",
+                     tags$div(
+                       sliderInput(ns("dist"), "Searching at how many distance (km) around point :",min=0.1,max=30,step=0.1,value=0.1, post=" km"),
+                       uiOutput(ns("draw_buffer"))
+                     ),
+                     fluidRow(
+                       tags$div(class="col-xs-6",
+                                selectInput(ns("interactWith"),
+                                            "Type of item:",
+                                            choices = list("Open Street Map" = c("Town"="town",
+                                                                                 "Industrial"="industrial",
+                                                                                 "Aerodrome"="aerodrome",
+                                                                                 "Harbour"="harbour",
+                                                                                 "Marina"="marina",
+                                                                                 "Ferry terminal"="ferry_terminal",
+                                                                                 "Ferry route"="ferry_route",
+                                                                                 "Riverbank"="riverbank",
+                                                                                 "Wetland"="wetland",
+                                                                                 "Natural"="natural",
+                                                                                 "Nature reserve"="nature_reserve",
+                                                                                 "Protected Area"="protected_area"),
+                                                           "Data" = c("others Farm"="farm")),
+                                            selected = "town",multiple=F,selectize=F)),
+                       tags$div(class="col-xs-6", 
+                                selectInput(ns("type_geometry"),
+                                            "Type of features:",
+                                            choices = c("points"="osm_points",
+                                                        "lines"="osm_lines",
+                                                        "multilines"="osm_multilines",
+                                                        "polygons"="osm_polygons",
+                                                        "multipolygons"="osm_multipolygons"),
+                                            selected = "points",multiple=F,selectize=F)
+                       )),
+                     fluidRow(
+                       tags$div(class="col-xs-6",
+                                actionButton(ns("send_request"),"Send request")),
+                       tags$div(class="col-xs-6",
+                                materialSwitch(ns("project_result"),"Display : ")),
+                     ),
+                     tags$div(
+                       textOutput(ns("result_text"))),
+                     uiOutput(ns("message"))
+      )
+    )
+  }
+  })
   
   out <-reactiveValues(
     data=NULL
@@ -166,295 +280,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
     out$other_data<-other_data
   })
   
-  bbox<-reactiveVal(NULL)
-  
-  observeEvent(input$dist,{
-  if(input$dist>0){
-    print(sprintf("Searching area : %s km",input$dist))
-    newbbox<-st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)
-    bbox(newbbox)  
-  }
-  })
 
-   output$draw_buffer<-renderUI({
-     if(!is.null(bbox())){
-       style<-"new Style({stroke: new Stroke({color: \"rgba(51, 224,255, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(51, 224,255, 0.2)\",}),}),"
-       tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"",st_as_text(bbox()),"\",",style,")','*');"))  
-     }else{
-       return(NULL)
-     }
-   })
-   
-   osm<-data.frame(
-     id=c("town",
-          "industrial",
-          "aerodrome",
-          "harbour",
-          "marina",
-          "ferry_terminal",
-          "ferry_route",
-          "riverbank",
-          "wetland",
-          "nature_reserve",
-          "protected_area",
-          "natural"),
-     key=c("place",
-           "landuse",
-           "aeroway",
-           "harbour",
-           "leisure",
-           "amenity",
-           "route",
-           "waterway",
-           "wetland",
-           "leisure",
-           "boundary",
-           "natural"),
-     value=c("town",
-             "industrial",
-             "aerodrome",
-             "yes",
-             "marina",
-             "ferry_terminal",
-             "ferry",
-             "riverbank",
-             "yes",
-             "nature_reserve",
-             "protected_area",
-             "yes"),stringsAsFactors = F)
-
-osm_response<-reactiveVal(NULL)
-osm_info<-reactiveVal(NULL)
-    observeEvent(input$send_request,{
-      print(input$interactWith)
-       if(input$interactWith=='farm'){
-       }else{
-         target<-subset(osm,id==input$interactWith)
-         show_modal_spinner(spin = "flower", color = "#112446",
-                            text = "Request sending...please wait", session = shiny::getDefaultReactiveDomain()) 
-        
-        #Request send to OSM API
-         q <- opq (bbox()) %>%
-           add_osm_feature(key = target$key, value = target$value) %>%
-           osmdata_sf()
-         print(q)
-        
-        #Buffer intersection
-         q<-q[[input$type_geometry]]
-         if(is.null(q)){
-          info<-paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ","0")
-          osm_info(info)
-          osm_response(NULL)
-         }else if(nrow(q)==0){
-           info<-paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ","0")
-           osm_info(info)
-           osm_response(NULL)
-         }else{
-           sel_buffer <- st_intersects(x = q, y = bbox())
-           sel_logical <- lengths(sel_buffer) > 0
-           in_buffer <- q[sel_logical,]
-           info<-paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ",nrow(in_buffer))
-           osm_info(info)
-           osm_response(in_buffer)
-         }
-         
-         remove_modal_spinner()
-       }
-     })
-   
-   
-   output$result_text<-renderText({
-   if(!is.null(osm_info())){
-     osm_info()}else{NULL}
-   })
-   
-   layer_message<-reactiveVal(NULL)
-   observeEvent(input$send_request,{
-     req(osm_response())
-     if(!is.null(osm_response())){
-     if(nrow(osm_response())>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()),"character"))
-     
-      #style
-     switch(input$interactWith,
-      "town"={
-        if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Circle({radius: 25,fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),stroke: null,}),}),"
-        }else{
-          style<-"new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"
-        }
-      },
-      "industrial"={
-        if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(241, 196, 15, 0.3)\",}),stroke: null,}),}),"
-        }else{
-          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(241, 196, 15, 0.3)\",}),stroke: null,}),stroke: new Stroke({color: \"rgba(241, 196, 15, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(241, 196, 15, 0.3)\",}),}),"
-        }
-      },
-      "aerodrome"={
-        if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/1/17/Plane_icon_nose_up.svg\", scale:0.1,}),}),"
-        }else{
-          style<-"new Style({stroke: new Stroke({color: \"rgba(112, 123, 124, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(112, 123, 124, 0.3)\",}),}),"
-        }
-      },
-      "harbour"={
-        if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/6/62/Anchor_pictogram.svg\", scale:0.1,}),}),"
-        }else{
-          style<-"new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"
-        }
-      },
-      "marina"={
-        if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/nautical/marina.png\",}),}),"
-        }else{
-          style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/nautical/marina.png\",}),stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
-        }
-      },
-      "ferry_terminal"={
-        if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/1/1e/Ferry_symbol.svg\", scale:0.05,}),}),"
-        }else{
-          style<-"new Style({stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
-        }
-      },
-      "ferry_route"={
-        if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),stroke: null,}),}),"
-        }else{
-          style<-"new Style({stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
-        }
-      },    
-      "riverbank"={
-        if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(133, 193, 233, 0.3)\",}),stroke: null,}),}),"
-        }else{
-          style<-"new Style({stroke: new Stroke({color: \"rgba(133, 193, 233, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(133, 193, 233, 0.3)\",}),}),"
-        }
-      },      
-      "wetland"={
-        if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),stroke: null,}),}),"
-        }else{
-          style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/leisure/nature_reserve.png\",}),image: new Circle({radius: 15,fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),stroke: null,}),stroke: new Stroke({color: \"rgba(118, 215, 196, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),}),"
-        }
-      },        
-      "nature_reserve"={
-        if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(80, 216, 205, 0.3)\",}),stroke: null,}),}),"
-        }else{
-          style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/leisure/nature_reserve.png\",}),stroke: new Stroke({color: \"rgba(80, 216, 205, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(80, 216, 205, 0.3)\",}),}),"
-        }
-      }, 
-      "protected_area"={
-        if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(165, 105, 189, 0.3)\",}),stroke: null,}),}),"
-        }else{
-          style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/misc/landmark/plant.png\",}),stroke: new Stroke({color: \"rgba(165, 105, 189, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(165, 105, 189, 0.3)\",}),}),"
-        }
-      }, 
-      "natural"={
-        if(input$type_geometry=="osm_points"){
-          style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(82, 190, 128, 0.3)\",}),stroke: null,}),}),"
-        }else{
-          style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/misc/landmark/trees.png\",}),stroke: new Stroke({color: \"rgba(82, 190, 128, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(82, 190, 128, 0.3)\",}),}),"
-        }
-      })
-
-     request<-paste0("parent.postMessage('OFV.setGeoJSONLayer(0, \"",input$interactWith[1],"\", \"",input$interactWith[1],"\", \"",input$interactWith[1],"\", \"",input$interactWith[1],"\",",x[1],",",style[1],")','*');")
-     }else{
-     request<-NULL}
-     layer_message(request)
-     }else{
-       request<-NULL}
-     layer_message(request)
-   })
-   output$message<-renderUI({
-     req(osm_response())
-     req(layer_message())
-     if(input$project_result){
-     if(!is.null(layer_message())){
-       print(layer_message())
-     tags$script(layer_message()) 
-     }else{NULL}
-     }else{NULL}
-   })
-
-   # output$nb_ferry<-renderText({
-   #   if(input$dist>0){
-   #   bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
-   # q <- opq (bbox()) %>%
-   #   add_osm_feature(key = "amenity", value = "ferry_terminal") %>%
-   #   osmdata_sf()
-   #   paste0("Number of ferry terminal around <b>",input$dist,"</b> km : ",nrow(q$osm_points)) 
-   #   }
-   # })
-   # 
-   # output$near_ferry<-renderText({
-   #   if(input$dist>0){
-   #     bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
-   #     ferry <- opq (bbox()) %>%
-   #       add_osm_feature(key = "amenity", value = "ferry_terminal") %>%
-   #       osmdata_sf()
-   #     ferry<-ferry$osm_points
-   #     target<-st_transform( st_sfc(out$sf$geometry[[1]], crs = 3857),4326)
-   #     if(nrow(ferry)>0){
-   #       for(i in 1:nrow(ferry)){
-   #         ferry[i,"dist"]<-as.numeric(st_distance(target,ferry[i,]))
-   #       }
-   #       nearest<-ferry[order(ferry$dist),][1,]
-   #       
-   #       paste0("The nearest ferry terminal is distant to : <b>",round(nearest$dist/1000,2),"</b> km") 
-   #       }
-   #   }
-   # })
-   # 
-   # output$near_town<-renderText({
-   #   if(input$dist>0){
-   #     bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
-   #     q <- opq (bbox()) %>%
-   #       add_osm_feature(key = "place", value = "town") %>%
-   #       osmdata_sf()
-   #     if(!is.null(q$osm_points)){
-   #     paste0("Near town around <b>",input$dist,"</b> km : ",as.data.frame(q$osm_points)[1,"name"])
-   #     }else{
-   #      paste0("No town around <b>",input$dist,"</b> km")  
-   #     }
-   #   }
-   # })
-   # 
-   # output$nb_farm<-renderText({
-   # if(input$dist>0){
-   #   bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
-   #   
-   #   in_buffer<-st_intersection(out$other_data,st_sf(bbox()))
-   #   out$in_buffer<-in_buffer
-   #   if(!is.null(in_buffer)){
-   #     paste0("Number of farm around <b>",input$dist,"</b> km : ",nrow(in_buffer))
-   #   }else{
-   #     paste0("No farm around <b>",input$dist,"</b> km")  
-   #   }
-   # }   
-   # })
-   # 
-   # output$nearest_farm<-renderText({
-   #   if(!is.null(out$in_buffer)){
-   #     target<-st_transform( st_sfc(out$sf$geometry[[1]], crs = 3857),4326)
-   #     in_buffer<-out$in_buffer
-   #     if(nrow(in_buffer)>0){
-   #       for(i in 1:nrow(in_buffer)){
-   #         in_buffer[i,"dist"]<-as.numeric(st_distance(target,in_buffer[i,]))
-   #       }
-   #       nearest<-in_buffer[order(in_buffer$dist),][1,]
-   #       
-   #       print(target)
-   #       print(nearest)
-   #       
-   #       paste0("The nearest farm is distant to : <b>",round(nearest$dist/1000,2),"</b> km") 
-   #     }
-   #   }
-   # })
-   
   observe({
     out$data<-as.data.frame(data)
   })
@@ -481,6 +307,8 @@ osm_info<-reactiveVal(NULL)
   
   go<-reactiveVal(FALSE)
   
+  
+  
   observe({
     time<-unique(as.character(out$data$tile_date))
     out$data_time<-time
@@ -500,8 +328,9 @@ osm_info<-reactiveVal(NULL)
   })
   
   data_period<-reactiveVal(NULL)
+  status_wps<-reactiveVal("")
   
-  observeEvent(req(go()==TRUE),{
+  compute_wps<-eventReactive(req(isTRUE(go())),{
       token<-query$token
       if(is.null(token)){
         token<-"8051e2b4-529d-4da8-b777-180881efd71e-843339462"
@@ -547,20 +376,24 @@ osm_info<-reactiveVal(NULL)
        }
        })
       data_period(read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2])))
+      status_wps(Status)
     
-  }, once = TRUE)
+  })
   
   
   output$env_values <- renderText({
-    if(!is.null(data_period())){
+    compute_wps()
+
     txt=""
     target<-subset(data_period(),time==as.character(out$posix_time))
     for(i in env$id){
     txt<-paste0(txt,"<a href=",env[env$id==i,5]," target=_blank>",env[env$id==i,4]," : </a> ",target[,i],ifelse(target[,i]=='none',"",paste0(" ",env[env$id==i,6])),"<br>")
     }
     txt
-    }
+    
   })
+  
+
   
   output$table <- DT::renderDT(server = FALSE, {
     if(!is.null(data_period())){
@@ -688,6 +521,259 @@ osm_info<-reactiveVal(NULL)
                showlegend = FALSE)
    }else{NULL}
 })
+   
+   bbox<-reactiveVal(NULL)
+   
+   observeEvent(input$dist,{
+     if(input$dist>0){
+       print(sprintf("Searching area : %s km",input$dist))
+       newbbox<-st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)
+       bbox(newbbox)  
+     }
+   })
+   
+   output$draw_buffer<-renderUI({
+     if(!is.null(bbox())){
+       style<-"new Style({stroke: new Stroke({color: \"rgba(51, 224,255, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(51, 224,255, 0.2)\",}),}),"
+       tags$script(paste0("parent.postMessage('OFV.drawFeatureFromWKT(\"",st_as_text(bbox()),"\",",style,")','*');"))  
+     }else{
+       return(NULL)
+     }
+   })
+   
+   osm_response<-reactiveVal(NULL)
+   osm_info<-reactiveVal(NULL)
+   observeEvent(input$send_request,{
+     print(input$interactWith)
+     if(input$interactWith=='farm'){
+     }else{
+       target<-subset(osm,id==input$interactWith)
+       show_modal_spinner(spin = "flower", color = "#112446",
+                          text = "Request sending...please wait", session = shiny::getDefaultReactiveDomain()) 
+       
+       #Request send to OSM API
+       q <- opq (bbox()) %>%
+         add_osm_feature(key = target$key, value = target$value) %>%
+         osmdata_sf()
+       print(q)
+       
+       #Buffer intersection
+       q<-q[[input$type_geometry]]
+       if(is.null(q)){
+         info<-paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ","0")
+         osm_info(info)
+         osm_response(NULL)
+       }else if(nrow(q)==0){
+         info<-paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ","0")
+         osm_info(info)
+         osm_response(NULL)
+       }else{
+         sel_buffer <- st_intersects(x = q, y = bbox())
+         sel_logical <- lengths(sel_buffer) > 0
+         in_buffer <- q[sel_logical,]
+         info<-paste0("Quantity of elements [",input$type_geometry,"] corresponding to '",input$interactWith,"' : ",nrow(in_buffer))
+         osm_info(info)
+         osm_response(in_buffer)
+       }
+       
+       remove_modal_spinner()
+     }
+   })
+   
+   
+   output$result_text<-renderText({
+     if(!is.null(osm_info())){
+       osm_info()}else{NULL}
+   })
+   
+   layer_message<-reactiveVal(NULL)
+   observeEvent(input$send_request,{
+     req(osm_response())
+     if(!is.null(osm_response())){
+       if(nrow(osm_response())>0){x<-gsub("'","\'",as(geojson::as.geojson(osm_response()),"character"))
+       
+       #style
+       switch(input$interactWith,
+              "town"={
+                if(input$type_geometry=="osm_points"){
+                  style<-"new Style({image: new Circle({radius: 25,fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),stroke: null,}),}),"
+                }else{
+                  style<-"new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"
+                }
+              },
+              "industrial"={
+                if(input$type_geometry=="osm_points"){
+                  style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(241, 196, 15, 0.3)\",}),stroke: null,}),}),"
+                }else{
+                  style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(241, 196, 15, 0.3)\",}),stroke: null,}),stroke: new Stroke({color: \"rgba(241, 196, 15, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(241, 196, 15, 0.3)\",}),}),"
+                }
+              },
+              "aerodrome"={
+                if(input$type_geometry=="osm_points"){
+                  style<-"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/1/17/Plane_icon_nose_up.svg\", scale:0.1,}),}),"
+                }else{
+                  style<-"new Style({stroke: new Stroke({color: \"rgba(112, 123, 124, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(112, 123, 124, 0.3)\",}),}),"
+                }
+              },
+              "harbour"={
+                if(input$type_geometry=="osm_points"){
+                  style<-"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/6/62/Anchor_pictogram.svg\", scale:0.1,}),}),"
+                }else{
+                  style<-"new Style({stroke: new Stroke({color: \"rgba(255, 51,57, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(255, 51,57, 0.3)\",}),}),"
+                }
+              },
+              "marina"={
+                if(input$type_geometry=="osm_points"){
+                  style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/nautical/marina.png\",}),}),"
+                }else{
+                  style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/nautical/marina.png\",}),stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
+                }
+              },
+              "ferry_terminal"={
+                if(input$type_geometry=="osm_points"){
+                  style<-"new Style({image: new Icon({src:\"https://upload.wikimedia.org/wikipedia/commons/1/1e/Ferry_symbol.svg\", scale:0.05,}),}),"
+                }else{
+                  style<-"new Style({stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
+                }
+              },
+              "ferry_route"={
+                if(input$type_geometry=="osm_points"){
+                  style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),stroke: null,}),}),"
+                }else{
+                  style<-"new Style({stroke: new Stroke({color: \"rgba(36, 113, 163, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(36, 113, 163, 0.3)\",}),}),"
+                }
+              },    
+              "riverbank"={
+                if(input$type_geometry=="osm_points"){
+                  style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(133, 193, 233, 0.3)\",}),stroke: null,}),}),"
+                }else{
+                  style<-"new Style({stroke: new Stroke({color: \"rgba(133, 193, 233, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(133, 193, 233, 0.3)\",}),}),"
+                }
+              },      
+              "wetland"={
+                if(input$type_geometry=="osm_points"){
+                  style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),stroke: null,}),}),"
+                }else{
+                  style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/leisure/nature_reserve.png\",}),image: new Circle({radius: 15,fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),stroke: null,}),stroke: new Stroke({color: \"rgba(118, 215, 196, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(118, 215, 196, 0.3)\",}),}),"
+                }
+              },        
+              "nature_reserve"={
+                if(input$type_geometry=="osm_points"){
+                  style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(80, 216, 205, 0.3)\",}),stroke: null,}),}),"
+                }else{
+                  style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/leisure/nature_reserve.png\",}),stroke: new Stroke({color: \"rgba(80, 216, 205, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(80, 216, 205, 0.3)\",}),}),"
+                }
+              }, 
+              "protected_area"={
+                if(input$type_geometry=="osm_points"){
+                  style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(165, 105, 189, 0.3)\",}),stroke: null,}),}),"
+                }else{
+                  style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/misc/landmark/plant.png\",}),stroke: new Stroke({color: \"rgba(165, 105, 189, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(165, 105, 189, 0.3)\",}),}),"
+                }
+              }, 
+              "natural"={
+                if(input$type_geometry=="osm_points"){
+                  style<-"new Style({image: new Circle({radius: 15,fill: new Fill({color: \"rgba(82, 190, 128, 0.3)\",}),stroke: null,}),}),"
+                }else{
+                  style<-"new Style({image: new Icon({src:\"https://raw.githubusercontent.com/openstreetmap/map-icons/master/classic.big/misc/landmark/trees.png\",}),stroke: new Stroke({color: \"rgba(82, 190, 128, 1.0)\",width: 1,}),fill: new Fill({color: \"rgba(82, 190, 128, 0.3)\",}),}),"
+                }
+              })
+       
+       request<-paste0("parent.postMessage('OFV.setGeoJSONLayer(0, \"",input$interactWith[1],"\", \"",input$interactWith[1],"\", \"",input$interactWith[1],"\", \"",input$interactWith[1],"\",",x[1],",",style[1],")','*');")
+       }else{
+         request<-NULL}
+       layer_message(request)
+     }else{
+       request<-NULL}
+     layer_message(request)
+   })
+   output$message<-renderUI({
+     req(osm_response())
+     req(layer_message())
+     if(input$project_result){
+       if(!is.null(layer_message())){
+         print(layer_message())
+         tags$script(layer_message()) 
+       }else{NULL}
+     }else{NULL}
+   })
+   
+   # output$nb_ferry<-renderText({
+   #   if(input$dist>0){
+   #   bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
+   # q <- opq (bbox()) %>%
+   #   add_osm_feature(key = "amenity", value = "ferry_terminal") %>%
+   #   osmdata_sf()
+   #   paste0("Number of ferry terminal around <b>",input$dist,"</b> km : ",nrow(q$osm_points)) 
+   #   }
+   # })
+   # 
+   # output$near_ferry<-renderText({
+   #   if(input$dist>0){
+   #     bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
+   #     ferry <- opq (bbox()) %>%
+   #       add_osm_feature(key = "amenity", value = "ferry_terminal") %>%
+   #       osmdata_sf()
+   #     ferry<-ferry$osm_points
+   #     target<-st_transform( st_sfc(out$sf$geometry[[1]], crs = 3857),4326)
+   #     if(nrow(ferry)>0){
+   #       for(i in 1:nrow(ferry)){
+   #         ferry[i,"dist"]<-as.numeric(st_distance(target,ferry[i,]))
+   #       }
+   #       nearest<-ferry[order(ferry$dist),][1,]
+   #       
+   #       paste0("The nearest ferry terminal is distant to : <b>",round(nearest$dist/1000,2),"</b> km") 
+   #       }
+   #   }
+   # })
+   # 
+   # output$near_town<-renderText({
+   #   if(input$dist>0){
+   #     bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
+   #     q <- opq (bbox()) %>%
+   #       add_osm_feature(key = "place", value = "town") %>%
+   #       osmdata_sf()
+   #     if(!is.null(q$osm_points)){
+   #     paste0("Near town around <b>",input$dist,"</b> km : ",as.data.frame(q$osm_points)[1,"name"])
+   #     }else{
+   #      paste0("No town around <b>",input$dist,"</b> km")  
+   #     }
+   #   }
+   # })
+   # 
+   # output$nb_farm<-renderText({
+   # if(input$dist>0){
+   #   bbox<-reactive({st_transform( st_sfc(st_buffer(out$sf$geometry[[1]], dist = input$dist*1000, endCapStyle="ROUND"), crs = 3857),4326)})
+   #   
+   #   in_buffer<-st_intersection(out$other_data,st_sf(bbox()))
+   #   out$in_buffer<-in_buffer
+   #   if(!is.null(in_buffer)){
+   #     paste0("Number of farm around <b>",input$dist,"</b> km : ",nrow(in_buffer))
+   #   }else{
+   #     paste0("No farm around <b>",input$dist,"</b> km")  
+   #   }
+   # }   
+   # })
+   # 
+   # output$nearest_farm<-renderText({
+   #   if(!is.null(out$in_buffer)){
+   #     target<-st_transform( st_sfc(out$sf$geometry[[1]], crs = 3857),4326)
+   #     in_buffer<-out$in_buffer
+   #     if(nrow(in_buffer)>0){
+   #       for(i in 1:nrow(in_buffer)){
+   #         in_buffer[i,"dist"]<-as.numeric(st_distance(target,in_buffer[i,]))
+   #       }
+   #       nearest<-in_buffer[order(in_buffer$dist),][1,]
+   #       
+   #       print(target)
+   #       print(nearest)
+   #       
+   #       paste0("The nearest farm is distant to : <b>",round(nearest$dist/1000,2),"</b> km") 
+   #     }
+   #   }
+   # })
+   
+   
 }
 
 ####
