@@ -35,8 +35,12 @@ RUN R -e "devtools::install_version('DT', version='0.17', repos = 'http://cran.r
 RUN R -e "devtools::install_version('reshape', version='0.8.8', repos = 'http://cran.r-project.org')"
 RUN R -e "devtools::install_version('base64', version='2.0', repos = 'http://cran.r-project.org')"
 RUN R -e "devtools::install_version('sp', version='1.4-2', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('sf', version='0.9-4', repos = 'http://cran.r-project.org')"
 RUN R -e "devtools::install_version('shinycssloaders', version='1.0.0', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('shinybusy', version='0.2.1', repos = 'http://cran.r-project.org')"
 RUN R -e "devtools::install_version('tidyr', version='1.1.0', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('geojson', version='0.3.4', repos = 'http://cran.r-project.org')"
+RUN R -e "devtools::install_version('osmdata', version='0.1.6', repos = 'http://cran.r-project.org')"
 RUN R -e "devtools::install_github('eblondel/ows4R')"
 
 RUN git -C /root/ clone https://github.com/abennici/SdilabGenericPop.git && echo "OK!"
