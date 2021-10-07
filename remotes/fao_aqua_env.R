@@ -319,7 +319,8 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   status_wps<-reactiveVal("")
   computed_wps<-reactiveVal(FALSE)
   
-  compute_wps<-eventReactive(req(isTRUE(go())&&isFALSE(computed_wps())),{
+  compute_wps<-eventReactive(req(isTRUE(go())),{
+    if(isFALSE(computed_wps())){
       token<-query$token
       if(is.null(token)){
         token<-"8051e2b4-529d-4da8-b777-180881efd71e-843339462"
@@ -367,7 +368,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
       data_period(read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2])))
       status_wps(Status)
       computed_wps(TRUE)
-    
+    }
   })
   
   
@@ -380,7 +381,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
         txt<-paste0(txt,"<a href=",env[env$id==i,5]," target=_blank>",env[env$id==i,4]," : </a> ",target[,i],ifelse(target[,i]=='none',"",paste0(" ",env[env$id==i,6])),"<br>")
       }
       print(txt)
-      print(go())
+      print(computed_wps())
       HTML(txt)
     }else{"Problem"}
   })
