@@ -321,14 +321,11 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   
   compute_wps<-eventReactive(req(isTRUE(go())),{
     if(isFALSE(computed_wps())){
-      token<-query$token
-      if(is.null(token)){
-        token<-"8051e2b4-529d-4da8-b777-180881efd71e-843339462"
-      }
+
        WPS<-WPSClient$new(
          url = "https://dataminer-prototypes-1804.d4science.org/wps/WebProcessingService",
          serviceVersion = "1.0.0", logger ="DEBUG",
-         headers = c("gcube-token"=token)
+         headers = c("gcube-token"=query[["gcube-token"]])
        )
        
        withProgress(message = 'Computing...',min=0,max=100, value = 0, {
