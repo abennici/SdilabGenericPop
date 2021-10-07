@@ -110,9 +110,6 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
              ),
              fluidRow(
                uiOutput(ns("env_values"))
-             ),
-             fluidRow(
-              uiOutput(ns("test"))
              )
     ),
     tabPanel("Table",
@@ -303,7 +300,6 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   })
   
   go<-reactiveVal(FALSE)
-  wps_count<-reactiveVal(0)
   
   observe({
     time<-unique(as.character(out$data$tile_date))
@@ -372,16 +368,9 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
       data_period(read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2])))
       status_wps(Status)
       computed_wps(TRUE)
-      wps_new_count<-wps_count()+1
-      wps_count(wps_new_count)
     }
   })
   
-  output$test <- renderUI({
-    HTML(sprintf("Number of run of wps : %s",wps_count()))
-  })
-  
-   
   output$env_values <- renderUI({
     if(isFALSE(computed_wps())){compute_wps()}
     if(!is.null(data_period())){
