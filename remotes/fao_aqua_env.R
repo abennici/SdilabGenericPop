@@ -109,7 +109,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
                htmlOutput(ns("data_time"))
              ),
              fluidRow(
-               div(htmlOutput(ns("env_values"))%>%withSpinner(type = 2))
+               uiOutput(ns("env_values"))
              )
     ),
     tabPanel("Table",
@@ -196,7 +196,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
                        htmlOutput(ns("data_time"))
                    ),
                    fluidRow(
-                     div(htmlOutput(ns("env_values"))%>%withSpinner(type = 2))
+                       uiOutput(ns("env_values"))
                    )
                  )}else{
                    tagList(
@@ -204,7 +204,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
                        uiOutput(ns("img"))
                      ),
                      fluidRow(
-                         htmlOutput(ns("data_time"))
+                        htmlOutput(ns("data_time"))
                      )
                    )
                  }
@@ -301,8 +301,6 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   
   go<-reactiveVal(FALSE)
   
-  
-  
   observe({
     time<-unique(as.character(out$data$tile_date))
     out$data_time<-time
@@ -319,8 +317,9 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   
   data_period<-reactiveVal(NULL)
   status_wps<-reactiveVal("")
+  computed_wps<-reactiveVal(FALSE)
   
-  compute_wps<-eventReactive(req(isTRUE(go())),{
+  compute_wps<-eventReactive(req(isTRUE(go())&&isFALSE(computed_wps())),{
       token<-query$token
       if(is.null(token)){
         token<-"8051e2b4-529d-4da8-b777-180881efd71e-843339462"
@@ -367,20 +366,23 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
        })
       data_period(read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2])))
       status_wps(Status)
+      computed_wps(TRUE)
     
   })
   
   
   output$env_values <- renderUI({
     compute_wps()
-
-    txt=""
-    target<-subset(data_period(),time==as.character(out$posix_time))
-    for(i in env$id){
-    txt<-paste0(txt,"<a href=",env[env$id==i,5]," target=_blank>",env[env$id==i,4]," : </a> ",target[,i],ifelse(target[,i]=='none',"",paste0(" ",env[env$id==i,6])),"<br>")
-    }
-    txt
-    
+    if(!is.null(data_period())){
+      txt=""
+      target<-subset(data_period(),time==as.character(out$posix_time))
+      for(i in env$id){
+        txt<-paste0(txt,"<a href=",env[env$id==i,5]," target=_blank>",env[env$id==i,4]," : </a> ",target[,i],ifelse(target[,i]=='none',"",paste0(" ",env[env$id==i,6])),"<br>")
+      }
+      print(txt)
+      print(go())
+      HTML(txt)
+    }else{"Problem"}
   })
   
 
