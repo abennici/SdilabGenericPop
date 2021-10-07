@@ -378,7 +378,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   })
   
   output$test <- renderUI({
-    HTML(sprintf("Number of run of wps : %s"),wps_count())
+    HTML(sprintf("Number of run of wps : %s",wps_count()))
   })
   
    
