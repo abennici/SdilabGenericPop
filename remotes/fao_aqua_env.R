@@ -112,7 +112,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
                uiOutput(ns("env_values"))
              ),
              fluidRow(
-             uiOutput(ns("test"))
+              uiOutput(ns("test"))
              )
     ),
     tabPanel("Table",
@@ -373,7 +373,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
       status_wps(Status)
       computed_wps(TRUE)
       wps_new_count<-wps_count()+1
-      wps_count(wps_new_count())
+      wps_count(wps_new_count)
     }
   })
   
