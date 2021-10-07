@@ -102,30 +102,15 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   if(status_wps()=="ProcessSucceeded"){
   tabsetPanel(
     tabPanel("Summary",
-             if(isTRUE(go())){
-             tagList(
              fluidRow(
                uiOutput(ns("img"))
              ),
              fluidRow(
-               if(isTRUE(go())){
-               htmlOutput(ns("data_time"))}
+               htmlOutput(ns("data_time"))
              ),
              fluidRow(
                div(htmlOutput(ns("env_values"))%>%withSpinner(type = 2))
              )
-             )
-               }else{
-              tagList( 
-               fluidRow(
-                 uiOutput(ns("img"))
-               ),
-               fluidRow(
-                 if(isTRUE(go())){
-                   htmlOutput(ns("data_time"))}
-               )
-              )
-             }
     ),
     tabPanel("Table",
              fluidRow(
@@ -202,16 +187,27 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   }else{
     tabsetPanel(
       tabPanel("Summary",
-               fluidRow(
-                 uiOutput(ns("img"))
-               ),
-               fluidRow(
-                 if(isTRUE(go())){
-                   htmlOutput(ns("data_time"))}
-               ),
-               fluidRow(
-                 div(htmlOutput(ns("env_values"))%>%withSpinner(type = 2))
-               )
+               if(isTRUE(go())){
+                 tagList(
+                   fluidRow(
+                     uiOutput(ns("img"))
+                   ),
+                   fluidRow(
+                       htmlOutput(ns("data_time"))
+                   ),
+                   fluidRow(
+                     div(htmlOutput(ns("env_values"))%>%withSpinner(type = 2))
+                   )
+                 )}else{
+                   tagList(
+                     fluidRow(
+                       uiOutput(ns("img"))
+                     ),
+                     fluidRow(
+                         htmlOutput(ns("data_time"))
+                     )
+                   )
+                 }
       ),    
       tabPanel("Proximity Tools",
                      tags$div(
@@ -300,8 +296,6 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   output$img <-renderUI({
     if(!is.null(img_url())){
       HTML(img_url())
-    }else{
-      div("Image loading ...")
     }
   })
   
@@ -314,16 +308,12 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
     out$data_time<-time
     posix_time<-as.POSIXct(out$data_time, format="%Y-%m-%d")
     out$posix_time<-posix_time
-    if(!is.null(posix_time)){
-  go(TRUE)
-    }
   })
   
   output$data_time <-renderText({
-    if(is.null(out$data_time)){
-      paste0("<b>Tile date :</b> ","loading...") 
-    }else{
-      paste0("<b>Tile date :</b> ",out$data_time)
+    if(!is.null(out$data_time)){
+      go(TRUE)
+      paste0("<b>Tile date :</b> ",out$data_time) 
     }
   })
   
@@ -381,7 +371,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   })
   
   
-  output$env_values <- renderText({
+  output$env_values <- renderUI({
     compute_wps()
 
     txt=""
