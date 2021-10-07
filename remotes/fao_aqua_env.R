@@ -319,6 +319,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   status_wps<-reactiveVal("")
   computed_wps<-reactiveVal(FALSE)
   
+  
   compute_wps<-eventReactive(req(isTRUE(go())),{
     if(isFALSE(computed_wps())){
 
