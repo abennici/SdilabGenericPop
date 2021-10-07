@@ -372,7 +372,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
   
   
   output$env_values <- renderUI({
-    compute_wps()
+    if(isFALSE(computed_wps())){compute_wps()}
     if(!is.null(data_period())){
       txt=""
       target<-subset(data_period(),time==as.character(out$posix_time))
