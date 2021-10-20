@@ -363,7 +363,7 @@ fao_aqua_env_server <- function(input, output, session,data,dsd,query) {
          setProgress(value = percentCompleted,message = 'Computing...', detail = paste0(Status," ",percentCompleted,"%"))
        }
        })
-       if(Status=="ProcessFailed"){
+       if(Status=="ProcessSucceeded"){
       data_period(read.csv(as.character(exec$getProcessOutputs()[[1]]$Data$getFeatures()$Data[2])))
        }
       status_wps(Status)
