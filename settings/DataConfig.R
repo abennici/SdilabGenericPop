@@ -36,7 +36,8 @@ if(strategy=="ogc_viewparams")if(!is.null(par))if(grep("aggregation_method|aggre
       logger = "INFO"
     )
     #Get feature type for dataset
-    ft <- WFS$capabilities$findFeatureTypeByName(layer)
+    ft <- WFS$capabilities$findFeatureTypeByName(layer, exact = FALSE)
+    if(is.list(ft)) ft <- ft[[1]]
     
     #Get columns names for propertyName argument
     desc <- ft$getDescription(TRUE) 
