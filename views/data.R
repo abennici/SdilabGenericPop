@@ -56,6 +56,7 @@ data_server <- function(input, output, session,data,dsd,query) {
   
     df<-as.data.frame(data)
     pid<-if (!is.null(query$pid)){query$pid}else{NULL}
+
     
     if(length(setdiff('geometry',names(df)))==0){
       df<-subset(df,select=-c(geometry))
@@ -69,7 +70,9 @@ data_server <- function(input, output, session,data,dsd,query) {
       }
     }
   
-    colnames(df)<-paste0(dsd$MemberName," [",dsd$MemberCode,"] ",dsd$MeasureUnitSymbol)
+    sub_dsd<-subset(dsd,MemberCode!="geometry")
+        
+    colnames(df)<-paste0(sub_dsd$MemberName," [",sub_dsd$MemberCode,"] ",sub_dsd$MeasureUnitSymbol)
     
     if(out$format=='long'){
     df<-data.frame(t(df))

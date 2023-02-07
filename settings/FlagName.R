@@ -15,17 +15,17 @@ FlagName <- function(input, output, session,data,query) {
     c_flag<-as.data.frame(data)
     c_flag<-unique(subset(c_flag,select=geoCol))
     names(c_flag)<-"flag"
-    l_flag<-readr::read_csv("https://raw.githubusercontent.com/openfigis/RefData/gh-pages/country/CL_FI_COUNTRY_ITEM.csv", guess_max = 0)
-    l_flag<-l_flag[,c("ISO3_Code","Name_En")]
+    l_flag<-readr::read_csv("https://raw.githubusercontent.com/fdiwg/fdi-codelists/main/global/cl_flagstate_iso3.csv", guess_max = 0)
+    l_flag<-l_flag[,c("code","label")]
     print(c_flag)
     print(head(l_flag))
-    flag_name<-merge(c_flag,l_flag,by.x="flag",by.y="ISO3_Code",all.x=T,all.y=F)
+    flag_name<-merge(c_flag,l_flag,by.x="flag",by.y="code",all.x=T,all.y=F)
    output$flag_header <- renderUI({
-     url<-paste0("https://raw.githubusercontent.com/eblondel/OpenFairViewer/master/src/img/flags/",tolower(as.vector(flag_name$flag)[1]),".gif")
+     url<-paste0("https://raw.githubusercontent.com/fdiwg/flags/main/",tolower(as.vector(flag_name$flag)[1]),".gif")
      tags$div(
-       tags$img(src="https://www.blue-cloud.org/sites/all/themes/arcadia/logo.png",height=18,align = "right"),
+       tags$img(src="https://hackathon.blue-cloud.org/wp-content/uploads/2021/11/Blue-cloud_extended_color.png",height=18,align = "right"),
        tags$img(src=url,height=15,align = "left",style="margin-right:5px"),
-       tags$h4(paste0(flag_name$Name_En[1]," [",flag_name$flag[1],"]"))
+       tags$h4(paste0(flag_name$label[1]," [",flag_name$flag[1],"]"))
        
        
      )
@@ -33,7 +33,7 @@ FlagName <- function(input, output, session,data,query) {
     }else{
       output$flag_header <- renderUI({
         tags$div(
-          tags$img(src="https://www.blue-cloud.org/sites/all/themes/arcadia/logo.png",height=18,align = "right"))
+          tags$img(src="https://hackathon.blue-cloud.org/wp-content/uploads/2021/11/Blue-cloud_extended_color.png",height=18,align = "right"))
       })   
     }
     
