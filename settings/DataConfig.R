@@ -42,7 +42,7 @@ if(strategy=="ogc_viewparams")if(!is.null(par))if(grep("aggregation_method|aggre
     desc <- ft$getDescription(TRUE) 
     
     if(!feature_geom){
-      ColumnName<-desc[desc$type!="geometry","name"]
+      ColumnName<-desc[!desc$geometry,"name"]
     }else{
       ColumnName<-desc[,"name"]  
     }
